@@ -1,0 +1,251 @@
+LAMMPS (10 Dec 2025 - Development)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+package gpu 1
+# 2d polygon nparticle bodies
+
+units		lj
+dimension       2
+atom_style	body nparticle 2 6
+
+read_data       data.body
+Reading data file ...
+  orthogonal box = (-15.532225 -15.532225 -0.5) to (15.532225 15.532225 0.5)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  100 atoms
+  100 bodies
+  read_data CPU = 0.034 seconds
+
+velocity	all create 1.44 87287 loop geom
+
+pair_style	body/nparticle 5.0
+pair_coeff	* * 1.0 1.0
+
+neighbor	0.5 bin
+neigh_modify    every 1 delay 0 check yes
+
+fix		1 all nve/body
+#fix		1 all nvt/body temp 1.44 1.44 1.0
+fix		2 all enforce2d
+
+#compute         1 all body/local type 1 2 3
+#dump            1 all local 100 dump.body index c_1[1] c_1[2] c_1[3] c_1[4]
+
+#dump		2 all image 1000 image.*.jpg type type #		zoom 1.6 adiam 1.5 body type 1.0 0
+#dump_modify    2 pad 5
+
+thermo          100
+run		10000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.5
+  ghost atom cutoff = 5.5
+  binsize = 2.75, bins = 12 12 1
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair body/nparticle, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/2d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 5.279 | 5.279 | 5.279 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   1.44          -0.63799525     0              0.78760475    -0.15028724   
+       100   1.6423694     -1.0001516      0              0.62579417     0.16116443   
+       200   1.4802187     -1.2479519      0              0.21746458     0.35445329   
+       300   1.4734223     -1.3213583      0              0.1373298      0.45266192   
+       400   1.5118818     -1.5924889      0             -0.095725867    0.13296961   
+       500   1.5471951     -1.630886       0             -0.099162813    0.12439793   
+       600   1.6264248     -1.6468162      0             -0.036655679    0.43392484   
+       700   1.597475      -1.6539821      0             -0.072481848    0.13128148   
+       800   1.6841531     -1.775776       0             -0.10846446    -0.032960395  
+       900   1.5562619     -1.6750139      0             -0.1343146      0.53484613   
+      1000   1.6272373     -1.7572956      0             -0.14633063     0.18431835   
+      1100   1.6448234     -1.7176556      0             -0.089280455    0.2590009    
+      1200   1.5486927     -1.6481003      0             -0.11489447     0.036934122  
+      1300   1.7449181     -1.603907       0              0.12356195    -0.071098937  
+      1400   1.6685821     -1.5939781      0              0.057918113    0.022396643  
+      1500   1.6514522     -1.7086702      0             -0.073732591    0.3901942    
+      1600   1.8367581     -1.8080307      0              0.010359803    0.14048626   
+      1700   1.6440273     -1.7712758      0             -0.14368878     0.37469266   
+      1800   1.8103913     -1.731241       0              0.061046355    0.033885572  
+      1900   1.7758835     -1.7190296      0              0.039095052    0.26685611   
+      2000   1.498145      -1.766154       0             -0.28299049     0.32511362   
+      2100   1.5317847     -1.5158525      0              0.00061430654  0.3780856    
+      2200   1.4617735     -1.5864993      0             -0.13934355    -0.059835635  
+      2300   1.4142793     -1.5497228      0             -0.1495863      0.15527296   
+      2400   1.4339893     -1.5787466      0             -0.15909716     0.18904076   
+      2500   1.4387376     -1.6209141      0             -0.19656383    -0.03513416   
+      2600   1.4552487     -1.5365447      0             -0.095848444    0.24233085   
+      2700   1.6308491     -1.7076162      0             -0.09307555     0.10202145   
+      2800   1.5246534     -1.6495654      0             -0.14015852     0.28265091   
+      2900   1.8290636     -1.6299096      0              0.18086335     0.14955632   
+      3000   1.7793261     -1.7358462      0              0.025686716    0.33525417   
+      3100   1.8441674     -1.8663582      0             -0.040632507    0.12649297   
+      3200   1.5947966     -1.6826905      0             -0.10384186     0.13254546   
+      3300   1.674307      -1.6256548      0              0.031909201    0.17067523   
+      3400   1.6241594     -1.694742       0             -0.086824214    0.31818503   
+      3500   1.5414501     -1.6529041      0             -0.1268685      0.23275109   
+      3600   1.6804419     -1.6010079      0              0.062629593    0.30471278   
+      3700   1.7274276     -1.6244551      0              0.085698234    0.083982901  
+      3800   1.7313826     -1.7366921      0             -0.022623353    0.27400389   
+      3900   1.7687297     -1.6899292      0              0.06111325     0.094169725  
+      4000   1.6259095     -1.6076387      0              0.0020117635   0.043927285  
+      4100   1.6066926     -1.6065145      0             -0.015888888    0.29641848   
+      4200   1.8246762     -1.7172521      0              0.089177362    0.13113516   
+      4300   1.7225625     -1.6873873      0              0.017949586    0.17303535   
+      4400   1.654851      -1.7086666      0             -0.070364076    0.43676014   
+      4500   1.6956426     -1.7251452      0             -0.046458997    0.27604201   
+      4600   1.7984925     -1.6873414      0              0.093166153    0.26419161   
+      4700   1.808052      -1.7459044      0              0.04406713     0.21473501   
+      4800   1.7519809     -1.7451381      0             -0.010677035    0.50114543   
+      4900   1.9327898     -1.8042043      0              0.1092576      0.13793611   
+      5000   1.5869294     -1.6574705      0             -0.086410312    0.24537199   
+      5100   1.7619149     -1.7190244      0              0.025271291    0.31893739   
+      5200   1.7197831     -1.6235755      0              0.079009697    0.39068242   
+      5300   1.68552       -1.7142719      0             -0.045607178    0.17457382   
+      5400   1.6849778     -1.6279077      0              0.040220352    0.23777721   
+      5500   1.6105305     -1.7159233      0             -0.12149808     0.24626071   
+      5600   1.7213789     -1.7542702      0             -0.050105131    0.1209585    
+      5700   1.7848847     -1.7549203      0              0.012115565    0.11977017   
+      5800   1.7521369     -1.69867        0              0.03594557     0.29340943   
+      5900   1.704716      -1.7663763      0             -0.078707406    0.28719876   
+      6000   1.6946667     -1.7361617      0             -0.058441638    0.24811044   
+      6100   1.6241363     -1.5957346      0              0.012160267    0.36247508   
+      6200   1.6670369     -1.6611905      0             -0.010823925    0.39046338   
+      6300   1.6980888     -1.6275404      0              0.053567473    0.10088782   
+      6400   1.7349285     -1.7487003      0             -0.031121001    0.174774     
+      6500   1.7193313     -1.6863878      0              0.015750222    0.18319712   
+      6600   1.6892334     -1.6479965      0              0.024344538    0.31877183   
+      6700   1.6607355     -1.7094645      0             -0.065336384    0.33590376   
+      6800   1.8445516     -1.6713658      0              0.1547402      0.1572605    
+      6900   1.7640844     -1.6718404      0              0.074603162    0.26847683   
+      7000   1.7309959     -1.8036184      0             -0.089932463    0.081175681  
+      7100   1.7916131     -1.8008647      0             -0.027167712    0.33936046   
+      7200   1.6979068     -1.6850018      0             -0.0040740644   0.25772137   
+      7300   1.5923311     -1.7414017      0             -0.16499387     0.20050951   
+      7400   1.5881408     -1.6857307      0             -0.11347128     0.066687654  
+      7500   1.6589594     -1.7693623      0             -0.1269925      0.030856718  
+      7600   1.778646      -1.8013485      0             -0.040488952    0.22362389   
+      7700   1.6016164     -1.5415864      0              0.044013834    0.70665841   
+      7800   1.818492      -1.8259056      0             -0.025598531    0.31235842   
+      7900   1.7705811     -1.8401539      0             -0.087278668    0.052233397  
+      8000   1.7096216     -1.7076085      0             -0.01508313     0.026252516  
+      8100   1.7421275     -1.7082116      0              0.016494609    0.034829551  
+      8200   1.6886279     -1.7078688      0             -0.036127152    0.42738034   
+      8300   1.6698499     -1.6885065      0             -0.035355173    0.399008     
+      8400   1.5736786     -1.6248928      0             -0.066950983    0.20183833   
+      8500   1.7400833     -1.7881744      0             -0.065491869   -0.020496592  
+      8600   1.5869417     -1.6646213      0             -0.093549016    0.47911382   
+      8700   1.6771332     -1.6254198      0              0.034942116    0.44725331   
+      8800   1.7711748     -1.7750713      0             -0.02160825     0.23019169   
+      8900   1.6862217     -1.6776294      0             -0.0082698915   0.10174382   
+      9000   1.7988519     -1.6335572      0              0.14730613     0.10858243   
+      9100   1.8340615     -1.7061245      0              0.10959639     0.039676711  
+      9200   1.6935231     -1.7275366      0             -0.050948713    0.08438812   
+      9300   1.7537921     -1.779154       0             -0.042899789    0.048097544  
+      9400   1.8243895     -1.7647983      0              0.041347296    0.25505222   
+      9500   1.8198426     -1.7415533      0              0.060090866    0.19297516   
+      9600   1.8722698     -1.7061203      0              0.14742678     0.24831357   
+      9700   1.7033857     -1.8314408      0             -0.14508899     0.21441623   
+      9800   1.8111736     -1.6952273      0              0.0978346      0.46555412   
+      9900   1.8377652     -1.8674986      0             -0.048111       0.19248472   
+     10000   1.8841533     -1.889427       0             -0.024115192    0.20884746   
+Loop time of 2.16415 on 1 procs for 10000 steps with 100 atoms
+
+Performance: 1996165.101 tau/day, 4620.753 timesteps/s, 462.075 katom-step/s
+99.8% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 1.9488     | 1.9488     | 1.9488     |   0.0 | 90.05
+Neigh   | 0.013447   | 0.013447   | 0.013447   |   0.0 |  0.62
+Comm    | 0.031147   | 0.031147   | 0.031147   |   0.0 |  1.44
+Output  | 0.0035626  | 0.0035626  | 0.0035626  |   0.0 |  0.16
+Modify  | 0.15522    | 0.15522    | 0.15522    |   0.0 |  7.17
+Other   |            | 0.01193    |            |       |  0.55
+
+Nlocal:            100 ave         100 max         100 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:             79 ave          79 max          79 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:            464 ave         464 max         464 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 464
+Ave neighs/atom = 4.64
+Neighbor list builds = 463
+Dangerous builds = 0
+Total wall time: 0:00:02

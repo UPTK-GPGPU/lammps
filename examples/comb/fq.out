@@ -1,0 +1,126 @@
+Charge equilibration on step 1
+  iteration: 0, enegtot -23.259, enegmax 15.6224, fq deviation: 10.4149
+  iteration: 1, enegtot -13.9091, enegmax 5.71176, fq deviation: 3.80784
+  iteration: 2, enegtot -9.55737, enegmax 0.551837, fq deviation: 0.36789
+  iteration: 3, enegtot -8.32051, enegmax 1.29394, fq deviation: 0.862627
+  iteration: 4, enegtot -7.62596, enegmax 2.3604, fq deviation: 1.5736
+  iteration: 5, enegtot -7.17293, enegmax 3.01439, fq deviation: 2.00959
+  iteration: 6, enegtot -6.90648, enegmax 3.37745, fq deviation: 2.25163
+  iteration: 7, enegtot -6.79523, enegmax 3.52456, fq deviation: 2.3497
+  iteration: 8, enegtot -6.81938, enegmax 3.49568, fq deviation: 2.33045
+  iteration: 9, enegtot -6.96612, enegmax 3.3055, fq deviation: 2.20367
+  iteration: 10, enegtot -7.22692, enegmax 2.95191, fq deviation: 1.96794
+  iteration: 11, enegtot -7.59558, enegmax 2.42443, fq deviation: 1.61629
+  iteration: 12, enegtot -8.06645, enegmax 1.71427, fq deviation: 1.14285
+  iteration: 13, enegtot -8.64152, enegmax 0.81815, fq deviation: 0.545431
+  iteration: 14, enegtot -9.44136, enegmax 0.654007, fq deviation: 0.436002
+  iteration: 15, enegtot -10.6978, enegmax 1.99655, fq deviation: 1.33103
+  iteration: 16, enegtot -12.2111, enegmax 3.79358, fq deviation: 2.52905
+  iteration: 17, enegtot -12.9216, enegmax 4.6012, fq deviation: 3.06746
+  iteration: 18, enegtot -12.1339, enegmax 3.70473, fq deviation: 2.46982
+  iteration: 19, enegtot -10.7842, enegmax 2.10182, fq deviation: 1.40121
+  iteration: 20, enegtot -9.69504, enegmax 0.775752, fq deviation: 0.517165
+  iteration: 21, enegtot -9.01385, enegmax 0.359052, fq deviation: 0.239366
+  iteration: 22, enegtot -8.60242, enegmax 0.862972, fq deviation: 0.575311
+  iteration: 23, enegtot -8.33803, enegmax 1.27567, fq deviation: 0.850443
+  iteration: 24, enegtot -8.17651, enegmax 1.52603, fq deviation: 1.01735
+  iteration: 25, enegtot -8.10758, enegmax 1.63158, fq deviation: 1.08772
+  iteration: 26, enegtot -8.12302, enegmax 1.60668, fq deviation: 1.07112
+  iteration: 27, enegtot -8.21431, enegmax 1.46424, fq deviation: 0.976159
+  iteration: 28, enegtot -8.3721, enegmax 1.2173, fq deviation: 0.811535
+  iteration: 29, enegtot -8.58579, enegmax 0.881445, fq deviation: 0.587629
+  iteration: 30, enegtot -8.85312, enegmax 0.467233, fq deviation: 0.311488
+  iteration: 31, enegtot -9.1859, enegmax 0.130024, fq deviation: 0.0866816
+  iteration: 32, enegtot -9.57444, enegmax 0.563942, fq deviation: 0.375959
+  iteration: 33, enegtot -9.94696, enegmax 1.0584, fq deviation: 0.705598
+  iteration: 34, enegtot -10.1913, enegmax 1.3747, fq deviation: 0.916463
+  iteration: 35, enegtot -10.2237, enegmax 1.41807, fq deviation: 0.945377
+  iteration: 36, enegtot -10.0469, enegmax 1.19451, fq deviation: 0.796336
+  iteration: 37, enegtot -9.7495, enegmax 0.808611, fq deviation: 0.539073
+  iteration: 38, enegtot -9.43897, enegmax 0.38948, fq deviation: 0.259653
+  iteration: 39, enegtot -9.17838, enegmax 0.0199098, fq deviation: 0.0132725
+  iteration: 40, enegtot -8.98255, enegmax 0.271321, fq deviation: 0.180879
+  iteration: 41, enegtot -8.84506, enegmax 0.482631, fq deviation: 0.321752
+  iteration: 42, enegtot -8.75797, enegmax 0.618451, fq deviation: 0.412299
+  iteration: 43, enegtot -8.71687, enegmax 0.682561, fq deviation: 0.455039
+  iteration: 44, enegtot -8.71838, enegmax 0.679528, fq deviation: 0.453017
+  iteration: 45, enegtot -8.75835, enegmax 0.616012, fq deviation: 0.410674
+  iteration: 46, enegtot -8.83176, enegmax 0.500637, fq deviation: 0.333758
+  iteration: 47, enegtot -8.93357, enegmax 0.343215, fq deviation: 0.22881
+  iteration: 48, enegtot -9.05808, enegmax 0.155368, fq deviation: 0.103578
+  iteration: 49, enegtot -9.19607, enegmax 0.0610439, fq deviation: 0.0406951
+  iteration: 50, enegtot -9.33202, enegmax 0.24004, fq deviation: 0.160026
+  iteration: 51, enegtot -9.44489, enegmax 0.396639, fq deviation: 0.264425
+  iteration: 52, enegtot -9.51403, enegmax 0.490791, fq deviation: 0.327193
+  iteration: 53, enegtot -9.52752, enegmax 0.508481, fq deviation: 0.338986
+  iteration: 54, enegtot -9.48721, enegmax 0.452908, fq deviation: 0.301938
+  iteration: 55, enegtot -9.40718, enegmax 0.34242, fq deviation: 0.228279
+  iteration: 56, enegtot -9.30715, enegmax 0.202744, fq deviation: 0.135162
+  iteration: 57, enegtot -9.2056, enegmax 0.0586507, fq deviation: 0.0391001
+  iteration: 58, enegtot -9.11578, enegmax 0.0710477, fq deviation: 0.0473644
+  iteration: 59, enegtot -9.04529, enegmax 0.174541, fq deviation: 0.11636
+  iteration: 60, enegtot -8.99746, enegmax 0.245797, fq deviation: 0.163864
+  iteration: 61, enegtot -8.97296, enegmax 0.282882, fq deviation: 0.188587
+  iteration: 62, enegtot -8.97075, enegmax 0.286736, fq deviation: 0.191157
+  iteration: 63, enegtot -8.98861, enegmax 0.260514, fq deviation: 0.173675
+  iteration: 64, enegtot -9.02325, enegmax 0.209261, fq deviation: 0.139507
+  iteration: 65, enegtot -9.07032, enegmax 0.139719, fq deviation: 0.0931457
+  iteration: 66, enegtot -9.12451, enegmax 0.0600587, fq deviation: 0.040039
+  iteration: 67, enegtot -9.17971, enegmax 0.0293821, fq deviation: 0.0195879
+  iteration: 68, enegtot -9.22955, enegmax 0.0929308, fq deviation: 0.0619534
+  iteration: 69, enegtot -9.26815, enegmax 0.148646, fq deviation: 0.0990966
+  iteration: 70, enegtot -9.29112, enegmax 0.181707, fq deviation: 0.121137
+  iteration: 71, enegtot -9.2965, enegmax 0.189527, fq deviation: 0.126351
+  iteration: 72, enegtot -9.28518, enegmax 0.173425, fq deviation: 0.115616
+  iteration: 73, enegtot -9.26054, enegmax 0.138114, fq deviation: 0.0920756
+  iteration: 74, enegtot -9.22744, enegmax 0.0903898, fq deviation: 0.0602597
+  iteration: 75, enegtot -9.19106, enegmax 0.0376178, fq deviation: 0.0250783
+  iteration: 76, enegtot -9.15601, enegmax 0.0211425, fq deviation: 0.0140946
+  iteration: 77, enegtot -9.12594, enegmax 0.0573821, fq deviation: 0.0382544
+  iteration: 78, enegtot -9.10339, enegmax 0.0902937, fq deviation: 0.0601954
+  iteration: 79, enegtot -9.08985, enegmax 0.109942, fq deviation: 0.0732943
+  iteration: 80, enegtot -9.08578, enegmax 0.115622, fq deviation: 0.0770807
+  iteration: 81, enegtot -9.09076, enegmax 0.10803, fq deviation: 0.0720195
+  iteration: 82, enegtot -9.10354, enegmax 0.0890865, fq deviation: 0.0593907
+  iteration: 83, enegtot -9.1222, enegmax 0.061714, fq deviation: 0.0411425
+  iteration: 84, enegtot -9.1443, enegmax 0.0295595, fq deviation: 0.0197062
+Charges converged in 85 iterations to 0.0024430860 tolerance
+Charge equilibration on step 2
+Charges converged in 0 iterations to 0.0024312976 tolerance
+Charge equilibration on step 3
+Charges converged in 0 iterations to 0.0024143386 tolerance
+Charge equilibration on step 4
+Charges converged in 0 iterations to 0.0023922311 tolerance
+Charge equilibration on step 5
+Charges converged in 0 iterations to 0.0023650053 tolerance
+Charge equilibration on step 6
+Charges converged in 0 iterations to 0.0023326996 tolerance
+Charge equilibration on step 7
+  iteration: 0, enegtot -9.17481, enegmax 0.00681005, fq deviation: 0.00453989
+  iteration: 1, enegtot -9.1743, enegmax 0.0060491, fq deviation: 0.00403261
+  iteration: 2, enegtot -9.17337, enegmax 0.00468303, fq deviation: 0.00312193
+Charges converged in 3 iterations to 0.0019454228 tolerance
+Charge equilibration on step 7
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 7
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 8
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 9
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 10
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 11
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 12
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 13
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 14
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 15
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 16
+Charges converged in 0 iterations to 0.0019454228 tolerance
+Charge equilibration on step 17
+Charges converged in 0 iterations to 0.0019454228 tolerance

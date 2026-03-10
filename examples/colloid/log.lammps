@@ -1,0 +1,200 @@
+LAMMPS (10 Dec 2025 - Development)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+package gpu 1
+# Big colloid particles and small LJ particles
+
+units		lj
+atom_style	sphere
+dimension	2
+
+lattice		sq 0.01
+Lattice spacing in x,y,z = 10 10 10
+region		box block 0 30 0 30 -0.5 0.5
+create_box	2 box
+Created orthogonal box = (0 0 -5) to (300 300 5)
+  1 by 1 by 1 MPI processor grid
+create_atoms	1 box
+Created 900 atoms
+  using lattice units in orthogonal box = (0 0 -5) to (300 300 5)
+  create_atoms CPU = 0.001 seconds
+
+set		group all type/fraction 2 0.96 23984
+Setting atom values ...
+  861 settings made for type/fraction
+
+set		type 1 mass 9
+Setting atom values ...
+  39 settings made for mass
+set		type 2 mass 1
+Setting atom values ...
+  861 settings made for mass
+
+velocity	all create 1.44 87287 loop geom
+
+# multi neighbor and comm for efficiency
+
+neighbor	1 multi
+neigh_modify	delay 0
+comm_modify     mode multi
+
+# colloid potential
+
+pair_style	colloid 12.5
+pair_coeff	1 1  1.0 1.0 5.0 5.0 12.5
+pair_coeff	1 2  5.0 1.0 5.0 0.0 7.0
+pair_coeff	2 2 10.0 1.0 0.0 0.0 2.5
+
+fix		1 all npt temp 2.0 2.0 1.0 iso 0.0 1.0 10.0 drag 1.0 	        mtk no pchain 0 tchain 1
+fix		2 all enforce2d
+
+#dump		1 all atom 1000 dump.colloid
+
+#dump		2 all image 1000 image.*.jpg type type #		zoom 1.5 center d 0.5 0.5 0.5
+#dump_modify	2 pad 5 adiam 1 5.0 adiam 2 1.5
+
+#dump		3 all movie 1000 movie.mpg type type #		zoom 1.5 center d 0.5 0.5 0.5
+#dump_modify	3 pad 5 adiam 1 5.0 adiam 2 1.5
+
+thermo_style	custom step temp epair etotal press vol
+thermo		1000
+
+timestep	0.001
+
+run		50000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+- neighbor multi command: https://doi.org/10.1016/j.cpc.2008.03.005, https://doi.org/10.1007/s40571-020-00361-2
+
+@Article{Intveld08,
+ author =  {in 't Veld, P. J. and S. J.~Plimpton and G. S. Grest},
+ title =   {Accurate and Efficient Methods for Modeling Colloidal
+            Mixtures in an Explicit Solvent using Molecular Dynamics},
+ journal = {Comput.\ Phys.\ Commut.},
+ year =    2008,
+ volume =  179,
+ pages =   {320--329}
+}
+
+@article{Shire2020,
+ author = {Shire, Tom and Hanley, Kevin J. and Stratford, Kevin},
+ title = {{DEM} Simulations of Polydisperse Media: Efficient Contact
+          Detection Applied to Investigate the Quasi-Static Limit},
+ journal = {Computational Particle Mechanics},
+ year = {2020}
+@article{Monti2022,
+ author = {Monti, Joseph M. and Clemmer, Joel T. and Srivastava, 
+           Ishan and Silbert, Leonardo E. and Grest, Gary S. 
+           and Lechman, Jeremy B.},
+ title = {Large-scale frictionless jamming with power-law particle 
+          size distributions},
+ journal = {Phys. Rev. E},
+ volume = {106}
+ issue = {3}
+ year = {2022}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 3.718 | 3.718 | 3.718 Mbytes
+   Step          Temp          E_pair         TotEng         Press          Volume    
+         0   1.44          -2.2136133e-06  1.4383978      0.014383923    90000        
+      1000   1.6553511     -2.076833e-06   1.6535098      0.016472876    90339.67     
+      2000   1.920829      -7.0514254e-05  1.9186242      0.01911974     90305.554    
+      3000   2.0522199      0.0013098491   2.0512495      0.021034461    88566.804    
+      4000   2.1177274      0.0040678214   2.1194422      0.023084068    84211.217    
+      5000   2.187085       0.0065631138   2.191218       0.026271318    77035.008    
+      6000   2.2753641      0.00036431507  2.2732002      0.030662755    67664.325    
+      7000   2.3586515      0.0041495597   2.3601804      0.037859       57309.62     
+      8000   2.4215516      0.0044499943   2.423311       0.049112949    47198.345    
+      9000   2.4728776      0.0035613048   2.4736913      0.05973511     38209.159    
+     10000   2.4735709      0.0055170813   2.4763396      0.075991738    30723.979    
+     11000   2.466334       0.015066461    2.4786601      0.10570365     24747.644    
+     12000   2.4654496      0.010645832    2.473356       0.12003037     20129.21     
+     13000   2.4188994      0.033541929    2.4497537      0.16714051     16599.721    
+     14000   2.3916866      0.036903497    2.4259326      0.20622144     13928.333    
+     15000   2.3732174      0.026465331    2.3970459      0.21983564     11907.666    
+     16000   2.3234491      0.037706003    2.3585735      0.26204645     10376.142    
+     17000   2.2485052      0.067183028    2.3131899      0.29544201     9206.8624    
+     18000   2.2431266      0.046164026    2.2867983      0.34180007     8303.11      
+     19000   2.2388522      0.029738205    2.2661028      0.35785838     7609.3451    
+     20000   2.1971082      0.038940438    2.2336074      0.39001734     7077.0843    
+     21000   2.1625016      0.044012716    2.2041115      0.42725664     6666.1111    
+     22000   2.1460519      0.044309475    2.1879769      0.45633842     6345.8501    
+     23000   2.0998119      0.059252265    2.156731       0.49710025     6099.484     
+     24000   2.1090588      0.038454612    2.14517        0.46646168     5907.2366    
+     25000   2.0929884      0.045504401    2.1361673      0.47886338     5752.7403    
+     26000   2.179336       0.030786947    2.2077015      0.47221572     5626.0583    
+     27000   2.0915895      0.080279898    2.1695454      0.55377048     5522.7644    
+     28000   2.071725       0.062379092    2.1318021      0.53418712     5436.6504    
+     29000   2.0820836      0.056725316    2.1364955      0.5138425      5362.1997    
+     30000   2.1528421      0.086462424    2.2369125      0.61833677     5294.6754    
+     31000   2.2670723      0.075055936    2.3396093      0.61612744     5237.1258    
+     32000   2.3337304      0.067236919    2.3983743      0.64580063     5187.9885    
+     33000   2.4662814      0.

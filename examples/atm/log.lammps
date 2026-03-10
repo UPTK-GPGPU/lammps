@@ -1,0 +1,129 @@
+LAMMPS (10 Dec 2025 - Development)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+package gpu 1
+# Axilrod-Teller-Muto potential example
+
+variable        x index 1
+variable        y index 1
+variable        z index 1
+
+variable        xx equal 10*$x
+variable        xx equal 10*1
+variable        yy equal 10*$y
+variable        yy equal 10*1
+variable        zz equal 10*$z
+variable        zz equal 10*1
+
+units           lj
+atom_style      atomic
+
+lattice         fcc 0.65
+Lattice spacing in x,y,z = 1.8325207 1.8325207 1.8325207
+region          box block 0 ${xx} 0 ${yy} 0 ${zz}
+region          box block 0 10 0 ${yy} 0 ${zz}
+region          box block 0 10 0 10 0 ${zz}
+region          box block 0 10 0 10 0 10
+create_box      1 box
+Created orthogonal box = (0 0 0) to (18.325207 18.325207 18.325207)
+  1 by 1 by 1 MPI processor grid
+create_atoms    1 box
+Created 4000 atoms
+  using lattice units in orthogonal box = (0 0 0) to (18.325207 18.325207 18.325207)
+  create_atoms CPU = 0.001 seconds
+
+pair_style      hybrid/overlay lj/cut 4.5 atm 4.5 2.5
+pair_coeff      * * lj/cut 1.0 1.0
+pair_coeff      * * atm * 0.072
+
+mass            * 1.0
+velocity        all create 1.033 12345678 loop geom
+
+fix             1 all nvt temp 1.033 1.033 0.05
+
+timestep        0.002
+thermo          5
+
+run             25
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+- pair_style atm command: https://doi.org/10.1063/1.4704930
+
+@Article{Lishchuk:2012:164501,
+ author = {S. V. Lishchuk},
+ title = {Role of Three-Body Interactions in Formation of Bulk Viscosity in Liquid Argon},
+ journal = {J.~Chem.\ Phys.},
+ year =    2012,
+ volume =  136,
+ number =  16,
+ pages =   {164501}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+ERROR: Must not use GPU neighbor lists with hybrid pair style (src/GPU/fix_gpu.cpp:296)

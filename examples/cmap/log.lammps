@@ -1,0 +1,8 @@
+LAMMPS (10 Dec 2025 - Development)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+package gpu 1
+Created by charmm2lammps v1.8.2.6 beta on Sun Mar 20 00:26:35 EDT 2016
+ERROR: Unknown command: Created by charmm2lammps v1.8.2.6 beta on Sun Mar 20 00:26:35 EDT 2016 (src/input.cpp:316)
+Last input line: Created by charmm2lammps v1.8.2.6 beta on Sun Mar 20 00:26:35 EDT 2016 
+                 ^^^^^^^

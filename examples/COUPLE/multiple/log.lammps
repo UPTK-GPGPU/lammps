@@ -1,0 +1,159 @@
+LAMMPS (10 Dec 2025 - Development)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+package gpu 1
+# FENE beadspring benchmark
+variable        t index 1.0
+units		lj
+atom_style	bond
+special_bonds   fene
+
+read_data	data.chain
+Reading data file ...
+  orthogonal box = (-16.796 -16.796 -16.796) to (16.796 16.796 16.796)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  32000 atoms
+  reading velocities ...
+  32000 velocities
+  scanning bonds ...
+  1 = max bonds/atom
+  orthogonal box = (-16.796 -16.796 -16.796) to (16.796 16.796 16.796)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  31680 bonds
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        1        1       
+  special bond factors coul:  0        1        1       
+     2 = max # of 1-2 neighbors
+     2 = max # of special neighbors
+  special bonds CPU = 0.007 seconds
+  read_data CPU = 0.338 seconds
+
+neighbor	0.4 bin
+neigh_modify	every 1 delay 1
+
+bond_style      fene
+bond_coeff	1 30.0 1.5 1.0 1.0
+
+pair_style	lj/cut 1.12
+pair_modify	shift yes
+pair_coeff	1 1 1.0 1.0 1.12
+
+fix		1 all nve
+fix		2 all langevin $t $t 1.0 904297
+fix		2 all langevin 1.0 $t 1.0 904297
+fix		2 all langevin 1.0 1.0 1.0 904297
+
+thermo          100
+timestep	0.012
+
+run		500
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+WARNING: Communication cutoff 1.52 is shorter than a bond length based estimate of 1.855. This may lead to errors. (src/comm.cpp:688)
+Per MPI rank memory allocation (min/avg/max) = 12.59 | 12.59 | 12.59 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0.97029772     0.44484086     20.494523      22.394765      4.6721833    
+       100   0.99691176     0.44481471     20.517254      22.457389      4.6585861    
+       200   0.99998789     0.45029124     20.52586       22.476087      4.7897383    
+       300   1.0131571      0.44934209     20.524149      22.493179      4.7430569    
+       400   1.0077688      0.44369016     20.524724      22.48002       4.7230082    
+       500   0.99894309     0.45421089     20.526425      22.479003      4.767412     
+Loop time of 2.09171 on 1 procs for 500 steps with 32000 atoms
+
+Performance: 247835.149 tau/day, 239.039 timesteps/s, 7.649 Matom-step/s
+94.3% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.50502    | 0.50502    | 0.50502    |   0.0 | 24.14
+Bond    | 0.43514    | 0.43514    | 0.43514    |   0.0 | 20.80
+Neigh   | 0.011172   | 0.011172   | 0.011172   |   0.0 |  0.53
+Comm    | 0.14841    | 0.14841    | 0.14841    |   0.0 |  7.10
+Output  | 0.00076368 | 0.00076368 | 0.00076368 |   0.0 |  0.04
+Modify  | 0.90625    | 0.90625    | 0.90625    |   0.0 | 43.33
+Other   |            | 0.08496    |            |       |  4.06
+
+Nlocal:          32000 ave       32000 max       32000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           9499 ave        9499 max        9499 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Ave special neighs/atom = 1.98
+Neighbor list builds = 125
+Dangerous builds = 0
+Total wall time: 0:00:02
