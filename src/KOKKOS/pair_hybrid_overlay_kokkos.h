@@ -28,10 +28,8 @@ namespace LAMMPS_NS {
 class PairHybridOverlayKokkos : public PairHybridKokkos {
  public:
   PairHybridOverlayKokkos(class LAMMPS *);
-  void coeff(int, char **) override;
-
-  void init_svector() override;
-  void copy_svector(int, int) override;
+  virtual ~PairHybridOverlayKokkos() {}
+  void coeff(int, char **);
 };
 
 }

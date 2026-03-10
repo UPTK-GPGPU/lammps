@@ -45,6 +45,7 @@ packages:
    * :ref:`KOKKOS <kokkos>`
    * :ref:`LATTE <latte>`
    * :ref:`MACHDYN <machdyn>`
+   * :ref:`MESSAGE <message>`
    * :ref:`ML-HDNNP <ml-hdnnp>`
    * :ref:`ML-PACE <ml-pace>`
    * :ref:`ML-QUIP <ml-quip>`

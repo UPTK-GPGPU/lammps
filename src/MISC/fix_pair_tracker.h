@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class FixPairTracker : public Fix {
  public:
   FixPairTracker(class LAMMPS *, int, char **);
-  ~FixPairTracker() override;
-  int setmask() override;
-  void init() override;
-  void post_force(int) override;
-  double memory_usage() override;
+  ~FixPairTracker();
+  int setmask();
+  void init();
+  void post_force(int);
+  double memory_usage();
   void lost_contact(int, int, double, double, double, double);
 
  private:

@@ -13,18 +13,17 @@
 ------------------------------------------------------------------------- */
 
 #include "compute_contact_atom.h"
-
-#include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "memory.h"
-#include "modify.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-#include "update.h"
-
 #include <cstring>
+#include "atom.h"
+#include "update.h"
+#include "modify.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "neigh_request.h"
+#include "force.h"
+#include "comm.h"
+#include "memory.h"
+#include "error.h"
 
 using namespace LAMMPS_NS;
 
@@ -62,12 +61,19 @@ void ComputeContactAtom::init()
   if (force->pair == nullptr)
     error->all(FLERR,"Compute contact/atom requires a pair style be defined");
 
-  if (modify->get_compute_by_style("contact/atom").size() > 1 && comm->me == 0)
+  int count = 0;
+  for (int i = 0; i < modify->ncompute; i++)
+    if (strcmp(modify->compute[i]->style,"contact/atom") == 0) count++;
+  if (count > 1 && comm->me == 0)
     error->warning(FLERR,"More than one compute contact/atom");
 
   // need an occasional neighbor list
 
-  neighbor->add_request(this, NeighConst::REQ_SIZE | NeighConst::REQ_OCCASIONAL);
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->size = 1;
+  neighbor->requests[irequest]->pair = 0;
+  neighbor->requests[irequest]->compute = 1;
+  neighbor->requests[irequest]->occasional = 1;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -148,7 +154,7 @@ void ComputeContactAtom::compute_peratom()
 
   // communicate ghost atom counts between neighbor procs if necessary
 
-  if (force->newton_pair) comm->reverse_comm(this);
+  if (force->newton_pair) comm->reverse_comm_compute(this);
 }
 
 /* ---------------------------------------------------------------------- */

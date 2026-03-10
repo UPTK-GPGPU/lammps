@@ -32,10 +32,10 @@ class FixWallSRD : public Fix {
   double **fwall;
 
   FixWallSRD(class LAMMPS *, int, char **);
-  ~FixWallSRD() override;
-  int setmask() override;
-  void init() override;
-  double compute_array(int, int) override;
+  ~FixWallSRD();
+  int setmask();
+  void init();
+  double compute_array(int, int);
 
   void wall_params(int);
 

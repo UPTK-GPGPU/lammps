@@ -25,21 +25,21 @@ namespace LAMMPS_NS {
 class FixNHGPU : public FixNH {
  public:
   FixNHGPU(class LAMMPS *, int, char **);
-  ~FixNHGPU() override;
-  void setup(int vflag) override;
-  void reset_dt() override;
-  void final_integrate() override;
-  double memory_usage() override;
+  virtual ~FixNHGPU();
+  virtual void setup(int vflag);
+  void reset_dt();
+  virtual void final_integrate();
+  virtual double memory_usage();
 
  protected:
   double *_dtfm;
   int _nlocal3, _nlocal_max, _respa_on;
 
-  void remap() override;
-  void nve_x() override;
-  void nve_v() override;
-  void nh_v_press() override;
-  void nh_v_temp() override;
+  virtual void remap();
+  virtual void nve_x();
+  virtual void nve_v();
+  virtual void nh_v_press();
+  virtual void nh_v_temp();
 };
 
 }    // namespace LAMMPS_NS

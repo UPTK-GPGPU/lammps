@@ -60,6 +60,12 @@
 #include <cstring>
 #include <map>
 
+#if defined(_WIN32)
+#include <io.h>
+#else
+#include <unistd.h>             // for isatty()
+#endif
+
 #include "lmpinstalledpkgs.h"
 #include "lmpgitversion.h"
 
@@ -139,21 +145,20 @@ LAMMPS::LAMMPS(int narg, char **arg, MPI_Comm communicator) :
   logfile = nullptr;
   infile = nullptr;
 
-  initclock = platform::walltime();
+  initclock = MPI_Wtime();
 
   init_pkg_lists();
 
 #if defined(LMP_PYTHON) && defined(_WIN32)
-  // If the LAMMPSHOME environment variable is set, it should point
+  // if the LAMMPSHOME environment variable is set, it should point
   // to the location of the LAMMPS installation tree where we bundle
   // the matching Python installation for use with the PYTHON package.
-  // This is currently only used on Windows with the Windows installer packages
+  // this is currently only used on Windows with the windows installer packages
   const char *lmpenv = getenv("LAMMPSHOME");
   if (lmpenv) {
-    platform::putenv(fmt::format("PYTHONHOME={}",lmpenv));
+    _putenv(utils::strdup(fmt::format("PYTHONHOME={}",lmpenv)));
   }
 #endif
-
   // check if -mpicolor is first arg
   // if so, then 2 apps were launched with one mpirun command
   //   this means passed communicator (e.g. MPI_COMM_WORLD) is bigger than LAMMPS
@@ -271,11 +276,8 @@ LAMMPS::LAMMPS(int narg, char **arg, MPI_Comm communicator) :
                strcmp(arg[iarg],"-k") == 0) {
       if (iarg+2 > narg)
         error->universe_all(FLERR,"Invalid command-line argument");
-      const std::string kokkosarg = arg[iarg+1];
-      if ((kokkosarg == "on") || (kokkosarg == "yes") || (kokkosarg == "true"))
-        kokkosflag = 1;
-      else if ((kokkosarg == "off") || (kokkosarg == "no") || (kokkosarg == "false"))
-        kokkosflag = 0;
+      if (strcmp(arg[iarg+1],"on") == 0) kokkosflag = 1;
+      else if (strcmp(arg[iarg+1],"off") == 0) kokkosflag = 0;
       else error->universe_all(FLERR,"Invalid command-line argument");
       iarg += 2;
       // delimit any extra args for the Kokkos instantiation
@@ -667,7 +669,7 @@ LAMMPS::LAMMPS(int narg, char **arg, MPI_Comm communicator) :
       int n = plast[i] - pfirst[i];
       packargs[i] = new char*[n+1];
       for (int j=0; j < n; ++j)
-        packargs[i][j] = utils::strdup(arg[pfirst[i]+j]);
+        packargs[i][j] = strdup(arg[pfirst[i]+j]);
       packargs[i][n] = nullptr;
     }
     memory->destroy(pfirst);
@@ -721,7 +723,7 @@ LAMMPS::~LAMMPS()
   if (num_package) {
     for (int i = 0; i < num_package; i++) {
       for (char **ptr = packargs[i]; *ptr != nullptr; ++ptr)
-        delete[] *ptr;
+        free(*ptr);
       delete[] packargs[i];
     }
     delete[] packargs;
@@ -729,7 +731,7 @@ LAMMPS::~LAMMPS()
   num_package = 0;
   packargs = nullptr;
 
-  double totalclock = platform::walltime() - initclock;
+  double totalclock = MPI_Wtime() - initclock;
   if ((me == 0) && (screen || logfile)) {
     int seconds = fmod(totalclock,60.0);
     totalclock  = (totalclock - seconds) / 60.0;
@@ -824,11 +826,6 @@ void LAMMPS::create()
   timer = new Timer(this);
 
   python = new Python(this);
-
-  // auto-load plugins
-#if defined(LMP_PLUGIN)
-  plugin_auto_load(this);
-#endif
 }
 
 /* ----------------------------------------------------------------------
@@ -1132,7 +1129,11 @@ void _noopt LAMMPS::help()
   // user. scrollback buffers are often not large enough. this is most
   // beneficial to windows users, who are not used to command line.
 
-  int use_pager = platform::is_console(fp);
+#if defined(_WIN32)
+  int use_pager = _isatty(fileno(fp));
+#else
+  int use_pager = isatty(fileno(fp));
+#endif
 
   // cannot use this with OpenMPI since its console is non-functional
 
@@ -1143,7 +1144,11 @@ void _noopt LAMMPS::help()
   if (use_pager) {
     pager = getenv("PAGER");
     if (pager == nullptr) pager = "more";
-    fp = platform::popen(pager,"w");
+#if defined(_WIN32)
+    fp = _popen(pager,"w");
+#else
+    fp = popen(pager,"w");
+#endif
 
     // reset to original state, if pipe command failed
     if (fp == nullptr) {
@@ -1154,9 +1159,9 @@ void _noopt LAMMPS::help()
 
   // general help message about command line and flags
 
-  if (has_git_info()) {
+  if (has_git_info) {
     fprintf(fp,"\nLarge-scale Atomic/Molecular Massively Parallel Simulator - "
-            LAMMPS_VERSION UPDATE_STRING "\nGit info (%s / %s)\n\n",git_branch(), git_descriptor());
+            LAMMPS_VERSION UPDATE_STRING "\nGit info (%s / %s)\n\n",git_branch, git_descriptor);
   } else {
     fprintf(fp,"\nLarge-scale Atomic/Molecular Massively Parallel Simulator - "
             LAMMPS_VERSION UPDATE_STRING "\n\n");
@@ -1305,19 +1310,17 @@ void _noopt LAMMPS::help()
 
   // close pipe to pager, if active
 
-  if (pager != nullptr) platform::pclose(fp);
+  if (pager != nullptr) pclose(fp);
 }
 
 /* ----------------------------------------------------------------------
    print style names in columns
-   skip any internal style that starts with an upper-case letter
-   also skip "redundant" KOKKOS styles ending in kk/host or kk/device
+   skip any style that starts with upper-case letter, since internal
 ------------------------------------------------------------------------- */
 
 void print_style(FILE *fp, const char *str, int &pos)
 {
-  if (isupper(str[0]) || utils::strmatch(str,"/kk/host$")
-      || utils::strmatch(str,"/kk/device$")) return;
+  if (isupper(str[0])) return;
 
   int len = strlen(str);
   if (pos+len > 80) {
@@ -1348,14 +1351,14 @@ void LAMMPS::print_config(FILE *fp)
   const char *pkg;
   int ncword, ncline = 0;
 
-  fmt::print(fp,"OS: {}\n\n",platform::os_info());
+  fmt::print(fp,"OS: {}\n\n",Info::get_os_info());
 
   fmt::print(fp,"Compiler: {} with {}\nC++ standard: {}\n",
-             platform::compiler_info(),platform::openmp_standard(),
-             platform::cxx_standard());
+             Info::get_compiler_info(),Info::get_openmp_info(),
+             Info::get_cxx_info());
 
   int major,minor;
-  std::string infobuf = platform::mpi_info(major,minor);
+  std::string infobuf = Info::get_mpi_info(major,minor);
   fmt::print(fp,"MPI v{}.{}: {}\n\n",major,minor,infobuf);
 
   fmt::print(fp,"Accelerator configuration:\n\n{}\n",
@@ -1385,8 +1388,6 @@ void LAMMPS::print_config(FILE *fp)
              "sizeof(bigint):   {}-bit\n",
              sizeof(smallint)*8, sizeof(imageint)*8,
              sizeof(tagint)*8, sizeof(bigint)*8);
-
-  if (Info::has_gzip_support()) fmt::print(fp,"\n{}\n",platform::compress_info());
 
   fputs("\nInstalled packages:\n\n",fp);
   for (int i = 0; nullptr != (pkg = installed_packages[i]); ++i) {

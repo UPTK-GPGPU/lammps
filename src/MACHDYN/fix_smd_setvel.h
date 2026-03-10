@@ -38,15 +38,15 @@ namespace LAMMPS_NS {
 class FixSMDSetVel : public Fix {
  public:
   FixSMDSetVel(class LAMMPS *, int, char **);
-  ~FixSMDSetVel() override;
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void min_setup(int) override;
+  ~FixSMDSetVel();
+  int setmask();
+  void init();
+  void setup(int);
+  void min_setup(int);
   //void initial_integrate(int);
-  void post_force(int) override;
-  double compute_vector(int) override;
-  double memory_usage() override;
+  void post_force(int);
+  double compute_vector(int);
+  double memory_usage();
 
  private:
   double xvalue, yvalue, zvalue;

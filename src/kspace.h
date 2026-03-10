@@ -100,7 +100,7 @@ class KSpace : protected Pointers {
   double splittol;    // tolerance for when to truncate splitting
 
   KSpace(class LAMMPS *);
-  ~KSpace() override;
+  virtual ~KSpace();
   void two_charge();
   void triclinic_check();
   void modify_params(int, char **);

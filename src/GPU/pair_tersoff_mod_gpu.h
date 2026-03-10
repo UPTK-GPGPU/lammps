@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class PairTersoffMODGPU : public PairTersoffMOD {
  public:
   PairTersoffMODGPU(class LAMMPS *);
-  ~PairTersoffMODGPU() override;
-  void compute(int, int) override;
-  double init_one(int, int) override;
-  void init_style() override;
+  ~PairTersoffMODGPU();
+  void compute(int, int);
+  double init_one(int, int);
+  void init_style();
 
   enum { GPU_FORCE, GPU_NEIGH, GPU_HYB_NEIGH };
 
  protected:
-  void allocate() override;
+  void allocate();
 
   int gpu_mode;
   double cpu_time;

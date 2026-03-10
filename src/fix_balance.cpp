@@ -13,22 +13,20 @@
 ------------------------------------------------------------------------- */
 
 #include "fix_balance.h"
-
-#include "atom.h"
+#include <cstring>
 #include "balance.h"
+#include "update.h"
+#include "atom.h"
 #include "comm.h"
 #include "domain.h"
-#include "error.h"
-#include "fix_store.h"
-#include "force.h"
+#include "neighbor.h"
 #include "irregular.h"
+#include "force.h"
 #include "kspace.h"
 #include "modify.h"
-#include "neighbor.h"
+#include "fix_store.h"
 #include "rcb.h"
-#include "update.h"
-
-#include <cstring>
+#include "error.h"
 
 using namespace LAMMPS_NS;
 using namespace FixConst;

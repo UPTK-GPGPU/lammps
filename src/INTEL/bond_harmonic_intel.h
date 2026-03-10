@@ -33,9 +33,9 @@ namespace LAMMPS_NS {
 class BondHarmonicIntel : public BondHarmonic {
  public:
   BondHarmonicIntel(class LAMMPS *);
-  ~BondHarmonicIntel() override;
-  void compute(int, int) override;
-  void init_style() override;
+  virtual ~BondHarmonicIntel();
+  virtual void compute(int, int);
+  virtual void init_style();
 
  protected:
   FixIntel *fix;

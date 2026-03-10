@@ -12,7 +12,9 @@
 ------------------------------------------------------------------------- */
 
 #ifdef PAIR_CLASS
+// clang-format off
 PairStyle(mesocnt, PairMesoCNT);
+// clang-format on
 #else
 
 #ifndef LMP_PAIR_MESOCNT_H
@@ -21,19 +23,20 @@ PairStyle(mesocnt, PairMesoCNT);
 #include "pair.h"
 
 namespace LAMMPS_NS {
-class PotentialFileReader;
+
 class PairMesoCNT : public Pair {
  public:
   PairMesoCNT(class LAMMPS *);
-  ~PairMesoCNT() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  void init_style() override;
-  double init_one(int, int) override;
+  ~PairMesoCNT();
+  void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  void init_style();
+  double init_one(int, int);
 
  protected:
   int uinf_points, gamma_points, phi_points, usemi_points;
+  int nlocal_size, reduced_neigh_size;
   int *reduced_nlist, *numchainlist;
   int **reduced_neighlist, **nchainlist, **endlist;
   int ***chainlist;
@@ -54,18 +57,16 @@ class PairMesoCNT : public Pair {
   double **uinf_coeff, **gamma_coeff, ****phi_coeff, ****usemi_coeff;
   double **flocal, **fglobal, **basis;
 
-  int count_chains(int *, int);
+  char *file;
 
   void allocate();
   void bond_neigh();
   void neigh_common(int, int, int &, int *);
-  void chain_lengths(int *, int, int *);
-  void chain_split(int *, int, int *, int **, int *);
+  void chain_split(int *, int, int &, int **, int *, int *);
   void sort(int *, int);
-  void read_file(const char *);
-  void read_data(PotentialFileReader &, double *, double &, double &, int);
-  void read_data(PotentialFileReader &, double **, double &, double &, double &, double &,
-                 int);
+  void read_file();
+  void read_data(FILE *, double *, double &, double &, int);
+  void read_data(FILE *, double **, double &, double &, double &, double &, int);
 
   void spline_coeff(double *, double **, double, int);
   void spline_coeff(double **, double ****, double, double, int);

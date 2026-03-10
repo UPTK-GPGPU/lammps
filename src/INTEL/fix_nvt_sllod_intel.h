@@ -32,12 +32,13 @@ namespace LAMMPS_NS {
 class FixNVTSllodIntel : public FixNHIntel {
  public:
   FixNVTSllodIntel(class LAMMPS *, int, char **);
-  void init() override;
+  ~FixNVTSllodIntel() {}
+  void init();
 
  private:
   int nondeformbias;
 
-  void nh_v_temp() override;
+  void nh_v_temp();
 };
 
 }    // namespace LAMMPS_NS

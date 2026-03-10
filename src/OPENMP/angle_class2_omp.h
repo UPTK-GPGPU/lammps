@@ -33,7 +33,7 @@ class AngleClass2OMP : public AngleClass2, public ThrOMP {
 
  public:
   AngleClass2OMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

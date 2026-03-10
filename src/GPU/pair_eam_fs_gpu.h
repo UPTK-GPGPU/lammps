@@ -27,22 +27,22 @@ namespace LAMMPS_NS {
 class PairEAMFSGPU : public PairEAM {
  public:
   PairEAMFSGPU(class LAMMPS *);
-  ~PairEAMFSGPU() override;
-  void coeff(int, char **) override;
-  void compute(int, int) override;
-  void init_style() override;
-  double single(int, int, int, int, double, double, double, double &) override;
-  double memory_usage() override;
-  void *extract(const char *, int &) override { return nullptr; }
+  virtual ~PairEAMFSGPU();
+  void coeff(int, char **);
+  void compute(int, int);
+  void init_style();
+  double single(int, int, int, int, double, double, double, double &);
+  double memory_usage();
+  void *extract(const char *, int &) { return nullptr; }
 
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
 
   enum { GPU_FORCE, GPU_NEIGH, GPU_HYB_NEIGH };
 
  protected:
-  void read_file(char *) override;
-  void file2array() override;
+  void read_file(char *);
+  void file2array();
 
   int gpu_mode;
   double cpu_time;

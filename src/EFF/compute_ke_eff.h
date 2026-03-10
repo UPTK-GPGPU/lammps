@@ -27,8 +27,9 @@ namespace LAMMPS_NS {
 class ComputeKEEff : public Compute {
  public:
   ComputeKEEff(class LAMMPS *, int, char **);
-  void init() override;
-  double compute_scalar() override;
+  ~ComputeKEEff(){};
+  void init();
+  double compute_scalar();
 
  private:
   double pfactor;

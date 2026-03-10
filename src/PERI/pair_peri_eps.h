@@ -20,22 +20,45 @@ PairStyle(peri/eps,PairPeriEPS);
 #ifndef LMP_PAIR_PERI_EPS_H
 #define LMP_PAIR_PERI_EPS_H
 
-#include "pair_peri.h"
+#include "pair.h"
 
 namespace LAMMPS_NS {
 
-class PairPeriEPS : public PairPeri {
+class PairPeriEPS : public Pair {
  public:
-  PairPeriEPS(class LAMMPS *);
+  double *theta;
+  double *elastic_energy;
 
-  void compute(int, int) override;
-  void coeff(int, char **) override;
-  double init_one(int, int) override;
-  void write_restart(FILE *) override;
-  void read_restart(FILE *) override;
-  void write_restart_settings(FILE *) override {}
-  void read_restart_settings(FILE *) override {}
+  PairPeriEPS(class LAMMPS *);
+  virtual ~PairPeriEPS();
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
+
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  double init_one(int, int);
+  void init_style();
+  void write_restart(FILE *);
+  void read_restart(FILE *);
+  void write_restart_settings(FILE *) {}
+  void read_restart_settings(FILE *) {}
+  double memory_usage();
+  double influence_function(double, double, double);
+  void compute_dilatation();
   double compute_DeviatoricForceStateNorm(int);
+
+ protected:
+  int ifix_peri;
+  double **bulkmodulus;
+  double **shearmodulus;
+  double **s00, **alpha;
+  double **cut, **m_yieldstress;    //NEW: **m_yieldstress
+
+  double *s0_new;
+  int nmax;
+
+  void allocate();
 };
 
 }    // namespace LAMMPS_NS
@@ -80,5 +103,10 @@ The lattice defined by the lattice command must be cubic.
 E: Fix peri neigh does not exist
 
 Somehow a fix that the pair style defines has been deleted.
+
+E: Divide by 0 in influence function
+
+This should not normally occur.  It is likely a problem with your
+model.
 
 */

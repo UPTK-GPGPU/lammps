@@ -29,7 +29,8 @@ namespace LAMMPS_NS {
 class NStencilHalfBin3dTri : public NStencil {
  public:
   NStencilHalfBin3dTri(class LAMMPS *);
-  void create() override;
+  ~NStencilHalfBin3dTri() {}
+  void create();
 };
 
 }    // namespace LAMMPS_NS

@@ -27,17 +27,16 @@ namespace LAMMPS_NS {
 class FixBrownianAsphere : public FixBrownianBase {
  public:
   FixBrownianAsphere(class LAMMPS *, int, char **);
-
-  void initial_integrate(int) override;
-  void init() override;
+  virtual ~FixBrownianAsphere(){};
+  void initial_integrate(int);
+  void init();
 
  protected:
   class AtomVecEllipsoid *avec;
 
  private:
-  template <int Tp_UNIFORM, int Tp_GAUSS, int Tp_DIPOLE, int Tp_2D, int Tp_2Drot>
+  template <int Tp_UNIFORM, int Tp_GAUSS, int Tp_DIPOLE, int Tp_2D>
   void initial_integrate_templated();
-  double g4;
 };
 }    // namespace LAMMPS_NS
 #endif

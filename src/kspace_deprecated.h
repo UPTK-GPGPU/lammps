@@ -27,11 +27,12 @@ namespace LAMMPS_NS {
 class KSpaceDeprecated : public KSpace {
  public:
   KSpaceDeprecated(class LAMMPS *lmp) : KSpace(lmp) {}
+  virtual ~KSpaceDeprecated() {}
 
-  void init() override {}
-  void settings(int, char **) override;
-  void setup() override {}
-  void compute(int, int) override {}
+  virtual void init() {}
+  virtual void settings(int, char **);
+  virtual void setup() {}
+  virtual void compute(int, int) {}
 };
 
 }    // namespace LAMMPS_NS

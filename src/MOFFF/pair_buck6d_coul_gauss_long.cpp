@@ -20,19 +20,18 @@
 
 #include "pair_buck6d_coul_gauss_long.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "kspace.h"
-#include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-
-#include "math_special.h"
-
 #include <cmath>
 #include <cstring>
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "kspace.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "memory.h"
+#include "error.h"
+
+#include "math_special.h"
 
 using namespace LAMMPS_NS;
 
@@ -337,7 +336,7 @@ void PairBuck6dCoulGaussLong::init_style()
     error->all(FLERR,"Pair style requires a KSpace style");
   g_ewald = force->kspace->g_ewald;
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 
   cut_coulsq = cut_coul * cut_coul;
 

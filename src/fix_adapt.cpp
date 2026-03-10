@@ -158,15 +158,21 @@ nadapt(0), id_fix_diam(nullptr), id_fix_chg(nullptr), adapt(nullptr)
   while (iarg < narg) {
     if (strcmp(arg[iarg],"reset") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix adapt command");
-      resetflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) resetflag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) resetflag = 1;
+      else error->all(FLERR,"Illegal fix adapt command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"scale") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix adapt command");
-      scaleflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) scaleflag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) scaleflag = 1;
+      else error->all(FLERR,"Illegal fix adapt command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"mass") == 0) {
       if (iarg+2 > narg)error->all(FLERR,"Illegal fix adapt command");
-      massflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) massflag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) massflag = 1;
+      else error->all(FLERR,"Illegal fix adapt command");
       iarg += 2;
     } else error->all(FLERR,"Illegal fix adapt command");
   }
@@ -247,8 +253,8 @@ void FixAdapt::post_constructor()
 
   if (diamflag && atom->radius_flag) {
     id_fix_diam = utils::strdup(id + std::string("_FIX_STORE_DIAM"));
-    fix_diam = dynamic_cast<FixStore *>( modify->add_fix(fmt::format("{} {} STORE peratom 1 1",
-                                                        id_fix_diam,group->names[igroup])));
+    fix_diam = (FixStore *) modify->add_fix(fmt::format("{} {} STORE peratom 1 1",
+                                                        id_fix_diam,group->names[igroup]));
     if (fix_diam->restart_reset) fix_diam->restart_reset = 0;
     else {
       double *vec = fix_diam->vstore;
@@ -265,8 +271,8 @@ void FixAdapt::post_constructor()
 
   if (chgflag && atom->q_flag) {
     id_fix_chg = utils::strdup(id + std::string("_FIX_STORE_CHG"));
-    fix_chg = dynamic_cast<FixStore *>( modify->add_fix(fmt::format("{} {} STORE peratom 1 1",
-                                                       id_fix_chg,group->names[igroup])));
+    fix_chg = (FixStore *) modify->add_fix(fmt::format("{} {} STORE peratom 1 1",
+                                                       id_fix_chg,group->names[igroup]));
     if (fix_chg->restart_reset) fix_chg->restart_reset = 0;
     else {
       double *vec = fix_chg->vstore;
@@ -348,7 +354,7 @@ void FixAdapt::init()
       // if pair hybrid, test that ilo,ihi,jlo,jhi are valid for sub-style
 
       if (utils::strmatch(force->pair_style,"^hybrid")) {
-        auto pair = dynamic_cast<PairHybrid *>( force->pair);
+        PairHybrid *pair = (PairHybrid *) force->pair;
         for (i = ad->ilo; i <= ad->ihi; i++)
           for (j = MAX(ad->jlo,i); j <= ad->jhi; j++)
             if (!pair->check_ijtype(i,j,pstyle))
@@ -431,16 +437,16 @@ void FixAdapt::init()
   if (id_fix_diam) {
     int ifix = modify->find_fix(id_fix_diam);
     if (ifix < 0) error->all(FLERR,"Could not find fix adapt storage fix ID");
-    fix_diam = dynamic_cast<FixStore *>( modify->fix[ifix]);
+    fix_diam = (FixStore *) modify->fix[ifix];
   }
   if (id_fix_chg) {
     int ifix = modify->find_fix(id_fix_chg);
     if (ifix < 0) error->all(FLERR,"Could not find fix adapt storage fix ID");
-    fix_chg = dynamic_cast<FixStore *>( modify->fix[ifix]);
+    fix_chg = (FixStore *) modify->fix[ifix];
   }
 
   if (utils::strmatch(update->integrate_style,"^respa"))
-    nlevels_respa = (dynamic_cast<Respa *>( update->integrate))->nlevels;
+    nlevels_respa = ((Respa *) update->integrate)->nlevels;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -700,7 +706,7 @@ void FixAdapt::write_restart(FILE *fp)
 
 void FixAdapt::restart(char *buf)
 {
-  auto dbuf = (double *) buf;
+  double *dbuf = (double *) buf;
 
   previous_diam_scale = dbuf[0];
   previous_chg_scale = dbuf[1];

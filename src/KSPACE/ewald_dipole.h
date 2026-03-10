@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class EwaldDipole : public Ewald {
  public:
   EwaldDipole(class LAMMPS *);
-  ~EwaldDipole() override;
-  void init() override;
-  void setup() override;
-  void compute(int, int) override;
+  virtual ~EwaldDipole();
+  void init();
+  void setup();
+  virtual void compute(int, int);
 
  protected:
   double musum, musqsum, mu2;
@@ -39,7 +39,7 @@ class EwaldDipole : public Ewald {
 
   void musum_musq();
   double rms_dipole(int, double, bigint);
-  void eik_dot_r() override;
+  virtual void eik_dot_r();
   void slabcorr();
   double NewtonSolve(double, double, bigint, double, double);
   double f(double, double, bigint, double, double);

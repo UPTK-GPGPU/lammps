@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class FixWidom : public Fix {
  public:
   FixWidom(class LAMMPS *, int, char **);
-  ~FixWidom() override;
-  int setmask() override;
-  void init() override;
-  void pre_exchange() override;
+  ~FixWidom();
+  int setmask();
+  void init();
+  void pre_exchange();
 
   void attempt_atomic_insertion();
   void attempt_molecule_insertion();
@@ -41,10 +41,10 @@ class FixWidom : public Fix {
   double molecule_energy(tagint);
   double energy_full();
   void update_gas_atoms_list();
-  double compute_vector(int) override;
-  double memory_usage() override;
-  void write_restart(FILE *) override;
-  void restart(char *) override;
+  double compute_vector(int);
+  double memory_usage();
+  void write_restart(FILE *);
+  void restart(char *);
   void grow_molecule_arrays(int);
 
  private:

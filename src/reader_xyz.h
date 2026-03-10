@@ -29,13 +29,13 @@ namespace LAMMPS_NS {
 class ReaderXYZ : public Reader {
  public:
   ReaderXYZ(class LAMMPS *);
-  ~ReaderXYZ() override;
+  ~ReaderXYZ();
 
-  int read_time(bigint &) override;
-  void skip() override;
+  int read_time(bigint &);
+  void skip();
   bigint read_header(double[3][3], int &, int &, int, int, int *, char **, int, int, int &, int &,
-                     int &, int &) override;
-  void read_atoms(int, int, double **) override;
+                     int &, int &);
+  void read_atoms(int, int, double **);
 
  private:
   char *line;       // line read from dump file

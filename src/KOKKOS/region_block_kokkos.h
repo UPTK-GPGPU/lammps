@@ -40,8 +40,8 @@ class RegBlockKokkos : public RegBlock, public KokkosBase {
   typedef ArrayTypes<DeviceType> AT;
 
   RegBlockKokkos(class LAMMPS *, int, char **);
-  ~RegBlockKokkos() override;
-  void match_all_kokkos(int, DAT::tdual_int_1d) override;
+  ~RegBlockKokkos();
+  void match_all_kokkos(int, DAT::tdual_int_1d);
 
   KOKKOS_INLINE_FUNCTION
   void operator()(TagRegBlockMatchAll, const int&) const;

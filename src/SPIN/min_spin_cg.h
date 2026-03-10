@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class MinSpinCG : public Min {
  public:
   MinSpinCG(class LAMMPS *);
-  ~MinSpinCG() override;
-  void init() override;
-  void setup_style() override;
-  void reset_vectors() override;
-  int modify_param(int, char **) override;
-  int iterate(int) override;
+  virtual ~MinSpinCG();
+  void init();
+  void setup_style();
+  void reset_vectors();
+  int modify_param(int, char **);
+  int iterate(int);
 
  private:
   int local_iter;            // for neb

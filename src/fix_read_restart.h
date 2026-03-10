@@ -30,14 +30,14 @@ class FixReadRestart : public Fix {
   double **extra;
 
   FixReadRestart(class LAMMPS *, int, char **);
-  ~FixReadRestart() override;
-  int setmask() override;
+  ~FixReadRestart();
+  int setmask();
 
-  double memory_usage() override;
-  void grow_arrays(int) override;
-  void copy_arrays(int, int, int) override;
-  int pack_exchange(int, double *) override;
-  int unpack_exchange(int, double *) override;
+  double memory_usage();
+  void grow_arrays(int);
+  void copy_arrays(int, int, int);
+  int pack_exchange(int, double *);
+  int unpack_exchange(int, double *);
 
  private:
   int nextra;    // max number of extra values for any atom

@@ -23,7 +23,7 @@ class Variable : protected Pointers {
 
  public:
   Variable(class LAMMPS *);
-  ~Variable() override;
+  ~Variable();
   void set(int, char **);
   void set(const std::string &);
   void set(char *, int, char **);
@@ -152,7 +152,7 @@ class VarReader : protected Pointers {
   char *id_fix;
 
   VarReader(class LAMMPS *, char *, char *, int);
-  ~VarReader() override;
+  ~VarReader();
   int read_scalar(char *);
   int read_peratom();
 

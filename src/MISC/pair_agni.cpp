@@ -27,7 +27,9 @@
 #include "math_special.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
+#include "tokenizer.h"
 #include "potential_file_reader.h"
 
 #include <cmath>
@@ -248,7 +250,10 @@ void PairAGNI::coeff(int narg, char **arg)
 void PairAGNI::init_style()
 {
   // need a full neighbor list
-  neighbor->add_request(this, NeighConst::REQ_FULL);
+
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
 }
 
 /* ----------------------------------------------------------------------

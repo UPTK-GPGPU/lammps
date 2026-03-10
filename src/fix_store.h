@@ -33,23 +33,23 @@ class FixStore : public Fix {
   int disable;        // 1 if operations (except grow) are currently disabled
 
   FixStore(class LAMMPS *, int, char **);
-  ~FixStore() override;
-  int setmask() override;
+  ~FixStore();
+  int setmask();
   void reset_global(int, int);
 
-  void write_restart(FILE *) override;
-  void restart(char *) override;
+  void write_restart(FILE *);
+  void restart(char *);
 
-  void grow_arrays(int) override;
-  void copy_arrays(int, int, int) override;
-  int pack_exchange(int, double *) override;
-  int unpack_exchange(int, double *) override;
-  int pack_restart(int, double *) override;
-  void unpack_restart(int, int) override;
-  int size_restart(int) override;
-  int maxsize_restart() override;
+  void grow_arrays(int);
+  void copy_arrays(int, int, int);
+  int pack_exchange(int, double *);
+  int unpack_exchange(int, double *);
+  int pack_restart(int, double *);
+  void unpack_restart(int, int);
+  int size_restart(int);
+  int maxsize_restart();
 
-  double memory_usage() override;
+  double memory_usage();
 
  private:
   int flavor;     // GLOBAL or PERATOM

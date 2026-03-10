@@ -40,14 +40,14 @@
 #include <cstring>
 
 using namespace LAMMPS_NS;
-using MathConst::DEG2RAD;
+using namespace MathConst;
 
 #define BIG 1.0e20
 
 enum{NUMERIC,ATOM,TYPE,ELEMENT,ATTRIBUTE};
 enum{SPHERE,LINE,TRI};           // also in some Body and Fix child classes
 enum{STATIC,DYNAMIC};
-enum{NO=0,YES=1};
+enum{NO,YES};
 
 /* ---------------------------------------------------------------------- */
 
@@ -146,7 +146,9 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"atom") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal dump image command");
-      atomflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) atomflag = YES;
+      else if (strcmp(arg[iarg+1],"no") == 0) atomflag = NO;
+      else error->all(FLERR,"Illegal dump image command");
       iarg += 2;
 
     } else if (strcmp(arg[iarg],"adiam") == 0) {
@@ -228,15 +230,18 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
       if (utils::strmatch(arg[iarg+1],"^v_")) {
         thetastr = utils::strdup(arg[iarg+1]+2);
       } else {
-        const double theta = utils::numeric(FLERR,arg[iarg+1],false,lmp);
+        double theta = utils::numeric(FLERR,arg[iarg+1],false,lmp);
         if (theta < 0.0 || theta > 180.0)
           error->all(FLERR,"Invalid dump image theta value");
-        image->theta = DEG2RAD * theta;
+        theta *= MY_PI/180.0;
+        image->theta = theta;
       }
       if (utils::strmatch(arg[iarg+2],"^v_")) {
         phistr = utils::strdup(arg[iarg+2]+2);
       } else {
-        image->phi = DEG2RAD * utils::numeric(FLERR,arg[iarg+2],false,lmp);
+        double phi = utils::numeric(FLERR,arg[iarg+2],false,lmp);
+        phi *= MY_PI/180.0;
+        image->phi = phi;
       }
       iarg += 3;
 
@@ -285,14 +290,18 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
 
     } else if (strcmp(arg[iarg],"box") == 0) {
       if (iarg+3 > narg) error->all(FLERR,"Illegal dump image command");
-      boxflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) boxflag = YES;
+      else if (strcmp(arg[iarg+1],"no") == 0) boxflag = NO;
+      else error->all(FLERR,"Illegal dump image command");
       boxdiam = utils::numeric(FLERR,arg[iarg+2],false,lmp);
       if (boxdiam < 0.0) error->all(FLERR,"Illegal dump image command");
       iarg += 3;
 
     } else if (strcmp(arg[iarg],"axes") == 0) {
       if (iarg+3 > narg) error->all(FLERR,"Illegal dump image command");
-      axesflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) axesflag = YES;
+      else if (strcmp(arg[iarg+1],"no") == 0) axesflag = NO;
+      else error->all(FLERR,"Illegal dump image command");
       axeslen = utils::numeric(FLERR,arg[iarg+2],false,lmp);
       axesdiam = utils::numeric(FLERR,arg[iarg+3],false,lmp);
       if (axeslen < 0.0 || axesdiam < 0.0)
@@ -301,7 +310,9 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
 
     } else if (strcmp(arg[iarg],"subbox") == 0) {
       if (iarg+3 > narg) error->all(FLERR,"Illegal dump image command");
-      subboxflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) subboxflag = YES;
+      else if (strcmp(arg[iarg+1],"no") == 0) subboxflag = NO;
+      else error->all(FLERR,"Illegal dump image command");
       subboxdiam = utils::numeric(FLERR,arg[iarg+2],false,lmp);
       if (subboxdiam < 0.0) error->all(FLERR,"Illegal dump image command");
       iarg += 3;
@@ -316,7 +327,9 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
 
     } else if (strcmp(arg[iarg],"ssao") == 0) {
       if (iarg+4 > narg) error->all(FLERR,"Illegal dump image command");
-      image->ssao = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) image->ssao = YES;
+      else if (strcmp(arg[iarg+1],"no") == 0) image->ssao = NO;
+      else error->all(FLERR,"Illegal dump image command");
       int seed = utils::inumeric(FLERR,arg[iarg+2],false,lmp);
       if (seed <= 0) error->all(FLERR,"Illegal dump image command");
       image->seed = seed;
@@ -332,17 +345,17 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
   // error checks and setup for lineflag, triflag, bodyflag, fixflag
 
   if (lineflag) {
-    avec_line = dynamic_cast<AtomVecLine *>( atom->style_match("line"));
+    avec_line = (AtomVecLine *) atom->style_match("line");
     if (!avec_line)
       error->all(FLERR,"Dump image line requires atom style line");
   }
   if (triflag) {
-    avec_tri = dynamic_cast<AtomVecTri *>( atom->style_match("tri"));
+    avec_tri = (AtomVecTri *) atom->style_match("tri");
     if (!avec_tri)
       error->all(FLERR,"Dump image tri requires atom style tri");
   }
   if (bodyflag) {
-    avec_body = dynamic_cast<AtomVecBody *>( atom->style_match("body"));
+    avec_body = (AtomVecBody *) atom->style_match("body");
     if (!avec_body)
       error->all(FLERR,"Dump image body yes requires atom style body");
   }
@@ -351,9 +364,9 @@ DumpImage::DumpImage(LAMMPS *lmp, int narg, char **arg) :
   if (lineflag || triflag || bodyflag) extraflag = 1;
 
   if (fixflag) {
-    fixptr = modify->get_fix_by_id(fixID);
-    if (!fixptr) error->all(FLERR,"Fix ID {} for dump image does not exist", fixID);
-
+    int ifix = modify->find_fix(fixID);
+    if (ifix < 0) error->all(FLERR,"Fix ID for dump image does not exist");
+    fixptr = modify->fix[ifix];
   }
 
   // allocate image buffer now that image size is known
@@ -649,13 +662,18 @@ void DumpImage::view_params()
   // view direction theta and phi
 
   if (thetastr) {
-    const double theta = input->variable->compute_equal(thetavar);
+    double theta = input->variable->compute_equal(thetavar);
     if (theta < 0.0 || theta > 180.0)
       error->all(FLERR,"Invalid dump image theta value");
-    image->theta = DEG2RAD * theta;
+    theta *= MY_PI/180.0;
+    image->theta = theta;
   }
 
-  if (phistr) image->phi = DEG2RAD * input->variable->compute_equal(phivar);
+  if (phistr) {
+    double phi = input->variable->compute_equal(phivar);
+    phi *= MY_PI/180.0;
+    image->phi = phi;
+  }
 
   // up vector
 
@@ -890,7 +908,7 @@ void DumpImage::create_image()
       }
     }
 
-    comm->forward_comm(this);
+    comm->forward_comm_dump(this);
 
     for (i = 0; i < nchoose; i++) {
       atom1 = clist[i];
@@ -1192,10 +1210,10 @@ int DumpImage::modify_param(int narg, char **arg)
     utils::bounds(FLERR,arg[1],1,atom->ntypes,nlo,nhi,error);
 
     // get list of colors
-    // assign colors in round-robin fashion to types
-
     auto colors = Tokenizer(arg[2],"/").as_vector();
     const int ncolors = colors.size();
+
+    // assign colors in round-robin fashion to types
 
     int m = 0;
     for (int i = nlo; i <= nhi; i++) {
@@ -1241,19 +1259,32 @@ int DumpImage::modify_param(int narg, char **arg)
     int nlo,nhi;
     utils::bounds(FLERR,arg[1],1,atom->nbondtypes,nlo,nhi,error);
 
-    // process list of ncount colornames separated by '/'
-    // assign colors in round-robin fashion to bond types
+    // ptrs = list of ncount colornames separated by '/'
 
-    auto colors = Tokenizer(arg[2],"/").as_vector();
-    const int ncolors = colors.size();
+    int ncount = 1;
+    char *nextptr;
+    char *ptr = arg[2];
+    while ((nextptr = strchr(ptr,'/'))) {
+      ptr = nextptr + 1;
+      ncount++;
+    }
+    char **ptrs = new char*[ncount+1];
+    ncount = 0;
+    ptrs[ncount++] = strtok(arg[2],"/");
+    while ((ptrs[ncount++] = strtok(nullptr,"/")));
+    ncount--;
+
+    // assign each of ncount colors in round-robin fashion to types
 
     int m = 0;
     for (int i = nlo; i <= nhi; i++) {
-      bcolortype[i] = image->color2rgb(colors[m%ncolors].c_str());
+      bcolortype[i] = image->color2rgb(ptrs[m%ncount]);
       if (bcolortype[i] == nullptr)
         error->all(FLERR,"Invalid color in dump_modify command");
       m++;
     }
+
+    delete [] ptrs;
     return 3;
   }
 

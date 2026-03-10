@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class FixPrint : public Fix {
  public:
   FixPrint(class LAMMPS *, int, char **);
-  ~FixPrint() override;
-  void init() override;
-  void setup(int) override;
-  int setmask() override;
-  void end_of_step() override;
+  ~FixPrint();
+  void init();
+  void setup(int);
+  int setmask();
+  void end_of_step();
 
  private:
   int me, screenflag;

@@ -21,13 +21,14 @@ namespace LAMMPS_NS {
 class FixNHOMP : public FixNH {
  public:
   FixNHOMP(class LAMMPS *lmp, int narg, char **args) : FixNH(lmp, narg, args){};
+  virtual ~FixNHOMP(){};
 
  protected:
-  void remap() override;
-  void nh_v_press() override;
-  void nh_v_temp() override;
-  void nve_v() override;
-  void nve_x() override;
+  virtual void remap();
+  virtual void nh_v_press();
+  virtual void nh_v_temp();
+  virtual void nve_v();
+  virtual void nve_x();
 };
 
 }    // namespace LAMMPS_NS

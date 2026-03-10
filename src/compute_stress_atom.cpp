@@ -13,23 +13,21 @@
 ------------------------------------------------------------------------- */
 
 #include "compute_stress_atom.h"
-
-#include "angle.h"
+#include <cstring>
 #include "atom.h"
-#include "bond.h"
+#include "update.h"
 #include "comm.h"
-#include "dihedral.h"
-#include "error.h"
-#include "fix.h"
 #include "force.h"
+#include "pair.h"
+#include "bond.h"
+#include "angle.h"
+#include "dihedral.h"
 #include "improper.h"
 #include "kspace.h"
-#include "memory.h"
 #include "modify.h"
-#include "pair.h"
-#include "update.h"
-
-#include <cstring>
+#include "fix.h"
+#include "memory.h"
+#include "error.h"
 
 using namespace LAMMPS_NS;
 
@@ -220,9 +218,11 @@ void ComputeStressAtom::compute_peratom()
   //   and fix ave/spatial uses a per-atom stress from this compute as input
 
   if (fixflag) {
-    for (auto &ifix : modify->get_fix_list())
-      if (ifix->virial_peratom_flag && ifix->thermo_virial) {
-        double **vatom = ifix->vatom;
+    Fix **fix = modify->fix;
+    int nfix = modify->nfix;
+    for (int ifix = 0; ifix < nfix; ifix++)
+      if (fix[ifix]->virial_peratom_flag && fix[ifix]->thermo_virial) {
+        double **vatom = fix[ifix]->vatom;
         if (vatom)
           for (i = 0; i < nlocal; i++)
             for (j = 0; j < 6; j++)
@@ -233,7 +233,7 @@ void ComputeStressAtom::compute_peratom()
   // communicate ghost virials between neighbor procs
 
   if (force->newton || (force->kspace && force->kspace->tip4pflag))
-    comm->reverse_comm(this);
+    comm->reverse_comm_compute(this);
 
   // zero virial of atoms not in group
   // only do this after comm since ghost contributions must be included

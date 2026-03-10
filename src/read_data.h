@@ -27,9 +27,8 @@ namespace LAMMPS_NS {
 class ReadData : public Command {
  public:
   ReadData(class LAMMPS *);
-  ~ReadData() override;
-  void command(int, char **) override;
-  static bool is_data_section(const std::string &);
+  ~ReadData();
+  void command(int, char **);
 
  private:
   int me, compressed;
@@ -79,7 +78,7 @@ class ReadData : public Command {
 
   // methods
 
-  void open(const std::string &);
+  void open(char *);
   void scan(int &, int &, int &, int &);
   int reallocate(int **, int, int);
   void header(int);

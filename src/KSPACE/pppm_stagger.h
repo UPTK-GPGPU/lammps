@@ -27,28 +27,28 @@ namespace LAMMPS_NS {
 class PPPMStagger : public PPPM {
  public:
   PPPMStagger(class LAMMPS *);
-  ~PPPMStagger() override;
-  void init() override;
-  void compute(int, int) override;
-  int timing_1d(int, double &) override;
-  int timing_3d(int, double &) override;
+  virtual ~PPPMStagger();
+  virtual void init();
+  virtual void compute(int, int);
+  virtual int timing_1d(int, double &);
+  virtual int timing_3d(int, double &);
 
  protected:
   int nstagger;
   double stagger;
   double **gf_b2;
 
-  double compute_qopt() override;
+  virtual double compute_qopt();
   double compute_qopt_ad();
-  void compute_gf_denom() override;
-  void compute_gf_ik() override;
-  void compute_gf_ad() override;
+  virtual void compute_gf_denom();
+  virtual void compute_gf_ik();
+  virtual void compute_gf_ad();
 
-  void particle_map() override;
-  void make_rho() override;
-  void fieldforce_ik() override;
-  void fieldforce_ad() override;
-  void fieldforce_peratom() override;
+  virtual void particle_map();
+  virtual void make_rho();
+  virtual void fieldforce_ik();
+  virtual void fieldforce_ad();
+  virtual void fieldforce_peratom();
 
   inline double gf_denom2(const double &x, const double &y, const double &z) const
   {

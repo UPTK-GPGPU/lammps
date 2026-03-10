@@ -27,16 +27,16 @@ namespace LAMMPS_NS {
 class PPPMDispTIP4P : public PPPMDisp {
  public:
   PPPMDispTIP4P(class LAMMPS *);
-
-  void init() override;
+  virtual ~PPPMDispTIP4P(){};
+  void init();
 
  protected:
-  void particle_map_c(double, double, double, double, int **, int, int, int, int, int, int,
-                              int, int) override;
-  void make_rho_c() override;
-  void fieldforce_c_ik() override;
-  void fieldforce_c_ad() override;
-  void fieldforce_c_peratom() override;
+  virtual void particle_map_c(double, double, double, double, int **, int, int, int, int, int, int,
+                              int, int);
+  virtual void make_rho_c();
+  virtual void fieldforce_c_ik();
+  virtual void fieldforce_c_ad();
+  virtual void fieldforce_c_peratom();
 
  private:
   void find_M(int, int &, int &, double *);

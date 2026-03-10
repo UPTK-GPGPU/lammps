@@ -33,7 +33,7 @@ class AngleCosineShiftOMP : public AngleCosineShift, public ThrOMP {
 
  public:
   AngleCosineShiftOMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

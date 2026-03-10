@@ -30,12 +30,12 @@ namespace LAMMPS_NS {
 class PairEAMFSIntel : virtual public PairEAMIntel {
  public:
   PairEAMFSIntel(class LAMMPS *);
-
-  void coeff(int, char **) override;
+  virtual ~PairEAMFSIntel() {}
+  void coeff(int, char **);
 
  protected:
-  void read_file(char *) override;
-  void file2array() override;
+  void read_file(char *);
+  void file2array();
 };
 
 }    // namespace LAMMPS_NS

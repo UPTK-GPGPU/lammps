@@ -21,15 +21,16 @@ namespace LAMMPS_NS {
 class FixNHBody : public FixNH {
  public:
   FixNHBody(class LAMMPS *, int, char **);
-  void init() override;
+  virtual ~FixNHBody() {}
+  void init();
 
  protected:
   double dtq;
   class AtomVecBody *avec;
 
-  void nve_v() override;
-  void nve_x() override;
-  void nh_v_temp() override;
+  void nve_v();
+  void nve_x();
+  void nh_v_temp();
 };
 
 }    // namespace LAMMPS_NS

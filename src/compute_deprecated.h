@@ -28,7 +28,8 @@ namespace LAMMPS_NS {
 class ComputeDeprecated : public Compute {
  public:
   ComputeDeprecated(class LAMMPS *, int, char **);
-  void init() override {}
+  ~ComputeDeprecated() {}
+  void init() {}
 };
 
 }    // namespace LAMMPS_NS

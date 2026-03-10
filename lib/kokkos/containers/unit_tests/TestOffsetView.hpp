@@ -50,7 +50,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
-#include <Kokkos_Timer.hpp>
+#include <impl/Kokkos_Timer.hpp>
 #include <Kokkos_OffsetView.hpp>
 #include <KokkosExp_MDRangePolicy.hpp>
 

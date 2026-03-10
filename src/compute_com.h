@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeCOM : public Compute {
  public:
   ComputeCOM(class LAMMPS *, int, char **);
-  ~ComputeCOM() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeCOM();
+  void init();
+  void compute_vector();
 
  private:
   double masstotal;

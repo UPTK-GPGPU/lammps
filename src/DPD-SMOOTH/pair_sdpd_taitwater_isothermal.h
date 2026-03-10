@@ -31,12 +31,12 @@ namespace LAMMPS_NS {
 class PairSDPDTaitwaterIsothermal : public Pair {
  public:
   PairSDPDTaitwaterIsothermal(class LAMMPS *);
-  ~PairSDPDTaitwaterIsothermal() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  double init_one(int, int) override;
-  void init_style() override;
+  virtual ~PairSDPDTaitwaterIsothermal();
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  virtual double init_one(int, int);
+  virtual void init_style();
 
  protected:
   double viscosity, temperature;

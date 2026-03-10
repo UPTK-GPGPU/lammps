@@ -33,7 +33,7 @@ class ImproperClass2OMP : public ImproperClass2, public ThrOMP {
 
  public:
   ImproperClass2OMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

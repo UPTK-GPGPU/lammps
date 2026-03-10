@@ -27,13 +27,13 @@ namespace LAMMPS_NS {
 class FixNVTSllod : public FixNH {
  public:
   FixNVTSllod(class LAMMPS *, int, char **);
-
-  void init() override;
+  ~FixNVTSllod() {}
+  void init();
 
  private:
   int nondeformbias;
 
-  void nh_v_temp() override;
+  void nh_v_temp();
 };
 
 }    // namespace LAMMPS_NS

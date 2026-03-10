@@ -53,7 +53,6 @@
 #include <array>
 #include <cstring>
 #include <iostream>
-#include <memory>
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
@@ -71,9 +70,7 @@ void tool_invoked_fence(const uint32_t /* devID */) {
    * Eventually we want to support fencing only
    * a given stream/resource
    */
-  Kokkos::fence(
-      "Kokkos::Tools::Experimental::Impl::tool_invoked_fence: Tool Requested "
-      "Fence");
+  Kokkos::fence();
 }
 }  // namespace Impl
 #ifdef KOKKOS_ENABLE_TUNING
@@ -134,8 +131,7 @@ inline void invoke_kokkosp_callback(
     if (may_require_global_fencing == MayRequireGlobalFencing::Yes &&
         (Kokkos::Tools::Experimental::tool_requirements
              .requires_global_fencing)) {
-      Kokkos::fence(
-          "Kokkos::Tools::invoke_kokkosp_callback: Kokkos Profile Tool Fence");
+      Kokkos::fence();
     }
     (*callback)(std::forward<Args>(args)...);
   }
@@ -436,43 +432,18 @@ void initialize(const std::string& profileLibrary) {
   if (is_initialized) return;
   is_initialized = 1;
 
-  auto invoke_init_callbacks = []() {
-    Experimental::invoke_kokkosp_callback(
-        Kokkos::Tools::Experimental::MayRequireGlobalFencing::No,
-        Kokkos::Tools::Experimental::current_callbacks.init, 0,
-        (uint64_t)KOKKOSP_INTERFACE_VERSION, (uint32_t)0, nullptr);
-
-    Experimental::tool_requirements.requires_global_fencing = true;
-
-    Experimental::invoke_kokkosp_callback(
-        Experimental::MayRequireGlobalFencing::No,
-        Experimental::current_callbacks.request_tool_settings, 1,
-        &Experimental::tool_requirements);
-
-    Experimental::ToolProgrammingInterface actions;
-    actions.fence = &Experimental::Impl::tool_invoked_fence;
-
-    Experimental::invoke_kokkosp_callback(
-        Experimental::MayRequireGlobalFencing::No,
-        Experimental::current_callbacks.provide_tool_programming_interface, 1,
-        actions);
-  };
-
 #ifdef KOKKOS_ENABLE_LIBDL
   void* firstProfileLibrary = nullptr;
 
-  if (profileLibrary.empty()) {
-    invoke_init_callbacks();
-    return;
-  }
+  if (profileLibrary.empty()) return;
 
   char* envProfileLibrary = const_cast<char*>(profileLibrary.c_str());
 
-  const auto envProfileCopy =
-      std::make_unique<char[]>(strlen(envProfileLibrary) + 1);
-  sprintf(envProfileCopy.get(), "%s", envProfileLibrary);
+  char* envProfileCopy =
+      (char*)malloc(sizeof(char) * (strlen(envProfileLibrary) + 1));
+  sprintf(envProfileCopy, "%s", envProfileLibrary);
 
-  char* profileLibraryName = strtok(envProfileCopy.get(), ";");
+  char* profileLibraryName = strtok(envProfileCopy, ";");
 
   if ((profileLibraryName != nullptr) &&
       (strcmp(profileLibraryName, "") != 0)) {
@@ -603,8 +574,25 @@ void initialize(const std::string& profileLibrary) {
 #else
   (void)profileLibrary;
 #endif  // KOKKOS_ENABLE_LIBDL
+  Experimental::invoke_kokkosp_callback(
+      Kokkos::Tools::Experimental::MayRequireGlobalFencing::No,
+      Kokkos::Tools::Experimental::current_callbacks.init, 0,
+      (uint64_t)KOKKOSP_INTERFACE_VERSION, (uint32_t)0, nullptr);
 
-  invoke_init_callbacks();
+  Experimental::tool_requirements.requires_global_fencing = true;
+
+  Experimental::invoke_kokkosp_callback(
+      Experimental::MayRequireGlobalFencing::No,
+      Experimental::current_callbacks.request_tool_settings, 1,
+      &Experimental::tool_requirements);
+
+  Experimental::ToolProgrammingInterface actions;
+  actions.fence = &Experimental::Impl::tool_invoked_fence;
+
+  Experimental::invoke_kokkosp_callback(
+      Experimental::MayRequireGlobalFencing::No,
+      Experimental::current_callbacks.provide_tool_programming_interface, 1,
+      actions);
 
 #ifdef KOKKOS_ENABLE_TUNING
   Experimental::VariableInfo kernel_name;
@@ -668,6 +656,9 @@ void initialize(const std::string& profileLibrary) {
   Experimental::no_profiling.declare_output_type   = nullptr;
   Experimental::no_profiling.request_output_values = nullptr;
   Experimental::no_profiling.end_tuning_context    = nullptr;
+#ifdef KOKKOS_ENABLE_LIBDL
+  free(envProfileCopy);
+#endif
 }
 
 void finalize() {

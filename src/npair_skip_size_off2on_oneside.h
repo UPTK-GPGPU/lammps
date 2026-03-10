@@ -31,7 +31,8 @@ namespace LAMMPS_NS {
 class NPairSkipSizeOff2onOneside : public NPair {
  public:
   NPairSkipSizeOff2onOneside(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairSkipSizeOff2onOneside() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

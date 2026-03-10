@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class MSM : public KSpace {
  public:
   MSM(class LAMMPS *);
-  ~MSM() override;
-  void init() override;
-  void setup() override;
-  void settings(int, char **) override;
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual ~MSM();
+  void init();
+  void setup();
+  virtual void settings(int, char **);
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   int me, nprocs;
@@ -100,7 +100,7 @@ class MSM : public KSpace {
   void set_grid_global();
   void set_proc_grid(int);
   void set_grid_local();
-  void setup_grid() override;
+  void setup_grid();
   double estimate_1d_error(double, double);
   double estimate_3d_error();
   double estimate_total_error();
@@ -111,8 +111,8 @@ class MSM : public KSpace {
   void allocate_levels();
   void deallocate_levels();
   int factorable(int, int &, int &);
-  virtual void particle_map();
-  virtual void make_rho();
+  void particle_map();
+  void make_rho();
   virtual void direct(int);
   void direct_peratom(int);
   void direct_top(int);
@@ -121,8 +121,8 @@ class MSM : public KSpace {
   void prolongation(int);
   void grid_swap_forward(int, double ***&);
   void grid_swap_reverse(int, double ***&);
-  virtual void fieldforce();
-  virtual void fieldforce_peratom();
+  void fieldforce();
+  void fieldforce_peratom();
   void compute_phis(const double &, const double &, const double &);
   void compute_phis_and_dphis(const double &, const double &, const double &);
   inline double compute_phi(const double &);
@@ -134,10 +134,10 @@ class MSM : public KSpace {
 
   // grid communication
 
-  void pack_forward_grid(int, void *, int, int *) override;
-  void unpack_forward_grid(int, void *, int, int *) override;
-  void pack_reverse_grid(int, void *, int, int *) override;
-  void unpack_reverse_grid(int, void *, int, int *) override;
+  void pack_forward_grid(int, void *, int, int *);
+  void unpack_forward_grid(int, void *, int, int *);
+  void pack_reverse_grid(int, void *, int, int *);
+  void unpack_reverse_grid(int, void *, int, int *);
 };
 
 }    // namespace LAMMPS_NS

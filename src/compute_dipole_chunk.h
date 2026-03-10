@@ -27,17 +27,17 @@ namespace LAMMPS_NS {
 class ComputeDipoleChunk : public Compute {
  public:
   ComputeDipoleChunk(class LAMMPS *, int, char **);
-  ~ComputeDipoleChunk() override;
-  void init() override;
-  void compute_array() override;
+  ~ComputeDipoleChunk();
+  void init();
+  void compute_array();
 
-  void lock_enable() override;
-  void lock_disable() override;
-  int lock_length() override;
-  void lock(class Fix *, bigint, bigint) override;
-  void unlock(class Fix *) override;
+  void lock_enable();
+  void lock_disable();
+  int lock_length();
+  void lock(class Fix *, bigint, bigint);
+  void unlock(class Fix *);
 
-  double memory_usage() override;
+  double memory_usage();
 
  private:
   int nchunk, maxchunk;

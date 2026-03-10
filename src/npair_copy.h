@@ -29,7 +29,8 @@ namespace LAMMPS_NS {
 class NPairCopy : public NPair {
  public:
   NPairCopy(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairCopy() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

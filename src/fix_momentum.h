@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class FixMomentum : public Fix {
  public:
   FixMomentum(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void end_of_step() override;
+  int setmask();
+  void init();
+  void end_of_step();
 
  protected:
   int linear, angular, rescale;

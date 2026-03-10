@@ -22,8 +22,8 @@ namespace LAMMPS_NS {
 class FixQEQCombOMP : public FixQEQComb {
  public:
   FixQEQCombOMP(class LAMMPS *, int, char **);
-  void init() override;
-  void post_force(int) override;
+  virtual void init();
+  virtual void post_force(int);
 };
 
 }    // namespace LAMMPS_NS

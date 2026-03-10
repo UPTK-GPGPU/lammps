@@ -139,7 +139,8 @@ class NPairHalffullKokkos : public NPair {
   typedef ArrayTypes<DeviceType> AT;
 
   NPairHalffullKokkos(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairHalffullKokkos() {}
+  void build(class NeighList *);
 
   KOKKOS_INLINE_FUNCTION
   void operator()(TagNPairHalffullCompute, const int&) const;

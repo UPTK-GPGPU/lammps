@@ -48,17 +48,17 @@ namespace LAMMPS_NS {
 class PPPM : public KSpace {
  public:
   PPPM(class LAMMPS *);
-  ~PPPM() override;
-  void settings(int, char **) override;
-  void init() override;
-  void setup() override;
-  void setup_grid() override;
-  void compute(int, int) override;
-  int timing_1d(int, double &) override;
-  int timing_3d(int, double &) override;
-  double memory_usage() override;
+  virtual ~PPPM();
+  virtual void settings(int, char **);
+  virtual void init();
+  virtual void setup();
+  virtual void setup_grid();
+  virtual void compute(int, int);
+  virtual int timing_1d(int, double &);
+  virtual int timing_3d(int, double &);
+  virtual double memory_usage();
 
-  void compute_group_group(int, int, int) override;
+  virtual void compute_group_group(int, int, int);
 
  protected:
   int me, nprocs;
@@ -162,10 +162,10 @@ class PPPM : public KSpace {
 
   // grid communication
 
-  void pack_forward_grid(int, void *, int, int *) override;
-  void unpack_forward_grid(int, void *, int, int *) override;
-  void pack_reverse_grid(int, void *, int, int *) override;
-  void unpack_reverse_grid(int, void *, int, int *) override;
+  virtual void pack_forward_grid(int, void *, int, int *);
+  virtual void unpack_forward_grid(int, void *, int, int *);
+  virtual void pack_reverse_grid(int, void *, int, int *);
+  virtual void unpack_reverse_grid(int, void *, int, int *);
 
   // triclinic
 

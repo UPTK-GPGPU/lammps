@@ -27,15 +27,14 @@ namespace LAMMPS_NS {
 class FixLbMomentum : public Fix {
  public:
   FixLbMomentum(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void end_of_step() override;
+  int setmask();
+  void init();
+  void end_of_step();
 
  private:
   int linear;
   int xflag, yflag, zflag;
   double masstotal;
-  int count;
 
   class FixLbFluid *fix_lb_fluid;
 };

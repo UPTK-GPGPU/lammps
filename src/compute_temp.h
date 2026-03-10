@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class ComputeTemp : public Compute {
  public:
   ComputeTemp(class LAMMPS *, int, char **);
-  ~ComputeTemp() override;
-  void init() override {}
-  void setup() override;
-  double compute_scalar() override;
-  void compute_vector() override;
+  virtual ~ComputeTemp();
+  void init() {}
+  void setup();
+  virtual double compute_scalar();
+  virtual void compute_vector();
 
  protected:
   double tfactor;

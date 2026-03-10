@@ -16,7 +16,7 @@
    Contributing author: Aidan Thompson (SNL)
 ------------------------------------------------------------------------- */
 
-#include "compute_mliap.h"
+#include <cstring>
 
 #include "mliap_data.h"
 #include "mliap_model_linear.h"
@@ -26,17 +26,17 @@
 #include "mliap_model_python.h"
 #endif
 
+#include "compute_mliap.h"
 #include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "memory.h"
+#include "update.h"
 #include "modify.h"
 #include "neighbor.h"
+#include "neigh_request.h"
+#include "force.h"
 #include "pair.h"
-#include "update.h"
-
-#include <cstring>
+#include "comm.h"
+#include "memory.h"
+#include "error.h"
 
 using namespace LAMMPS_NS;
 
@@ -151,9 +151,17 @@ void ComputeMLIAP::init()
 
   // need an occasional full neighbor list
 
-  neighbor->add_request(this, NeighConst::REQ_FULL | NeighConst::REQ_OCCASIONAL);
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->pair = 0;
+  neighbor->requests[irequest]->compute = 1;
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
+  neighbor->requests[irequest]->occasional = 1;
 
-  if (modify->get_compute_by_style("mliap").size() > 1 && comm->me == 0)
+  int count = 0;
+  for (int i = 0; i < modify->ncompute; i++)
+    if (strcmp(modify->compute[i]->style,"mliap") == 0) count++;
+  if (count > 1 && comm->me == 0)
     error->warning(FLERR,"More than one compute mliap");
 
   // initialize model and descriptor

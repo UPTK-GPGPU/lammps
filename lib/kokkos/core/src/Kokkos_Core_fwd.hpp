@@ -53,9 +53,7 @@
 #include <impl/Kokkos_Error.hpp>
 #include <impl/Kokkos_Utilities.hpp>
 
-#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_3
 #include <Kokkos_MasterLock.hpp>
-#endif
 
 //----------------------------------------------------------------------------
 // Have assumed a 64bit build (8byte pointers) throughout the code base.
@@ -240,8 +238,7 @@ class LogicalMemorySpace;
 
 namespace Kokkos {
 void fence();
-void fence(const std::string &);
-}  // namespace Kokkos
+}
 
 //----------------------------------------------------------------------------
 
@@ -253,12 +250,8 @@ class View;
 namespace Impl {
 
 template <class DstSpace, class SrcSpace,
-          class ExecutionSpace = typename DstSpace::execution_space,
-          class Enable         = void>
+          class ExecutionSpace = typename DstSpace::execution_space>
 struct DeepCopy;
-
-template <typename ExecutionSpace, class DT, class... DP>
-struct ZeroMemset;
 
 template <class ViewType, class Layout = typename ViewType::array_layout,
           class ExecSpace = typename ViewType::execution_space,

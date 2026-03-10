@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeSpin : public Compute {
  public:
   ComputeSpin(class LAMMPS *, int, char **);
-  ~ComputeSpin() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeSpin();
+  void init();
+  void compute_vector();
 
  private:
   int pair_spin_flag;          // magnetic pair flags

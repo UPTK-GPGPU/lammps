@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class FixTuneKspace : public Fix {
  public:
   FixTuneKspace(class LAMMPS *, int, char **);
-
-  int setmask() override;
-  void init() override;
-  void pre_exchange() override;
+  ~FixTuneKspace() {}
+  int setmask();
+  void init();
+  void pre_exchange();
   double get_timing_info();
   void store_old_kspace_settings();
   void update_pair_style(const std::string &, double);

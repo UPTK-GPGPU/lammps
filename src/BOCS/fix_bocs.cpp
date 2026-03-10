@@ -233,7 +233,9 @@ FixBocs::FixBocs(LAMMPS *lmp, int narg, char **arg) :
       iarg += 2;
     } else if (strcmp(arg[iarg],"mtk") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix bocs command");
-      mtk_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) mtk_flag = 1;
+      else if (strcmp(arg[iarg+1],"no") == 0) mtk_flag = 0;
+      else error->all(FLERR,"Illegal fix bocs command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"tloop") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix bocs command");
@@ -489,7 +491,7 @@ void FixBocs::init()
   {
     for (int i = 0; i < modify->nfix; i++)
       if (strcmp(modify->fix[i]->style,"deform") == 0) {
-        int *dimflag = (dynamic_cast<FixDeform *>( modify->fix[i]))->dimflag;
+        int *dimflag = ((FixDeform *) modify->fix[i])->dimflag;
         if ((p_flag[0] && dimflag[0]) || (p_flag[1] && dimflag[1]) ||
             (p_flag[2] && dimflag[2]) || (p_flag[3] && dimflag[3]) ||
             (p_flag[4] && dimflag[4]) || (p_flag[5] && dimflag[5]))
@@ -523,12 +525,12 @@ void FixBocs::init()
       {
         if (p_basis_type == BASIS_ANALYTIC)
         {
-          (dynamic_cast<ComputePressureBocs *>(pressure))->send_cg_info(p_basis_type,
+          ((ComputePressureBocs *)pressure)->send_cg_info(p_basis_type,
                                N_p_match, p_match_coeffs, N_mol, vavg);
         }
         else if (p_basis_type == BASIS_LINEAR_SPLINE || p_basis_type == BASIS_CUBIC_SPLINE)
         {
-          (dynamic_cast<ComputePressureBocs *>(pressure))->send_cg_info(p_basis_type,
+          ((ComputePressureBocs *)pressure)->send_cg_info(p_basis_type,
                                                splines, spline_length);
         }
       }
@@ -589,8 +591,8 @@ void FixBocs::init()
   else kspace_flag = 0;
 
   if (utils::strmatch(update->integrate_style,"^respa")) {
-    nlevels_respa = (dynamic_cast<Respa *>( update->integrate))->nlevels;
-    step_respa = (dynamic_cast<Respa *>( update->integrate))->step;
+    nlevels_respa = ((Respa *) update->integrate)->nlevels;
+    step_respa = ((Respa *) update->integrate)->step;
     dto = 0.5*step_respa[0];
   }
 
@@ -637,7 +639,7 @@ int FixBocs::read_F_table( char *filename, int p_basis_type )
     char line[MAX_F_TABLE_LINE_LENGTH];
     std::vector<std::string> inputLines;
     while (fgets(line, MAX_F_TABLE_LINE_LENGTH, fpi)) {
-      inputLines.emplace_back(line);
+      inputLines.push_back(std::string(line));
     }
     fclose(fpi);
 
@@ -1452,7 +1454,7 @@ int FixBocs::pack_restart_data(double *list)
 void FixBocs::restart(char *buf)
 {
   int n = 0;
-  auto list = (double *) buf;
+  double *list = (double *) buf;
   int flag = static_cast<int> (list[n++]);
   if (flag) {
     int m = static_cast<int> (list[n++]);
@@ -1551,12 +1553,12 @@ int FixBocs::modify_param(int narg, char **arg)
     {
       if (p_basis_type == BASIS_ANALYTIC)
       {
-        (dynamic_cast<ComputePressureBocs *>(pressure))->send_cg_info(p_basis_type, N_p_match,
+        ((ComputePressureBocs *)pressure)->send_cg_info(p_basis_type, N_p_match,
                                                    p_match_coeffs, N_mol, vavg);
       }
       else if (p_basis_type == BASIS_LINEAR_SPLINE || p_basis_type == BASIS_CUBIC_SPLINE )
       {
-        (dynamic_cast<ComputePressureBocs *>(pressure))->send_cg_info(p_basis_type, splines, spline_length );
+        ((ComputePressureBocs *)pressure)->send_cg_info(p_basis_type, splines, spline_length );
       }
     }
 

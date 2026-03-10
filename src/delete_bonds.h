@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class DeleteBonds : public Command {
  public:
   DeleteBonds(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 };
 
 }    // namespace LAMMPS_NS

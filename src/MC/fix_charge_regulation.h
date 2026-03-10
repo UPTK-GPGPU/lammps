@@ -31,10 +31,10 @@ namespace LAMMPS_NS {
 class FixChargeRegulation : public Fix {
  public:
   FixChargeRegulation(class LAMMPS *, int, char **);
-  ~FixChargeRegulation() override;
-  int setmask() override;
-  void init() override;
-  void pre_exchange() override;
+  ~FixChargeRegulation();
+  int setmask();
+  void init();
+  void pre_exchange();
   void forward_acid();
   void backward_acid();
   void forward_base();
@@ -48,13 +48,11 @@ class FixChargeRegulation : public Fix {
   double energy_full();
   int particle_number(int, double);
   int particle_number_xrd(int, double, double, double *);
-  double compute_vector(int n) override;
+  double compute_vector(int n);
   void assign_tags();
   void options(int, char **);
   void setThermoTemperaturePointer();
-  double memory_usage() override;
-  void write_restart(FILE *) override;
-  void restart(char *) override;
+  double memory_usage();
 
  private:
   int exclusion_group, exclusion_group_bit;

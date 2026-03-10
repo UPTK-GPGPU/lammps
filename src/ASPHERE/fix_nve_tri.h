@@ -27,10 +27,11 @@ namespace LAMMPS_NS {
 class FixNVETri : public FixNVE {
  public:
   FixNVETri(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  ~FixNVETri() {}
+  int setmask();
+  void init();
+  void initial_integrate(int);
+  void final_integrate();
 
  private:
   double dtq;

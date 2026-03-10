@@ -28,12 +28,11 @@ class FixSMDWallSurface : public Fix {
 
  public:
   FixSMDWallSurface(class LAMMPS *, int, char **);
-  ~FixSMDWallSurface() override;
-
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void min_setup(int) override;
+  virtual ~FixSMDWallSurface();
+  int setmask();
+  void init();
+  void setup(int);
+  void min_setup(int);
 
   void read_triangles(int pass);
 

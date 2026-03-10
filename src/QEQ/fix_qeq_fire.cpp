@@ -22,11 +22,14 @@
 #include "comm.h"
 #include "error.h"
 #include "force.h"
+#include "group.h"
 #include "kspace.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "pair_comb.h"
 #include "pair_comb3.h"
+#include "respa.h"
 #include "update.h"
 
 #include <cmath>
@@ -63,7 +66,9 @@ FixQEqFire::FixQEqFire(LAMMPS *lmp, int narg, char **arg) :
       iarg += 2;
     } else if (strcmp(arg[iarg],"warn") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix qeq/fire command");
-      maxwarn = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) maxwarn = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) maxwarn = 1;
+      else error->all(FLERR,"Illegal fix qeq/fire command");
       iarg += 2;
     } else error->all(FLERR,"Illegal fix qeq/fire command");
   }
@@ -73,16 +78,28 @@ FixQEqFire::FixQEqFire(LAMMPS *lmp, int narg, char **arg) :
 
 void FixQEqFire::init()
 {
-  FixQEq::init();
+  if (!atom->q_flag)
+    error->all(FLERR,"Fix qeq/fire requires atom attribute q");
 
-  neighbor->add_request(this);
+  ngroup = group->count(igroup);
+  if (ngroup == 0) error->all(FLERR,"Fix qeq/fire group has no atoms");
+
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->pair = 0;
+  neighbor->requests[irequest]->fix  = 1;
+  neighbor->requests[irequest]->half = 1;
+  neighbor->requests[irequest]->full = 0;
 
   if (tolerance < 1e-4)
     if (comm->me == 0)
-      error->warning(FLERR,"Fix qeq/fire tolerance may be too small for damped fires");
+      error->warning(FLERR,"Fix qeq/fire tolerance may be too small"
+                    " for damped fires");
 
-  comb3 = dynamic_cast<PairComb3 *>( force->pair_match("^comb3",0));
-  if (!comb3) comb = dynamic_cast<PairComb *>( force->pair_match("^comb",0));
+  if (utils::strmatch(update->integrate_style,"^respa"))
+    nlevels_respa = ((Respa *) update->integrate)->nlevels;
+
+  comb3 = (PairComb3 *) force->pair_match("^comb3",0);
+  if (!comb3) comb = (PairComb *) force->pair_match("^comb",0);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -120,7 +137,7 @@ void FixQEqFire::pre_force(int /*vflag*/)
 
   for (iloop = 0; iloop < maxiter; iloop ++) {
     pack_flag = 1;
-    comm->forward_comm(this);
+    comm->forward_comm_fix(this);
 
     if (comb) {
       comb->yasu_char(qf,igroup);
@@ -239,7 +256,7 @@ double FixQEqFire::compute_eneg()
 
   // communicating charge force to all nodes, first forward then reverse
   pack_flag = 2;
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 
   for (ii = 0; ii < inum; ii++) {
     i = ilist[ii];
@@ -272,7 +289,7 @@ double FixQEqFire::compute_eneg()
   }
 
   pack_flag = 2;
-  comm->reverse_comm(this);
+  comm->reverse_comm_fix(this);
 
   // sum charge force on each node and return it
 

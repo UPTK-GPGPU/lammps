@@ -35,7 +35,8 @@ namespace LAMMPS_NS {
 class NPairFullBinGhostIntel : public NPairIntel {
  public:
   NPairFullBinGhostIntel(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairFullBinGhostIntel() {}
+  void build(class NeighList *);
 
  private:
   template <class flt_t, class acc_t>

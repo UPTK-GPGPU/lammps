@@ -29,7 +29,8 @@ namespace LAMMPS_NS {
 class NPairHalfMultiOldNewtonTriOmp : public NPair {
  public:
   NPairHalfMultiOldNewtonTriOmp(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairHalfMultiOldNewtonTriOmp() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

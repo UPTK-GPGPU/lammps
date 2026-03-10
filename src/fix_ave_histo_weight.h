@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class FixAveHistoWeight : public FixAveHisto {
  public:
   FixAveHistoWeight(class LAMMPS *, int, char **);
-
-  void end_of_step() override;
+  ~FixAveHistoWeight() {}
+  void end_of_step();
 
  private:
   void bin_one_weights(double, double);

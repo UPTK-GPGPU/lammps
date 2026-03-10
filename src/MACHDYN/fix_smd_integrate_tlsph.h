@@ -41,12 +41,12 @@ class FixSMDIntegrateTlsph : public Fix {
 
  public:
   FixSMDIntegrateTlsph(class LAMMPS *, int, char **);
-
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
-  void reset_dt() override;
+  virtual ~FixSMDIntegrateTlsph() {}
+  int setmask();
+  virtual void init();
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
+  virtual void reset_dt();
 
  protected:
   double dtv, dtf, vlimit, vlimitsq;

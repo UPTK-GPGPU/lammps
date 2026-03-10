@@ -63,7 +63,8 @@ class NPairSkipKokkos : public NPair {
   typedef ArrayTypes<DeviceType> AT;
 
   NPairSkipKokkos(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairSkipKokkos() {}
+  void build(class NeighList *);
 
   KOKKOS_INLINE_FUNCTION
   void operator()(TagNPairSkipCompute, const int&, int&, const bool&) const;

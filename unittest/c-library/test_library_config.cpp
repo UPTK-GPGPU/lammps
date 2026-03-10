@@ -22,8 +22,8 @@ protected:
     void *lmp;
     std::string INPUT_DIR = STRINGIFY(TEST_INPUT_FOLDER);
 
-    LibraryConfig()           = default;
-    ~LibraryConfig() override = default;
+    LibraryConfig(){};
+    ~LibraryConfig() override{};
 
     void SetUp() override
     {
@@ -35,7 +35,7 @@ protected:
         int argc    = sizeof(args) / sizeof(char *);
 
         ::testing::internal::CaptureStdout();
-        lmp = lammps_open_no_mpi(argc, argv, nullptr);
+        lmp = lammps_open_no_mpi(argc, argv, NULL);
         lammps_command(lmp, "fix charge all property/atom q ghost yes");
         lammps_command(lmp, "region box block 0 1 0 1 0 1");
         lammps_command(lmp, "create_box 1 box");

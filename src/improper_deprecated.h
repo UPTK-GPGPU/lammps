@@ -27,12 +27,13 @@ namespace LAMMPS_NS {
 class ImproperDeprecated : public Improper {
  public:
   ImproperDeprecated(class LAMMPS *lmp) : Improper(lmp) {}
+  virtual ~ImproperDeprecated() {}
 
-  void compute(int, int) override {}
-  void settings(int, char **) override;
-  void coeff(int, char **) override {}
-  void write_restart(FILE *) override {}
-  void read_restart(FILE *) override {}
+  virtual void compute(int, int) {}
+  virtual void settings(int, char **);
+  virtual void coeff(int, char **) {}
+  virtual void write_restart(FILE *) {}
+  virtual void read_restart(FILE *) {}
 };
 
 }    // namespace LAMMPS_NS

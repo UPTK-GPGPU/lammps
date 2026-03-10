@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class FixNVEOMP : public FixNVE {
  public:
   FixNVEOMP(class LAMMPS *, int, char **);
-
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  virtual ~FixNVEOMP() {}
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
 };
 
 }    // namespace LAMMPS_NS

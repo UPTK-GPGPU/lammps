@@ -37,9 +37,10 @@ ComputeImproper::ComputeImproper(LAMMPS *lmp, int narg, char **arg) :
 
   // check if improper style hybrid exists
 
-  improper = dynamic_cast<ImproperHybrid *>( force->improper_match("hybrid"));
+  improper = (ImproperHybrid *) force->improper_match("hybrid");
   if (!improper)
-    error->all(FLERR, "Improper style for compute improper command is not hybrid");
+    error->all(FLERR,
+               "Improper style for compute improper command is not hybrid");
   size_vector = nsub = improper->nstyles;
 
   emine = new double[nsub];
@@ -60,9 +61,10 @@ void ComputeImproper::init()
 {
   // recheck improper style in case it has been changed
 
-  improper = dynamic_cast<ImproperHybrid *>( force->improper_match("hybrid"));
+  improper = (ImproperHybrid *) force->improper_match("hybrid");
   if (!improper)
-    error->all(FLERR, "Improper style for compute improper command is not hybrid");
+    error->all(FLERR,
+               "Improper style for compute improper command is not hybrid");
   if (improper->nstyles != nsub)
     error->all(FLERR,"Improper style for compute improper command has changed");
 }

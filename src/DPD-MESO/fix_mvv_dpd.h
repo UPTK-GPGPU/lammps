@@ -27,11 +27,12 @@ namespace LAMMPS_NS {
 class FixMvvDPD : public Fix {
  public:
   FixMvvDPD(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
-  void reset_dt() override;
+  virtual ~FixMvvDPD() {}
+  int setmask();
+  virtual void init();
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
+  virtual void reset_dt();
 
  protected:
   double dtv, dtf;

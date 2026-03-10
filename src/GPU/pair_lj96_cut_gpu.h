@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class PairLJ96CutGPU : public PairLJ96Cut {
  public:
   PairLJ96CutGPU(LAMMPS *lmp);
-  ~PairLJ96CutGPU() override;
+  ~PairLJ96CutGPU();
   void cpu_compute(int, int, int, int, int *, int *, int **);
-  void compute(int, int) override;
-  void init_style() override;
-  double memory_usage() override;
+  void compute(int, int);
+  void init_style();
+  double memory_usage();
 
   enum { GPU_FORCE, GPU_NEIGH, GPU_HYB_NEIGH };
 

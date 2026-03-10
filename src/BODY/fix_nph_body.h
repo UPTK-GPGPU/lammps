@@ -27,6 +27,7 @@ namespace LAMMPS_NS {
 class FixNPHBody : public FixNHBody {
  public:
   FixNPHBody(class LAMMPS *, int, char **);
+  ~FixNPHBody() {}
 };
 
 }    // namespace LAMMPS_NS

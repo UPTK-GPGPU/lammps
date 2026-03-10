@@ -56,7 +56,7 @@ Special::~Special()
 void Special::build()
 {
   MPI_Barrier(world);
-  double time1 = platform::walltime();
+  double time1 = MPI_Wtime();
 
   if (me == 0) {
     const double * const special_lj   = force->special_lj;
@@ -165,7 +165,8 @@ void Special::atom_owners()
 
   int *proclist;
   memory->create(proclist,nlocal,"special:proclist");
-  auto idbuf = (IDRvous *) memory->smalloc((bigint) nlocal*sizeof(IDRvous),"special:idbuf");
+  IDRvous *idbuf = (IDRvous *)
+    memory->smalloc((bigint) nlocal*sizeof(IDRvous),"special:idbuf");
 
   // setup input buf for rendezvous comm
   // one datum for each owned atom: datum = owning proc, atomID
@@ -214,7 +215,8 @@ void Special::onetwo_build_newton()
 
   int *proclist;
   memory->create(proclist,nsend,"special:proclist");
-  auto inbuf = (PairRvous *) memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
+  PairRvous *inbuf = (PairRvous *)
+    memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
 
   // setup input buf to rendezvous comm
   // one datum for each unowned bond partner: bond partner ID, atomID
@@ -237,7 +239,7 @@ void Special::onetwo_build_newton()
   char *buf;
   int nreturn = comm->rendezvous(RVOUS,nsend,(char *) inbuf,sizeof(PairRvous), 0,proclist,
                                  rendezvous_pairs,0,buf,sizeof(PairRvous), (void *) this);
-  auto outbuf = (PairRvous *) buf;
+  PairRvous *outbuf = (PairRvous *) buf;
 
   memory->destroy(proclist);
   memory->sfree(inbuf);
@@ -339,7 +341,8 @@ void Special::onethree_build()
 
   int *proclist;
   memory->create(proclist,nsend,"special:proclist");
-  auto inbuf = (PairRvous *) memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
+  PairRvous *inbuf = (PairRvous *)
+    memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
 
   // setup input buf to rendezvous comm
   // datums = pairs of onetwo partners where either is unknown
@@ -368,7 +371,7 @@ void Special::onethree_build()
   char *buf;
   int nreturn = comm->rendezvous(RVOUS,nsend,(char *) inbuf,sizeof(PairRvous), 0,proclist,
                                  rendezvous_pairs,0,buf,sizeof(PairRvous), (void *) this);
-  auto outbuf = (PairRvous *) buf;
+  PairRvous *outbuf = (PairRvous *) buf;
 
   memory->destroy(proclist);
   memory->sfree(inbuf);
@@ -441,7 +444,8 @@ void Special::onefour_build()
 
   int *proclist;
   memory->create(proclist,nsend,"special:proclist");
-  auto inbuf = (PairRvous *) memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
+  PairRvous *inbuf = (PairRvous *)
+    memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
 
   // setup input buf to rendezvous comm
   // datums = pairs of onethree and onetwo partners where onethree is unknown
@@ -469,7 +473,7 @@ void Special::onefour_build()
   char *buf;
   int nreturn = comm->rendezvous(RVOUS,nsend,(char *) inbuf,sizeof(PairRvous), 0,proclist,
                                  rendezvous_pairs,0,buf,sizeof(PairRvous), (void *) this);
-  auto outbuf = (PairRvous *) buf;
+  PairRvous *outbuf = (PairRvous *) buf;
 
   memory->destroy(proclist);
   memory->sfree(inbuf);
@@ -684,10 +688,10 @@ void Special::combine()
     utils::logmesg(lmp,"{:>6} = max # of special neighbors\n",atom->maxspecial);
 
   if (lmp->kokkos) {
-    auto  atomKK = dynamic_cast<AtomKokkos*>( atom);
+    AtomKokkos* atomKK = (AtomKokkos*) atom;
     atomKK->modified(Host,SPECIAL_MASK);
     atomKK->sync(Device,SPECIAL_MASK);
-    auto  memoryKK = dynamic_cast<MemoryKokkos*>( memory);
+    MemoryKokkos* memoryKK = (MemoryKokkos*) memory;
     memoryKK->grow_kokkos(atomKK->k_special,atom->special,
                         atom->nmax,atom->maxspecial,"atom:special");
     atomKK->modified(Device,SPECIAL_MASK);
@@ -821,7 +825,8 @@ void Special::angle_trim()
 
     int *proclist;
     memory->create(proclist,nsend,"special:proclist");
-    auto inbuf = (PairRvous *) memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
+    PairRvous *inbuf = (PairRvous *)
+      memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
 
     // setup input buf to rendezvous comm
     // datums = pairs of onetwo partners where either is unknown
@@ -889,7 +894,7 @@ void Special::angle_trim()
     char *buf;
     int nreturn = comm->rendezvous(RVOUS,nsend,(char *) inbuf,sizeof(PairRvous), 0,proclist,
                                    rendezvous_pairs,0,buf,sizeof(PairRvous), (void *) this);
-    auto outbuf = (PairRvous *) buf;
+    PairRvous *outbuf = (PairRvous *) buf;
 
     memory->destroy(proclist);
     memory->sfree(inbuf);
@@ -1062,7 +1067,8 @@ void Special::dihedral_trim()
 
     int *proclist;
     memory->create(proclist,nsend,"special:proclist");
-    auto inbuf = (PairRvous *) memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
+    PairRvous *inbuf = (PairRvous *)
+      memory->smalloc((bigint) nsend*sizeof(PairRvous),"special:inbuf");
 
     // setup input buf to rendezvous comm
     // datums = pairs of onefour atom IDs in a dihedral defined for my atoms
@@ -1099,7 +1105,7 @@ void Special::dihedral_trim()
     char *buf;
     int nreturn = comm->rendezvous(RVOUS,nsend,(char *) inbuf,sizeof(PairRvous), 0,proclist,
                                    rendezvous_pairs,0,buf,sizeof(PairRvous), (void *) this);
-    auto outbuf = (PairRvous *) buf;
+    PairRvous *outbuf = (PairRvous *) buf;
 
     memory->destroy(proclist);
     memory->sfree(inbuf);
@@ -1191,9 +1197,11 @@ void Special::dihedral_trim()
    no outbuf
 ------------------------------------------------------------------------- */
 
-int Special::rendezvous_ids(int n, char *inbuf, int &flag, int *& /*proclist*/, char *& /*outbuf*/, void *ptr)
+int Special::rendezvous_ids(int n, char *inbuf,
+                            int &flag, int *& /*proclist*/, char *& /*outbuf*/,
+                            void *ptr)
 {
-  auto sptr = (Special *) ptr;
+  Special *sptr = (Special *) ptr;
   Memory *memory = sptr->memory;
 
   int *procowner;
@@ -1202,7 +1210,7 @@ int Special::rendezvous_ids(int n, char *inbuf, int &flag, int *& /*proclist*/, 
   memory->create(procowner,n,"special:procowner");
   memory->create(atomIDs,n,"special:atomIDs");
 
-  auto in = (IDRvous *) inbuf;
+  IDRvous *in = (IDRvous *) inbuf;
 
   for (int i = 0; i < n; i++) {
     procowner[i] = in[i].me;
@@ -1231,7 +1239,7 @@ int Special::rendezvous_ids(int n, char *inbuf, int &flag, int *& /*proclist*/, 
 int Special::rendezvous_pairs(int n, char *inbuf, int &flag, int *&proclist,
                               char *&outbuf, void *ptr)
 {
-  auto sptr = (Special *) ptr;
+  Special *sptr = (Special *) ptr;
   Atom *atom = sptr->atom;
   Memory *memory = sptr->memory;
 
@@ -1250,7 +1258,7 @@ int Special::rendezvous_pairs(int n, char *inbuf, int &flag, int *&proclist,
 
   // proclist = owner of atomID in caller decomposition
 
-  auto in = (PairRvous *) inbuf;
+  PairRvous *in = (PairRvous *) inbuf;
   int *procowner = sptr->procowner;
   memory->create(proclist,n,"special:proclist");
 
@@ -1282,8 +1290,9 @@ int Special::rendezvous_pairs(int n, char *inbuf, int &flag, int *&proclist,
 
 void Special::fix_alteration()
 {
-  for (const auto &ifix : modify->get_fix_list())
-    if (ifix->special_alter_flag) ifix->rebuild_special();
+  for (int ifix = 0; ifix < modify->nfix; ifix++)
+    if (modify->fix[ifix]->special_alter_flag)
+      modify->fix[ifix]->rebuild_special();
 }
 
 /* ----------------------------------------------------------------------
@@ -1294,5 +1303,5 @@ void Special::timer_output(double time1)
 {
   if (comm->me == 0)
     utils::logmesg(lmp,"  special bonds CPU = {:.3f} seconds\n",
-                   platform::walltime()-time1);
+                   MPI_Wtime()-time1);
 }

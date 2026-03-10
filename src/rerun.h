@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class Rerun : public Command {
  public:
   Rerun(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 };
 
 }    // namespace LAMMPS_NS

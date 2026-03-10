@@ -45,10 +45,11 @@ namespace LAMMPS_NS {
     }
 
     KOKKOS_INLINE_FUNCTION
-    void operator+=(const volatile s_FSUM &rhs) volatile {
+    volatile s_FSUM& operator+=(const volatile s_FSUM &rhs) volatile {
       fx += rhs.fx;
       fy += rhs.fy;
       fz += rhs.fz;
+      return *this;
     }
   };
   typedef s_FSUM FSUM;
@@ -71,17 +72,17 @@ namespace LAMMPS_NS {
   class FixLangevinKokkos : public FixLangevin {
    public:
     FixLangevinKokkos(class LAMMPS *, int, char **);
-    ~FixLangevinKokkos() override;
+    ~FixLangevinKokkos();
 
     void cleanup_copy();
-    void init() override;
-    void initial_integrate(int) override;
-    void post_force(int) override;
-    void reset_dt() override;
-    void grow_arrays(int) override;
-    void copy_arrays(int i, int j, int delflag) override;
-    double compute_scalar() override;
-    void end_of_step() override;
+    void init();
+    void initial_integrate(int);
+    void post_force(int);
+    void reset_dt();
+    void grow_arrays(int);
+    void copy_arrays(int i, int j, int delflag);
+    double compute_scalar();
+    void end_of_step();
 
     KOKKOS_INLINE_FUNCTION
       void initial_integrate_item(int) const;

@@ -14,15 +14,15 @@
 
 #include "pair_dpd_tstat.h"
 
+#include <cmath>
 #include "atom.h"
-#include "comm.h"
-#include "error.h"
+#include "update.h"
 #include "force.h"
 #include "neigh_list.h"
+#include "comm.h"
 #include "random_mars.h"
-#include "update.h"
+#include "error.h"
 
-#include <cmath>
 
 using namespace LAMMPS_NS;
 

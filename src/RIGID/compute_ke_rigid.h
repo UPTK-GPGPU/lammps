@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeKERigid : public Compute {
  public:
   ComputeKERigid(class LAMMPS *, int, char **);
-  ~ComputeKERigid() override;
-  void init() override;
-  double compute_scalar() override;
+  ~ComputeKERigid();
+  void init();
+  double compute_scalar();
 
  private:
   int irfix;

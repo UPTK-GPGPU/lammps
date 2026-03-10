@@ -27,14 +27,15 @@ namespace LAMMPS_NS {
 class ComputeTempDrude : public Compute {
  public:
   ComputeTempDrude(class LAMMPS *, int, char **);
-  ~ComputeTempDrude() override;
-  void init() override;
-  void setup() override;
-  void compute_vector() override;
-  double compute_scalar() override;
+  ~ComputeTempDrude();
+  void init();
+  void setup();
+  void compute_vector();
+  double compute_scalar();
   int modify_param(int, char **);
 
  private:
+  int fix_dof;
   class FixDrude *fix_drude;
   char *id_temp;
   class Compute *temperature;

@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class PairMLIAP : public Pair {
  public:
   PairMLIAP(class LAMMPS *);
-  ~PairMLIAP() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
+  ~PairMLIAP();
+  virtual void compute(int, int);
+  void settings(int, char **);
+  virtual void coeff(int, char **);
   void e_tally(class MLIAPData *);
   void v_tally(int, int, double *, double *);
-  void init_style() override;
-  double init_one(int, int) override;
-  double memory_usage() override;
+  virtual void init_style();
+  virtual double init_one(int, int);
+  virtual double memory_usage();
   int *map;    // mapping from atom types to elements
 
  protected:

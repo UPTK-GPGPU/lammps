@@ -24,8 +24,10 @@
 #include "force.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "potential_file_reader.h"
+#include "tokenizer.h"
 
 #include <cmath>
 #include <cstring>
@@ -263,7 +265,9 @@ void PairSW::init_style()
 
   // need a full neighbor list
 
-  neighbor->add_request(this, NeighConst::REQ_FULL);
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
 }
 
 /* ----------------------------------------------------------------------
@@ -324,8 +328,7 @@ void PairSW::read_file(char *file)
 
         if (nparams == maxparam) {
           maxparam += DELTA;
-          params = (Param *) memory->srealloc(params,maxparam*sizeof(Param),
-                                              "pair:params");
+          params = (Param *) memory->srealloc(params,maxparam*sizeof(Param),"pair:params");
 
           // make certain all addional allocated storage is initialized
           // to avoid false positives when checking with valgrind

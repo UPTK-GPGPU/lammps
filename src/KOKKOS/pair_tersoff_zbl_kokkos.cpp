@@ -17,23 +17,21 @@
 ------------------------------------------------------------------------- */
 
 #include "pair_tersoff_zbl_kokkos.h"
-
-#include "atom_kokkos.h"
-#include "atom_masks.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "kokkos.h"
-#include "math_const.h"
-#include "memory_kokkos.h"
-#include "neigh_list_kokkos.h"
-#include "neigh_request.h"
-#include "neighbor.h"
-#include "suffix.h"
-#include "update.h"
-
 #include <cmath>
 #include <cstring>
+#include "kokkos.h"
+#include "atom_kokkos.h"
+#include "comm.h"
+#include "force.h"
+#include "neighbor.h"
+#include "neigh_request.h"
+#include "neigh_list_kokkos.h"
+#include "update.h"
+#include "math_const.h"
+#include "memory_kokkos.h"
+#include "error.h"
+#include "atom_masks.h"
+#include "suffix.h"
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -101,16 +99,30 @@ void PairTersoffZBLKokkos<DeviceType>::init_style()
 {
   PairTersoffZBL::init_style();
 
-  // adjust neighbor list request for KOKKOS
+  // irequest = neigh request made by parent class
 
   neighflag = lmp->kokkos->neighflag;
-  auto request = neighbor->find_request(this);
-  request->set_kokkos_host(std::is_same<DeviceType,LMPHostType>::value &&
-                           !std::is_same<DeviceType,LMPDeviceType>::value);
-  request->set_kokkos_device(std::is_same<DeviceType,LMPDeviceType>::value);
-  request->enable_full();
+  int irequest = neighbor->nrequest - 1;
+
+  neighbor->requests[irequest]->
+    kokkos_host = std::is_same<DeviceType,LMPHostType>::value &&
+    !std::is_same<DeviceType,LMPDeviceType>::value;
+  neighbor->requests[irequest]->
+    kokkos_device = std::is_same<DeviceType,LMPDeviceType>::value;
+
   if (neighflag == FULL)
     error->all(FLERR,"Cannot (yet) use full neighbor list style with tersoff/zbl/kk");
+
+  if (neighflag == FULL || neighflag == HALF || neighflag == HALFTHREAD) {
+    neighbor->requests[irequest]->full = 1;
+    neighbor->requests[irequest]->half = 0;
+    if (neighflag == FULL)
+      neighbor->requests[irequest]->ghost = 1;
+    else
+      neighbor->requests[irequest]->ghost = 0;
+  } else {
+    error->all(FLERR,"Cannot use chosen neighbor list style with tersoff/zbl/kk");
+  }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -332,8 +344,8 @@ void PairTersoffZBLKokkos<DeviceType>::operator()(TagPairTersoffZBLComputeHalf<N
 
   // The f array is duplicated for OpenMP, atomic for CUDA, and neither for Serial
 
-  auto v_f = ScatterViewHelper<NeedDup_v<NEIGHFLAG,DeviceType>,decltype(dup_f),decltype(ndup_f)>::get(dup_f,ndup_f);
-  auto a_f = v_f.template access<AtomicDup_v<NEIGHFLAG,DeviceType>>();
+  auto v_f = ScatterViewHelper<typename NeedDup<NEIGHFLAG,DeviceType>::value,decltype(dup_f),decltype(ndup_f)>::get(dup_f,ndup_f);
+  auto a_f = v_f.template access<typename AtomicDup<NEIGHFLAG,DeviceType>::value>();
 
   const int i = d_ilist[ii];
   if (i >= nlocal) return;
@@ -1232,11 +1244,11 @@ void PairTersoffZBLKokkos<DeviceType>::ev_tally(EV_FLOAT &ev, const int &i, cons
 
   // The eatom and vatom arrays are duplicated for OpenMP, atomic for CUDA, and neither for Serial
 
-  auto v_eatom = ScatterViewHelper<NeedDup_v<NEIGHFLAG,DeviceType>,decltype(dup_eatom),decltype(ndup_eatom)>::get(dup_eatom,ndup_eatom);
-  auto a_eatom = v_eatom.template access<AtomicDup_v<NEIGHFLAG,DeviceType>>();
+  auto v_eatom = ScatterViewHelper<typename NeedDup<NEIGHFLAG,DeviceType>::value,decltype(dup_eatom),decltype(ndup_eatom)>::get(dup_eatom,ndup_eatom);
+  auto a_eatom = v_eatom.template access<typename AtomicDup<NEIGHFLAG,DeviceType>::value>();
 
-  auto v_vatom = ScatterViewHelper<NeedDup_v<NEIGHFLAG,DeviceType>,decltype(dup_vatom),decltype(ndup_vatom)>::get(dup_vatom,ndup_vatom);
-  auto a_vatom = v_vatom.template access<AtomicDup_v<NEIGHFLAG,DeviceType>>();
+  auto v_vatom = ScatterViewHelper<typename NeedDup<NEIGHFLAG,DeviceType>::value,decltype(dup_vatom),decltype(ndup_vatom)>::get(dup_vatom,ndup_vatom);
+  auto a_vatom = v_vatom.template access<typename AtomicDup<NEIGHFLAG,DeviceType>::value>();
 
   if (eflag_atom) {
     const E_FLOAT epairhalf = 0.5 * epair;
@@ -1300,8 +1312,8 @@ void PairTersoffZBLKokkos<DeviceType>::v_tally3(EV_FLOAT &ev, const int &i, cons
 {
   // The vatom array is duplicated for OpenMP, atomic for CUDA, and neither for Serial
 
-  auto v_vatom = ScatterViewHelper<NeedDup_v<NEIGHFLAG,DeviceType>,decltype(dup_vatom),decltype(ndup_vatom)>::get(dup_vatom,ndup_vatom);
-  auto a_vatom = v_vatom.template access<AtomicDup_v<NEIGHFLAG,DeviceType>>();
+  auto v_vatom = ScatterViewHelper<typename NeedDup<NEIGHFLAG,DeviceType>::value,decltype(dup_vatom),decltype(ndup_vatom)>::get(dup_vatom,ndup_vatom);
+  auto a_vatom = v_vatom.template access<typename AtomicDup<NEIGHFLAG,DeviceType>::value>();
 
   F_FLOAT v[6];
 

@@ -30,7 +30,7 @@ namespace LAMMPS_NS {
 class MinCGKokkos : public MinLineSearchKokkos {
  public:
   MinCGKokkos(class LAMMPS *);
-  int iterate(int) override;
+  int iterate(int);
 };
 
 }

@@ -29,10 +29,11 @@ namespace LAMMPS_NS {
 
 class FixDeformKokkos : public FixDeform {
  public:
-  FixDeformKokkos(class LAMMPS *, int, char **);
 
-  void pre_exchange() override;
-  void end_of_step() override;
+  FixDeformKokkos(class LAMMPS *, int, char **);
+  virtual ~FixDeformKokkos() {}
+  void pre_exchange();
+  void end_of_step();
 
  private:
   class DomainKokkos *domainKK;

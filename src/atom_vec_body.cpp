@@ -105,7 +105,7 @@ void AtomVecBody::process_args(int narg, char **arg)
 
   if (narg < 1) error->all(FLERR,"Invalid atom_style body command");
 
-  if (false) {  // NOLINT
+  if (0) {
     bptr = nullptr;
 
 #define BODY_CLASS

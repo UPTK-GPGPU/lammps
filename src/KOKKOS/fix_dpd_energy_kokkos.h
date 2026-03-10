@@ -32,9 +32,9 @@ template <class DeviceType>
 class FixDPDenergyKokkos : public FixDPDenergy {
  public:
   FixDPDenergyKokkos(class LAMMPS *, int, char **);
-
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  virtual ~FixDPDenergyKokkos() {}
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
 
   void take_half_step();
  protected:

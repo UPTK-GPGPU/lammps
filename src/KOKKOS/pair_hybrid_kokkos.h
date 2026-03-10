@@ -38,8 +38,8 @@ class PairHybridKokkos : public PairHybrid {
   typedef LMPDeviceType device_type;
 
   PairHybridKokkos(class LAMMPS *);
-  ~PairHybridKokkos() override;
-  void compute(int, int) override;
+  virtual ~PairHybridKokkos();
+  void compute(int, int);
 
  private:
   DAT::t_x_array_randomread x;

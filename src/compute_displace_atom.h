@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class ComputeDisplaceAtom : public Compute {
  public:
   ComputeDisplaceAtom(class LAMMPS *, int, char **);
-  ~ComputeDisplaceAtom() override;
-  void init() override;
-  void compute_peratom() override;
-  void set_arrays(int) override;
-  void refresh() override;
-  double memory_usage() override;
+  ~ComputeDisplaceAtom();
+  void init();
+  void compute_peratom();
+  void set_arrays(int);
+  void refresh();
+  double memory_usage();
 
  private:
   int nmax;

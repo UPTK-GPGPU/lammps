@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class ComputeEventDisplace : public Compute {
  public:
   ComputeEventDisplace(class LAMMPS *, int, char **);
-  ~ComputeEventDisplace() override;
-  void init() override;
-  double compute_scalar() override;
+  ~ComputeEventDisplace();
+  void init();
+  double compute_scalar();
 
   int all_events();
-  void reset_extra_compute_fix(const char *) override;
+  void reset_extra_compute_fix(const char *);
 
  private:
   int triclinic;

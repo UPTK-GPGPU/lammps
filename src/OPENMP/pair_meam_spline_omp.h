@@ -34,8 +34,8 @@ class PairMEAMSplineOMP : public PairMEAMSpline, public ThrOMP {
  public:
   PairMEAMSplineOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   template <int EVFLAG, int EFLAG> void eval(int iifrom, int iito, ThrData *const thr);

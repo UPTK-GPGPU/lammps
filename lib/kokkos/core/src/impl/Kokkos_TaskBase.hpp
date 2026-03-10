@@ -203,17 +203,14 @@ class TaskBase {
 
     // Assign dependence to m_next.  It will be processed in the subsequent
     // call to schedule.  Error if the dependence is reset.
-    if (lock != Kokkos::Impl::desul_atomic_exchange(
-                    &m_next, dep, Kokkos::Impl::MemoryOrderSeqCst(),
-                    Kokkos::Impl::MemoryScopeDevice())) {
+    if (lock != Kokkos::atomic_exchange(&m_next, dep)) {
       Kokkos::abort("TaskScheduler ERROR: resetting task dependence");
     }
+
     if (nullptr != dep) {
       // The future may be destroyed upon returning from this call
       // so increment reference count to track this assignment.
-      Kokkos::Impl::desul_atomic_inc(&(dep->m_ref_count),
-                                     Kokkos::Impl::MemoryOrderSeqCst(),
-                                     Kokkos::Impl::MemoryScopeDevice());
+      Kokkos::atomic_increment(&(dep->m_ref_count));
     }
   }
 

@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeAngle : public Compute {
  public:
   ComputeAngle(class LAMMPS *, int, char **);
-  ~ComputeAngle() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeAngle();
+  void init();
+  void compute_vector();
 
  private:
   int nsub;

@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class DihedralHarmonic : public Dihedral {
  public:
   DihedralHarmonic(class LAMMPS *);
-  ~DihedralHarmonic() override;
-  void compute(int, int) override;
-  void coeff(int, char **) override;
-  void write_restart(FILE *) override;
-  void read_restart(FILE *) override;
-  void write_data(FILE *) override;
+  virtual ~DihedralHarmonic();
+  virtual void compute(int, int);
+  virtual void coeff(int, char **);
+  void write_restart(FILE *);
+  virtual void read_restart(FILE *);
+  void write_data(FILE *);
 
  protected:
   double *k, *cos_shift, *sin_shift;

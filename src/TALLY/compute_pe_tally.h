@@ -28,19 +28,19 @@ class ComputePETally : public Compute {
 
  public:
   ComputePETally(class LAMMPS *, int, char **);
-  ~ComputePETally() override;
+  virtual ~ComputePETally();
 
-  void init() override;
+  void init();
 
-  double compute_scalar() override;
-  void compute_peratom() override;
+  double compute_scalar();
+  void compute_peratom();
 
-  int pack_reverse_comm(int, int, double *) override;
-  void unpack_reverse_comm(int, int *, double *) override;
-  double memory_usage() override;
+  int pack_reverse_comm(int, int, double *);
+  void unpack_reverse_comm(int, int *, double *);
+  double memory_usage();
 
-  void pair_setup_callback(int, int) override;
-  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double) override;
+  void pair_setup_callback(int, int);
+  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double);
 
  private:
   bigint did_setup;

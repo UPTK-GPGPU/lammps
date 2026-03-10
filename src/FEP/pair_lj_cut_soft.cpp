@@ -19,19 +19,20 @@
 
 #include "pair_lj_cut_soft.h"
 
+#include <cmath>
+#include <cstring>
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
 #include "neighbor.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "update.h"
 #include "respa.h"
 #include "math_const.h"
 #include "memory.h"
 #include "error.h"
 
-#include <cmath>
-#include <cstring>
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -508,22 +509,29 @@ void PairLJCutSoft::coeff(int narg, char **arg)
 
 void PairLJCutSoft::init_style()
 {
-  // request regular or rRESPA neighbor list
+  // request regular or rRESPA neighbor lists
 
-  int list_style = NeighConst::REQ_DEFAULT;
+  int irequest;
+  int respa = 0;
 
-  if (update->whichflag == 1 && utils::strmatch(update->integrate_style, "^respa")) {
-    auto respa = dynamic_cast<Respa *>( update->integrate);
-    if (respa->level_inner >= 0) list_style = NeighConst::REQ_RESPA_INOUT;
-    if (respa->level_middle >= 0) list_style = NeighConst::REQ_RESPA_ALL;
+  if (update->whichflag == 1 && utils::strmatch(update->integrate_style,"^respa")) {
+    if (((Respa *) update->integrate)->level_inner >= 0) respa = 1;
+    if (((Respa *) update->integrate)->level_middle >= 0) respa = 2;
   }
-  neighbor->add_request(this, list_style);
+
+  irequest = neighbor->request(this,instance_me);
+
+  if (respa >= 1) {
+    neighbor->requests[irequest]->respaouter = 1;
+    neighbor->requests[irequest]->respainner = 1;
+  }
+  if (respa == 2) neighbor->requests[irequest]->respamiddle = 1;
 
   // set rRESPA cutoffs
 
   if (utils::strmatch(update->integrate_style,"^respa") &&
-      (dynamic_cast<Respa *>( update->integrate))->level_inner >= 0)
-    cut_respa = (dynamic_cast<Respa *>( update->integrate))->cutoff;
+      ((Respa *) update->integrate)->level_inner >= 0)
+    cut_respa = ((Respa *) update->integrate)->cutoff;
   else cut_respa = nullptr;
 }
 

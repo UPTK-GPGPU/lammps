@@ -76,25 +76,20 @@ class Bitset {
   using execution_space = Device;
   using size_type       = unsigned int;
 
-  static constexpr unsigned BIT_SCAN_REVERSE   = 1u;
-  static constexpr unsigned MOVE_HINT_BACKWARD = 2u;
+  enum { BIT_SCAN_REVERSE = 1u };
+  enum { MOVE_HINT_BACKWARD = 2u };
 
-  static constexpr unsigned BIT_SCAN_FORWARD_MOVE_HINT_FORWARD = 0u;
-  static constexpr unsigned BIT_SCAN_REVERSE_MOVE_HINT_FORWARD =
-      BIT_SCAN_REVERSE;
-  static constexpr unsigned BIT_SCAN_FORWARD_MOVE_HINT_BACKWARD =
-      MOVE_HINT_BACKWARD;
-  static constexpr unsigned BIT_SCAN_REVERSE_MOVE_HINT_BACKWARD =
-      BIT_SCAN_REVERSE | MOVE_HINT_BACKWARD;
+  enum {
+    BIT_SCAN_FORWARD_MOVE_HINT_FORWARD  = 0u,
+    BIT_SCAN_REVERSE_MOVE_HINT_FORWARD  = BIT_SCAN_REVERSE,
+    BIT_SCAN_FORWARD_MOVE_HINT_BACKWARD = MOVE_HINT_BACKWARD,
+    BIT_SCAN_REVERSE_MOVE_HINT_BACKWARD = BIT_SCAN_REVERSE | MOVE_HINT_BACKWARD
+  };
 
  private:
-  enum : unsigned {
-    block_size = static_cast<unsigned>(sizeof(unsigned) * CHAR_BIT)
-  };
-  enum : unsigned { block_mask = block_size - 1u };
-  enum : unsigned {
-    block_shift = Kokkos::Impl::integral_power_of_two(block_size)
-  };
+  enum { block_size = static_cast<unsigned>(sizeof(unsigned) * CHAR_BIT) };
+  enum { block_mask = block_size - 1u };
+  enum { block_shift = Kokkos::Impl::integral_power_of_two(block_size) };
 
  public:
   /// constructor
@@ -322,18 +317,14 @@ class ConstBitset {
   enum { block_shift = Kokkos::Impl::integral_power_of_two(block_size) };
 
  public:
-  KOKKOS_FUNCTION
   ConstBitset() : m_size(0) {}
 
-  KOKKOS_FUNCTION
   ConstBitset(Bitset<Device> const& rhs)
       : m_size(rhs.m_size), m_blocks(rhs.m_blocks) {}
 
-  KOKKOS_FUNCTION
   ConstBitset(ConstBitset<Device> const& rhs)
       : m_size(rhs.m_size), m_blocks(rhs.m_blocks) {}
 
-  KOKKOS_FUNCTION
   ConstBitset<Device>& operator=(Bitset<Device> const& rhs) {
     this->m_size   = rhs.m_size;
     this->m_blocks = rhs.m_blocks;
@@ -341,7 +332,6 @@ class ConstBitset {
     return *this;
   }
 
-  KOKKOS_FUNCTION
   ConstBitset<Device>& operator=(ConstBitset<Device> const& rhs) {
     this->m_size   = rhs.m_size;
     this->m_blocks = rhs.m_blocks;

@@ -33,9 +33,9 @@ namespace LAMMPS_NS {
 class ImproperCvffIntel : public ImproperCvff {
  public:
   ImproperCvffIntel(class LAMMPS *);
-  ~ImproperCvffIntel() override;
-  void compute(int, int) override;
-  void init_style() override;
+  virtual ~ImproperCvffIntel();
+  virtual void compute(int, int);
+  virtual void init_style();
 
  protected:
   FixIntel *fix;

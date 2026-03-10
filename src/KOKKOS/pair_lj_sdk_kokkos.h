@@ -37,13 +37,13 @@ class PairLJSDKKokkos : public PairLJSDK {
   typedef DeviceType device_type;
   typedef ArrayTypes<DeviceType> AT;
   PairLJSDKKokkos(class LAMMPS *);
-  ~PairLJSDKKokkos() override;
+  ~PairLJSDKKokkos();
 
-  void compute(int, int) override;
+  void compute(int, int);
 
-  void settings(int, char **) override;
-  void init_style() override;
-  double init_one(int, int) override;
+  void settings(int, char **);
+  void init_style();
+  double init_one(int, int);
 
   struct params_lj{
     KOKKOS_INLINE_FUNCTION
@@ -94,7 +94,7 @@ class PairLJSDKKokkos : public PairLJSDK {
   int neighflag;
   int nlocal,nall,eflag,vflag;
 
-  void allocate() override;
+  void allocate();
   friend struct PairComputeFunctor<PairLJSDKKokkos,FULL,true>;
   friend struct PairComputeFunctor<PairLJSDKKokkos,HALF,true>;
   friend struct PairComputeFunctor<PairLJSDKKokkos,HALFTHREAD,true>;

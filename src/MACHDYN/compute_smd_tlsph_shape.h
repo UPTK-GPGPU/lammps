@@ -38,10 +38,10 @@ namespace LAMMPS_NS {
 class ComputeSmdTlsphShape : public Compute {
  public:
   ComputeSmdTlsphShape(class LAMMPS *, int, char **);
-  ~ComputeSmdTlsphShape() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeSmdTlsphShape();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

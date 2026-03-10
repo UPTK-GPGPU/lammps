@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeKEAtomEff : public Compute {
  public:
   ComputeKEAtomEff(class LAMMPS *, int, char **);
-  ~ComputeKEAtomEff() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeKEAtomEff();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

@@ -29,8 +29,8 @@ namespace LAMMPS_NS {
 class PairEAMOpt : virtual public PairEAM {
  public:
   PairEAMOpt(class LAMMPS *);
-
-  void compute(int, int) override;
+  virtual ~PairEAMOpt() {}
+  void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR> void eval();

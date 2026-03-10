@@ -128,7 +128,9 @@ void Compute::modify_params(int narg, char **arg)
     } else if (strcmp(arg[iarg],"dynamic") == 0 ||
                strcmp(arg[iarg],"dynamic/dof") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal compute_modify command");
-      dynamic_user = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) dynamic_user = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) dynamic_user = 1;
+      else error->all(FLERR,"Illegal compute_modify command");
       iarg += 2;
     } else error->all(FLERR,"Illegal compute_modify command");
   }
@@ -140,10 +142,13 @@ void Compute::modify_params(int narg, char **arg)
 
 void Compute::adjust_dof_fix()
 {
+  Fix **fix = modify->fix;
+  int nfix = modify->nfix;
+
   fix_dof = 0;
-  for (auto &ifix : modify->get_fix_list())
-    if (ifix->dof_flag)
-      fix_dof += ifix->dof(igroup);
+  for (int i = 0; i < nfix; i++)
+    if (fix[i]->dof_flag)
+      fix_dof += fix[i]->dof(igroup);
 }
 
 /* ----------------------------------------------------------------------

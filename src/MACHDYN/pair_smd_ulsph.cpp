@@ -31,6 +31,7 @@
 #include "error.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "smd_kernels.h"
 #include "smd_material_models.h"
@@ -457,7 +458,7 @@ void PairULSPH::compute(int eflag, int vflag) {
          * QUANTITIES ABOVE HAVE ONLY BEEN CALCULATED FOR NLOCAL PARTICLES.
          * NEED TO DO A FORWARD COMMUNICATION TO GHOST ATOMS NOW
          */
-        comm->forward_comm(this);
+        comm->forward_comm_pair(this);
 
         updateFlag = 0;
 
@@ -1433,8 +1434,10 @@ double PairULSPH::init_one(int i, int j) {
 void PairULSPH::init_style() {
         int i;
 
- // request a granular neighbor list
-        neighbor->add_request(this, NeighConst::REQ_SIZE);
+//printf(" in init style\n");
+// request a granular neighbor list
+        int irequest = neighbor->request(this);
+        neighbor->requests[irequest]->size = 1;
 
 // set maxrad_dynamic and maxrad_frozen for each type
 // include future Fix pour particles as dynamic

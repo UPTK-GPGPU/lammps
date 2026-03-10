@@ -27,13 +27,13 @@ namespace LAMMPS_NS {
 class FixQEqSlater : public FixQEq {
  public:
   FixQEqSlater(class LAMMPS *, int, char **);
-
-  void init() override;
-  void pre_force(int) override;
+  ~FixQEqSlater() {}
+  void init();
+  void pre_force(int);
 
  private:
   void init_matvec();
-  void sparse_matvec(sparse_matrix *, double *, double *) override;
+  void sparse_matvec(sparse_matrix *, double *, double *);
   void compute_H();
   double calculate_H(double, double, double, double, double &);
   double calculate_H_wolf(double, double, double, double, double &);

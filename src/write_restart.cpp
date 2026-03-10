@@ -73,11 +73,8 @@ void WriteRestart::command(int narg, char **arg)
 
   if (strchr(arg[0],'%')) multiproc = nprocs;
   else multiproc = 0;
-  if (utils::strmatch(arg[0],"\\.mpiio$")) mpiioflag = 1;
+  if (strstr(arg[0],".mpiio")) mpiioflag = 1;
   else mpiioflag = 0;
-
-  if ((comm->me == 0) && mpiioflag)
-    error->warning(FLERR,"MPI-IO output is unmaintained and unreliable. Use with caution.");
 
   // setup output style and process optional args
   // also called by Output class for periodic restart files
@@ -416,9 +413,9 @@ void WriteRestart::write(const std::string &file)
 
   // invoke any fixes that write their own restart file
 
-  for (auto &fix : modify->get_fix_list())
-    if (fix->restart_file)
-      fix->write_restart_file(file.c_str());
+  for (int ifix = 0; ifix < modify->nfix; ifix++)
+    if (modify->fix[ifix]->restart_file)
+      modify->fix[ifix]->write_restart_file(file.c_str());
 }
 
 /* ----------------------------------------------------------------------
@@ -598,7 +595,7 @@ void WriteRestart::file_layout(int send_size)
   // this allows all ranks to compute offset to their data
 
   if (mpiioflag) {
-    if (me == 0) headerOffset = platform::ftell(fp);
+    if (me == 0) headerOffset = ftell(fp);
     MPI_Bcast(&headerOffset,1,MPI_LMP_BIGINT,0,world);
   }
 }

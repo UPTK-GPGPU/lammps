@@ -71,7 +71,7 @@ FixPolarizeBEMGMRES::FixPolarizeBEMGMRES(LAMMPS *lmp, int narg, char **arg) :
 {
   if (narg < 5) error->all(FLERR, "Illegal fix polarize/bem/gmres command");
 
-  avec = dynamic_cast<AtomVecDielectric *>( atom->style_match("dielectric"));
+  avec = (AtomVecDielectric *) atom->style_match("dielectric");
   if (!avec) error->all(FLERR, "Fix polarize requires atom style dielectric");
 
   // parse required arguments
@@ -211,7 +211,7 @@ void FixPolarizeBEMGMRES::init()
 
   if (randomized) {
 
-    auto random = new RanPark(lmp, seed_charge + comm->me);
+    RanPark *random = new RanPark(lmp, seed_charge + comm->me);
     for (i = 0; i < 100; i++) random->uniform();
     double sum, tmp = 0;
     for (i = 0; i < nlocal; i++) {
@@ -248,28 +248,28 @@ void FixPolarizeBEMGMRES::setup(int /*vflag*/)
   // check if the pair styles in use are compatible
 
   if (strcmp(force->pair_style, "lj/cut/coul/long/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/long/dielectric/omp") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/msm/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulMSMDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulMSMDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/cut/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulCutDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/cut/dielectric/omp") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulCutDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "coul/long/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "coul/cut/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairCoulCutDielectric *) force->pair)->efield;
   else
     error->all(FLERR, "Pair style not compatible with fix polarize");
 
   if (kspaceflag) {
     if (force->kspace) {
       if (strcmp(force->kspace_style, "pppm/dielectric") == 0)
-        efield_kspace = (dynamic_cast<PPPMDielectric *>( force->kspace))->efield;
+        efield_kspace = ((PPPMDielectric *) force->kspace)->efield;
       else if (strcmp(force->kspace_style, "msm/dielectric") == 0)
-        efield_kspace = (dynamic_cast<MSMDielectric *>( force->kspace))->efield;
+        efield_kspace = ((MSMDielectric *) force->kspace)->efield;
       else
         error->all(FLERR, "Kspace style not compatible with fix polarize/bem/gmres");
     } else
@@ -322,7 +322,7 @@ void FixPolarizeBEMGMRES::compute_induced_charges()
     if (induced_charge_idx[i] >= 0) q[i] = 0;
   }
 
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 
   // note here q[i] are the bound charges including area
   // so that kspace solver can be used directly with the charge values
@@ -394,7 +394,7 @@ void FixPolarizeBEMGMRES::compute_induced_charges()
     }
   }
 
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 
   if (first) first = 0;
 }
@@ -602,7 +602,7 @@ void FixPolarizeBEMGMRES::apply_operator(double *w, double *Aw, int /*n*/)
     }
   }
 
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 
   // compute the electrical field due to w*area: y = A (w*area)
 
@@ -672,7 +672,7 @@ void FixPolarizeBEMGMRES::update_residual(double *w, double *r, int /*n*/)
     }
   }
 
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 
   force_clear();
   force->pair->compute(eflag, vflag);
@@ -796,7 +796,12 @@ int FixPolarizeBEMGMRES::modify_param(int narg, char **arg)
       iarg += 2;
     } else if (strcmp(arg[iarg], "kspace") == 0) {
       if (iarg + 2 > narg) error->all(FLERR, "Illegal fix_modify command");
-      kspaceflag = utils::logical(FLERR, arg[iarg + 1], false, lmp);
+      if (strcmp(arg[iarg + 1], "yes") == 0)
+        kspaceflag = 1;
+      else if (strcmp(arg[iarg + 1], "no") == 0)
+        kspaceflag = 0;
+      else
+        error->all(FLERR, "Illegal fix_modify command for fix polarize");
       iarg += 2;
     } else if (strcmp(arg[iarg], "dielectrics") == 0) {
       if (iarg + 6 > narg) error->all(FLERR, "Illegal fix_modify command");

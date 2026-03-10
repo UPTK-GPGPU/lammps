@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeSAED : public Compute {
  public:
   ComputeSAED(class LAMMPS *, int, char **);
-  ~ComputeSAED() override;
-  void init() override;
-  void compute_vector() override;
-  double memory_usage() override;
+  ~ComputeSAED();
+  void init();
+  void compute_vector();
+  double memory_usage();
   //testing
   double saed_var[10];
 

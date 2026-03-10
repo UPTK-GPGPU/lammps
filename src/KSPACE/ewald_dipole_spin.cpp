@@ -52,6 +52,12 @@ EwaldDipoleSpin::EwaldDipoleSpin(LAMMPS *lmp) :
 }
 
 /* ----------------------------------------------------------------------
+   free all memory
+------------------------------------------------------------------------- */
+
+EwaldDipoleSpin::~EwaldDipoleSpin() {}
+
+/* ----------------------------------------------------------------------
    called once before run
 ------------------------------------------------------------------------- */
 
@@ -96,7 +102,7 @@ void EwaldDipoleSpin::init()
   pair_check();
 
   int itmp;
-  auto p_cutoff = (double *) force->pair->extract("cut_coul",itmp);
+  double *p_cutoff = (double *) force->pair->extract("cut_coul",itmp);
   if (p_cutoff == nullptr)
     error->all(FLERR,"KSpace style is incompatible with Pair style");
   double cutoff = *p_cutoff;

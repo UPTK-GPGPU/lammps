@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class FixMomentumChunk : public Fix {
  public:
   FixMomentumChunk(class LAMMPS *, int, char **);
-  ~FixMomentumChunk() override;
-  int setmask() override;
-  void init() override;
-  void end_of_step() override;
-  void post_run() override;
+  virtual ~FixMomentumChunk();
+  int setmask();
+  void init();
+  void end_of_step();
+  void post_run();
 
  protected:
   std::string id_chunk, id_com, id_vcm, id_omega;

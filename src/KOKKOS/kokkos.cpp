@@ -23,15 +23,7 @@
 #include <cstring>
 #include <cctype>
 #include <csignal>
-
-#if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>            // for _getpid()
-#else
-#include <unistd.h>             // for getpid()
-#endif
+#include <unistd.h>
 
 #ifdef LMP_KOKKOS_GPU
 
@@ -44,7 +36,7 @@
 #define GPU_AWARE_UNKNOWN static int have_gpu_aware = -1;
 
 // TODO HIP: implement HIP-aware MPI support (UCX) detection
-#if defined(KOKKOS_ENABLE_HIP) || defined(KOKKOS_ENABLE_SYCL) || defined(KOKKOS_ENABLE_OPENMPTARGET)
+#if defined(KOKKOS_ENABLE_HIP) || defined(KOKKOS_ENABLE_SYCL)
 GPU_AWARE_UNKNOWN
 #elif defined(KOKKOS_ENABLE_CUDA)
 
@@ -121,7 +113,7 @@ KokkosLMP::KokkosLMP(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
     } else if (strcmp(arg[iarg],"g") == 0 ||
                strcmp(arg[iarg],"gpus") == 0) {
 #ifndef LMP_KOKKOS_GPU
-      error->all(FLERR,"GPUs are requested but Kokkos has not been compiled using a GPU-enabled backend");
+      error->all(FLERR,"GPUs are requested but Kokkos has not been compiled for CUDA, HIP, or SYCL");
 #endif
       if (iarg+2 > narg) error->all(FLERR,"Invalid Kokkos command-line args");
       ngpus = atoi(arg[iarg+1]);
@@ -162,7 +154,7 @@ KokkosLMP::KokkosLMP(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
 
       if (ngpus > 1 && !set_flag)
         error->all(FLERR,"Could not determine local MPI rank for multiple "
-                           "GPUs with Kokkos because MPI library not recognized");
+                           "GPUs with Kokkos CUDA, HIP, or SYCL because MPI library not recognized");
 
     } else if (strcmp(arg[iarg],"t") == 0 ||
                strcmp(arg[iarg],"threads") == 0) {
@@ -204,12 +196,7 @@ KokkosLMP::KokkosLMP(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
 
 #ifdef LMP_KOKKOS_GPU
   if (ngpus <= 0)
-    error->all(FLERR,"Kokkos has been compiled with GPU-enabled backend but no GPUs are requested");
-#endif
-
-#if !defined(KOKKOS_ENABLE_OPENMP) && !defined(KOKKOS_ENABLE_THREADS)
-  if (nthreads > 1)
-    error->all(FLERR,"Multiple CPU threads are requested but Kokkos has not been compiled using a threading-enabled backend");
+    error->all(FLERR,"Kokkos has been compiled for CUDA, HIP, or SYCL but no GPUs are requested");
 #endif
 
 #ifndef KOKKOS_ENABLE_SERIAL
@@ -232,7 +219,6 @@ KokkosLMP::KokkosLMP(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
 #endif
   neigh_thread = 0;
   neigh_thread_set = 0;
-  neigh_transpose = 0;
   if (ngpus > 0) {
     neighflag = FULL;
     neighflag_qeq = FULL;
@@ -317,7 +303,7 @@ KokkosLMP::KokkosLMP(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
         error->warning(FLERR,"Detected MPICH. Disabling GPU-aware MPI");
 #else
   if (me == 0)
-    error->warning(FLERR,"Kokkos with GPU-enabled backend assumes GPU-aware MPI is available,"
+    error->warning(FLERR,"Kokkos with CUDA, HIP, or SYCL assumes CUDA-aware MPI is available,"
                    " but cannot determine if this is the case\n         try"
                    " '-pk kokkos gpu/aware off' if getting segmentation faults");
 
@@ -395,7 +381,9 @@ void KokkosLMP::accelerator(int narg, char **arg)
       iarg += 2;
     } else if (strcmp(arg[iarg],"newton") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
-      newtonflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) newtonflag = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) newtonflag = 1;
+      else error->all(FLERR,"Illegal package kokkos command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"comm") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
@@ -471,20 +459,22 @@ void KokkosLMP::accelerator(int narg, char **arg)
     } else if ((strcmp(arg[iarg],"gpu/aware") == 0)
                || (strcmp(arg[iarg],"cuda/aware") == 0)) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
-      gpu_aware_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) gpu_aware_flag = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) gpu_aware_flag = 1;
+      else error->all(FLERR,"Illegal package kokkos command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"pair/only") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
-      pair_only_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) pair_only_flag = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) pair_only_flag = 1;
+      else error->all(FLERR,"Illegal package kokkos command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"neigh/thread") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
-      neigh_thread = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) neigh_thread = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) neigh_thread = 1;
+      else error->all(FLERR,"Illegal package kokkos command");
       neigh_thread_set = 1;
-      iarg += 2;
-    } else if (strcmp(arg[iarg],"neigh/transpose") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal package kokkos command");
-      neigh_transpose = utils::logical(FLERR,arg[iarg+1],false,lmp);
       iarg += 2;
     } else error->all(FLERR,"Illegal package kokkos command");
   }
@@ -609,11 +599,6 @@ int KokkosLMP::neigh_count(int m)
 void KokkosLMP::my_signal_handler(int sig)
 {
   if (sig == SIGSEGV) {
-#if defined(_WIN32)
-    // there is no kill() function on Windows
-    exit(1);
-#else
     kill(getpid(),SIGABRT);
-#endif
   }
 }

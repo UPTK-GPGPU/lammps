@@ -27,14 +27,14 @@ namespace LAMMPS_NS {
 class ComputeTempBody : public Compute {
  public:
   ComputeTempBody(class LAMMPS *, int, char **);
-  ~ComputeTempBody() override;
-  void init() override;
-  void setup() override;
-  double compute_scalar() override;
-  void compute_vector() override;
+  ~ComputeTempBody();
+  void init();
+  void setup();
+  double compute_scalar();
+  void compute_vector();
 
-  void remove_bias(int, double *) override;
-  void restore_bias(int, double *) override;
+  void remove_bias(int, double *);
+  void restore_bias(int, double *);
 
  private:
   int mode;

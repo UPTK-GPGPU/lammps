@@ -59,7 +59,7 @@ class FixFreezeKokkos : public FixFreeze {
   };
 
   FixFreezeKokkos(class LAMMPS *, int, char **);
-  void post_force(int) override;
+  void post_force(int);
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const int i, OriginalForce &original) const;

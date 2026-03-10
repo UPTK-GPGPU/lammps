@@ -18,18 +18,20 @@
 
 #include "pair_eam.h"
 
+#include <cmath>
+
+#include <cstring>
 #include "atom.h"
-#include "comm.h"
-#include "error.h"
 #include "force.h"
-#include "memory.h"
+#include "comm.h"
 #include "neighbor.h"
 #include "neigh_list.h"
-#include "potential_file_reader.h"
+#include "memory.h"
+#include "error.h"
 #include "update.h"
 
-#include <cmath>
-#include <cstring>
+#include "tokenizer.h"
+#include "potential_file_reader.h"
 
 using namespace LAMMPS_NS;
 
@@ -221,7 +223,7 @@ void PairEAM::compute(int eflag, int vflag)
 
   // communicate and sum densities
 
-  if (newton_pair) comm->reverse_comm(this);
+  if (newton_pair) comm->reverse_comm_pair(this);
 
   // fp = derivative of embedding energy at each atom
   // phi = embedding energy at each atom
@@ -248,7 +250,7 @@ void PairEAM::compute(int eflag, int vflag)
 
   // communicate derivative of embedding function
 
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
   embedstep = update->ntimestep;
 
   // compute forces on each atom
@@ -425,7 +427,7 @@ void PairEAM::init_style()
   file2array();
   array2spline();
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
   embedstep = -1;
 }
 

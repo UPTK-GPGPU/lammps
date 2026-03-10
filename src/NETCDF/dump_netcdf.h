@@ -24,29 +24,28 @@ DumpStyle(netcdf,DumpNetCDF);
 #else
 
 #ifndef LMP_DUMP_NETCDF_H
-#define LMP_DUMP_NETCDF_H
+#define LMP_DUMP_NETCDFC_H
 
 #include "dump_custom.h"
 
 namespace LAMMPS_NS {
 
+const int NC_FIELD_NAME_MAX = 100;
+const int DUMP_NC_MAX_DIMS = 100;
+
 class DumpNetCDF : public DumpCustom {
  public:
   DumpNetCDF(class LAMMPS *, int, char **);
-  ~DumpNetCDF() override;
-  void write() override;
+  virtual ~DumpNetCDF();
+  virtual void write();
 
  private:
-  static constexpr int NC_FIELD_NAME_MAX = 100;
-  static constexpr int DUMP_NC_MAX_DIMS = 100;
-
   // per-atoms quantities (positions, velocities, etc.)
   struct nc_perat_t {
     int dims;                        // number of dimensions
     int field[DUMP_NC_MAX_DIMS];     // field indices corresponding to the dim.
     char name[NC_FIELD_NAME_MAX];    // field name
     int var;                         // NetCDF variable
-    int quantity;                    // type of the quantity
 
     bool constant;    // is this property per file (not per frame)
     int ndumped;      // number of enties written for this prop.
@@ -63,8 +62,8 @@ class DumpNetCDF : public DumpCustom {
 
   int *thermovar;    // NetCDF variables for thermo output
 
-  int type_nc_real;    // netcdf type to use for real variables: float or double
-  bool thermo;         // write thermo output to netcdf file
+  bool double_precision;    // write everything as double precision
+  bool thermo;              // write thermo output to netcdf file
 
   bigint n_buffer;          // size of buffer
   bigint *int_buffer;       // buffer for passing data to netcdf
@@ -88,12 +87,12 @@ class DumpNetCDF : public DumpCustom {
   int cell_lengths_var;
   int cell_angles_var;
 
-  void openfile() override;
+  virtual void openfile();
   void closefile();
-  void write_header(bigint) override;
-  void write_data(int, double *) override;
+  virtual void write_header(bigint);
+  virtual void write_data(int, double *);
 
-  int modify_param(int, char **) override;
+  virtual int modify_param(int, char **);
 
   void ncerr(int, const char *, int);
 };

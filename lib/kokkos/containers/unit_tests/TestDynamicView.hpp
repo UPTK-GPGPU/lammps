@@ -52,7 +52,7 @@
 #include <Kokkos_Core.hpp>
 
 #include <Kokkos_DynamicView.hpp>
-#include <Kokkos_Timer.hpp>
+#include <impl/Kokkos_Timer.hpp>
 
 namespace Test {
 

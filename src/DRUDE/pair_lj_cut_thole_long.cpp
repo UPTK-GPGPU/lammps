@@ -18,21 +18,21 @@
 
 #include "pair_lj_cut_thole_long.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "domain.h"
-#include "error.h"
-#include "fix_drude.h"
-#include "force.h"
-#include "kspace.h"
-#include "math_const.h"
-#include "memory.h"
-#include "modify.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-
 #include <cmath>
 #include <cstring>
+#include "fix_drude.h"
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "kspace.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "math_const.h"
+#include "memory.h"
+#include "error.h"
+
+#include "modify.h"
+#include "domain.h"
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -364,9 +364,9 @@ void PairLJCutTholeLong::init_style()
     if (strcmp(modify->fix[ifix]->style,"drude") == 0) break;
   if (ifix == modify->nfix)
       error->all(FLERR, "Pair style lj/cut/thole/long requires fix drude");
-  fix_drude = dynamic_cast<FixDrude *>( modify->fix[ifix]);
+  fix_drude = (FixDrude *) modify->fix[ifix];
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 
   cut_coulsq = cut_coul * cut_coul;
 

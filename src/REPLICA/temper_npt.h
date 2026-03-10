@@ -28,8 +28,8 @@ namespace LAMMPS_NS {
 class TemperNPT : public Command {
  public:
   TemperNPT(class LAMMPS *);
-  ~TemperNPT() override;
-  void command(int, char **) override;
+  ~TemperNPT();
+  void command(int, char **);
 
  private:
   int me, me_universe;    // my proc ID in world and universe

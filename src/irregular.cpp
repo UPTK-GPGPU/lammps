@@ -998,11 +998,18 @@ void Irregular::destroy_data()
 
 void Irregular::init_exchange()
 {
-  int maxexchange_fix = 0;
-  for (auto &ifix : modify->get_fix_list())
-    maxexchange_fix = MAX(maxexchange_fix, ifix->maxexchange);
+  int nfix = modify->nfix;
+  Fix **fix = modify->fix;
 
-  bufextra = atom->avec->maxexchange + maxexchange_fix + BUFEXTRA;
+  int onefix;
+  int maxexchange_fix = 0;
+  for (int i = 0; i < nfix; i++) {
+    onefix = fix[i]->maxexchange;
+    maxexchange_fix = MAX(maxexchange_fix,onefix);
+  }
+
+  int maxexchange = atom->avec->maxexchange + maxexchange_fix;
+  bufextra = maxexchange + BUFEXTRA;
 }
 
 /* ----------------------------------------------------------------------

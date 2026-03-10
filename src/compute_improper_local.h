@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeImproperLocal : public Compute {
  public:
   ComputeImproperLocal(class LAMMPS *, int, char **);
-  ~ComputeImproperLocal() override;
-  void init() override;
-  void compute_local() override;
-  double memory_usage() override;
+  ~ComputeImproperLocal();
+  void init();
+  void compute_local();
+  double memory_usage();
 
  private:
   int nvalues, cflag;

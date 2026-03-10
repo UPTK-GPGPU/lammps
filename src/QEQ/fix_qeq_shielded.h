@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class FixQEqShielded : public FixQEq {
  public:
   FixQEqShielded(class LAMMPS *, int, char **);
-
-  void init() override;
-  void pre_force(int) override;
+  ~FixQEqShielded() {}
+  void init();
+  void pre_force(int);
 
  private:
   void extract_reax();

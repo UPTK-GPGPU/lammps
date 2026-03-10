@@ -1,17 +1,11 @@
 .. index:: pair_style dpd/ext
-.. index:: pair_style dpd/ext/kk
 .. index:: pair_style dpd/ext/tstat
-.. index:: pair_style dpd/ext/tstat/kk
 
 pair_style dpd/ext command
 ==========================
 
-Accelerator Variants: dpd/ext/kk
-
 pair_style dpd/ext/tstat command
 ================================
-
-Accelerator Variants: dpd/ext/tstat/kk
 
 Syntax
 """"""
@@ -140,10 +134,6 @@ except that A is not included.
 
    The virial calculation for pressure when using this pair style includes
    all the components of force listed above, including the random force.
-
-----------
-
-.. include:: accel_styles.rst
 
 ----------
 

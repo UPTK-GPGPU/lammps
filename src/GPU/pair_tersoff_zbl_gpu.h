@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class PairTersoffZBLGPU : public PairTersoffZBL {
  public:
   PairTersoffZBLGPU(class LAMMPS *);
-  ~PairTersoffZBLGPU() override;
-  void compute(int, int) override;
-  double init_one(int, int) override;
-  void init_style() override;
+  ~PairTersoffZBLGPU();
+  void compute(int, int);
+  double init_one(int, int);
+  void init_style();
 
   enum { GPU_FORCE, GPU_NEIGH, GPU_HYB_NEIGH };
 
  protected:
-  void allocate() override;
+  void allocate();
 
   int gpu_mode;
   double cpu_time;

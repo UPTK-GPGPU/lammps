@@ -61,6 +61,12 @@ FixEDPDSource::FixEDPDSource(LAMMPS *lmp, int narg, char **arg) :
 
 /* ---------------------------------------------------------------------- */
 
+FixEDPDSource::~FixEDPDSource()
+{
+}
+
+/* ---------------------------------------------------------------------- */
+
 int FixEDPDSource::setmask()
 {
   int mask = 0;

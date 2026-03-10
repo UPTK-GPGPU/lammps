@@ -41,7 +41,7 @@ DumpXYZ::DumpXYZ(LAMMPS *lmp, int narg, char **arg) : Dump(lmp, narg, arg),
   sort_flag = 1;
   sortcol = 0;
 
-  delete[] format_default;
+  if (format_default) delete [] format_default;
 
   format_default = utils::strdup("%s %g %g %g");
 
@@ -130,10 +130,8 @@ int DumpXYZ::modify_param(int narg, char **arg)
 void DumpXYZ::write_header(bigint n)
 {
   if (me == 0) {
-    auto header = fmt::format("{}\n Atoms. Timestep: {}", n, update->ntimestep);
-    if (time_flag) header += fmt::format(" Time: {:.6f}", compute_time());
-    header += "\n";
-    fmt::print(fp, header);
+    fprintf(fp,BIGINT_FORMAT "\n",n);
+    fprintf(fp,"Atoms. Timestep: " BIGINT_FORMAT "\n",update->ntimestep);
   }
 }
 
@@ -160,6 +158,7 @@ void DumpXYZ::pack(tagint *ids)
       if (ids) ids[n++] = tag[i];
     }
 }
+
 
 /* ----------------------------------------------------------------------
    convert mybuf of doubles to one big formatted string in sbuf

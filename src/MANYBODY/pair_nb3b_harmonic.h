@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class PairNb3bHarmonic : public Pair {
  public:
   PairNb3bHarmonic(class LAMMPS *);
-  ~PairNb3bHarmonic() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  double init_one(int, int) override;
-  void init_style() override;
+  virtual ~PairNb3bHarmonic();
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  double init_one(int, int);
+  void init_style();
 
   static constexpr int NPARAMS_PER_LINE = 6;
 

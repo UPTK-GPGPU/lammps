@@ -179,12 +179,12 @@ void PairDPDIntel::eval(const int offload, const int vflag,
 
   ATOM_T * _noalias const x = buffers->get_x(offload);
   typedef struct { double x, y, z; } lmp_vt;
-  auto *v = (lmp_vt *)atom->v[0];
+  lmp_vt *v = (lmp_vt *)atom->v[0];
   const flt_t dtinvsqrt = 1.0/sqrt(update->dt);
 
   const int * _noalias const ilist = list->ilist;
   const int * _noalias const numneigh = list->numneigh;
-  const int ** _noalias const firstneigh = (const int **)list->firstneigh;  // NOLINT
+  const int ** _noalias const firstneigh = (const int **)list->firstneigh;
   const FC_PACKED1_T * _noalias const param = fc.param[0];
   const flt_t * _noalias const special_lj = fc.special_lj;
   int * _noalias const rngi_thread = fc.rngi;
@@ -428,7 +428,7 @@ void PairDPDIntel::eval(const int offload, const int vflag,
   if (EFLAG || vflag)
     fix->add_result_array(f_start, ev_global, offload, eatom, 0, vflag);
   else
-    fix->add_result_array(f_start, nullptr, offload);
+    fix->add_result_array(f_start, 0, offload);
 }
 
 /* ----------------------------------------------------------------------
@@ -484,11 +484,19 @@ void PairDPDIntel::settings(int narg, char **arg) {
 void PairDPDIntel::init_style()
 {
   PairDPD::init_style();
-  if (force->newton_pair == 0)
-    neighbor->find_request(this)->enable_full();
+  auto request = neighbor->find_request(this);
 
-  fix = static_cast<FixIntel *>(modify->get_fix_by_id("package_intel"));
-  if (!fix) error->all(FLERR, "The 'package intel' command is required for /intel styles");
+  if (force->newton_pair == 0) {
+    request->half = 0;
+    request->full = 1;
+  }
+  request->intel = 1;
+
+  int ifix = modify->find_fix("package_intel");
+  if (ifix < 0)
+    error->all(FLERR,
+               "The 'package intel' command is required for /intel styles");
+  fix = static_cast<FixIntel *>(modify->fix[ifix]);
 
   fix->pair_init_check();
   #ifdef _LMP_INTEL_OFFLOAD

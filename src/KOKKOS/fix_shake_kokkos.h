@@ -49,31 +49,31 @@ class FixShakeKokkos : public FixShake, public KokkosBase {
   typedef ArrayTypes<DeviceType> AT;
 
   FixShakeKokkos(class LAMMPS *, int, char **);
-  ~FixShakeKokkos() override;
-  void init() override;
-  void pre_neighbor() override;
-  void post_force(int) override;
+  virtual ~FixShakeKokkos();
+  void init();
+  void pre_neighbor();
+  void post_force(int);
 
-  void grow_arrays(int) override;
-  void copy_arrays(int, int, int) override;
-  void set_arrays(int) override;
-  void update_arrays(int, int) override;
-  void set_molecule(int, tagint, int, double *, double *, double *) override;
+  void grow_arrays(int);
+  void copy_arrays(int, int, int);
+  void set_arrays(int);
+  void update_arrays(int, int);
+  void set_molecule(int, tagint, int, double *, double *, double *);
 
-  int pack_exchange(int, double *) override;
-  int unpack_exchange(int, double *) override;
-  int pack_forward_comm_kokkos(int, DAT::tdual_int_2d, int, DAT::tdual_xfloat_1d&,
-                       int, int *) override;
-  void unpack_forward_comm_kokkos(int, int, DAT::tdual_xfloat_1d&) override;
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
+  int pack_exchange(int, double *);
+  int unpack_exchange(int, double *);
+  int pack_forward_comm_fix_kokkos(int, DAT::tdual_int_2d, int, DAT::tdual_xfloat_1d&,
+                       int, int *);
+  void unpack_forward_comm_fix_kokkos(int, int, DAT::tdual_xfloat_1d&);
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
 
-  void shake_end_of_step(int vflag) override;
-  void correct_coordinates(int vflag) override;
+  void shake_end_of_step(int vflag);
+  void correct_coordinates(int vflag);
 
-  int dof(int) override;
+  int dof(int);
 
-  void unconstrained_update() override;
+  void unconstrained_update();
 
   template<int NEIGHFLAG, int EVFLAG>
   KOKKOS_INLINE_FUNCTION
@@ -151,21 +151,14 @@ class FixShakeKokkos : public FixShake, public KokkosBase {
   KOKKOS_INLINE_FUNCTION
   void shake3angle(int, EV_FLOAT&) const;
 
-  using KKDeviceType = typename KKDevice<DeviceType>::value;
+  typedef typename KKDevice<DeviceType>::value KKDeviceType;
+  Kokkos::Experimental::ScatterView<F_FLOAT*[3], typename DAT::t_f_array::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterDuplicated> dup_f;
+  Kokkos::Experimental::ScatterView<E_FLOAT*, typename DAT::t_efloat_1d::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterDuplicated> dup_eatom;
+  Kokkos::Experimental::ScatterView<F_FLOAT*[6], typename DAT::t_virial_array::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterDuplicated> dup_vatom;
 
-  template<typename DataType, typename Layout>
-  using DupScatterView = KKScatterView<DataType, Layout, KKDeviceType, KKScatterSum, KKScatterDuplicated>;
-
-  template<typename DataType, typename Layout>
-  using NonDupScatterView = KKScatterView<DataType, Layout, KKDeviceType, KKScatterSum, KKScatterNonDuplicated>;
-
-  DupScatterView<F_FLOAT*[3], typename DAT::t_f_array::array_layout> dup_f;
-  DupScatterView<E_FLOAT*, typename DAT::t_efloat_1d::array_layout> dup_eatom;
-  DupScatterView<F_FLOAT*[6], typename DAT::t_virial_array::array_layout> dup_vatom;
-
-  NonDupScatterView<F_FLOAT*[3], typename DAT::t_f_array::array_layout> ndup_f;
-  NonDupScatterView<E_FLOAT*, typename DAT::t_efloat_1d::array_layout> ndup_eatom;
-  NonDupScatterView<F_FLOAT*[6], typename DAT::t_virial_array::array_layout> ndup_vatom;
+  Kokkos::Experimental::ScatterView<F_FLOAT*[3], typename DAT::t_f_array::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterNonDuplicated> ndup_f;
+  Kokkos::Experimental::ScatterView<E_FLOAT*, typename DAT::t_efloat_1d::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterNonDuplicated> ndup_eatom;
+  Kokkos::Experimental::ScatterView<F_FLOAT*[6], typename DAT::t_virial_array::array_layout,typename KKDevice<DeviceType>::value,typename Kokkos::Experimental::ScatterSum,Kokkos::Experimental::ScatterNonDuplicated> ndup_vatom;
 
   int neighflag,need_dup;
 

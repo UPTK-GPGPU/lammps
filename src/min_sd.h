@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class MinSD : public MinLineSearch {
  public:
   MinSD(class LAMMPS *);
-  int iterate(int) override;
+  int iterate(int);
 };
 
 }    // namespace LAMMPS_NS

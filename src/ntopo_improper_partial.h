@@ -27,7 +27,8 @@ namespace LAMMPS_NS {
 class NTopoImproperPartial : public NTopo {
  public:
   NTopoImproperPartial(class LAMMPS *);
-  void build() override;
+  ~NTopoImproperPartial() {}
+  void build();
 };
 
 }    // namespace LAMMPS_NS

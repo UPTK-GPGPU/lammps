@@ -25,6 +25,7 @@
 #include "math_extra.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 
 #include <cmath>
@@ -71,10 +72,12 @@ void PairLJLongCoulLongDielectric::init_style()
 {
   PairLJLongCoulLong::init_style();
 
-  avec = dynamic_cast<AtomVecDielectric *>( atom->style_match("dielectric"));
+  avec = (AtomVecDielectric *) atom->style_match("dielectric");
   if (!avec) error->all(FLERR, "Pair lj/long/coul/long/dielectric requires atom style dielectric");
 
-  neighbor->add_request(this, NeighConst::REQ_FULL);
+  int irequest = neighbor->request(this, instance_me);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
 }
 
 /* ----------------------------------------------------------------------

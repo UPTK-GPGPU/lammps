@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeGyration : public Compute {
  public:
   ComputeGyration(class LAMMPS *, int, char **);
-  ~ComputeGyration() override;
-  void init() override;
-  double compute_scalar() override;
-  void compute_vector() override;
+  ~ComputeGyration();
+  void init();
+  double compute_scalar();
+  void compute_vector();
 
  private:
   double masstotal;

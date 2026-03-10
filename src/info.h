@@ -29,7 +29,7 @@ namespace LAMMPS_NS {
 class Info : public Command {
  public:
   Info(class LAMMPS *lmp) : Command(lmp){};
-  void command(int, char **) override;
+  void command(int, char **);
 
   bool is_active(const char *, const char *);
   bool is_defined(const char *, const char *);
@@ -49,6 +49,13 @@ class Info : public Command {
                                       const std::string &);
   static bool has_gpu_device();
   static std::string get_gpu_device_info();
+
+  static std::string get_os_info();
+  static std::string get_compiler_info();
+  static std::string get_openmp_info();
+  static std::string get_mpi_vendor();
+  static std::string get_mpi_info(int &, int &);
+  static std::string get_cxx_info();
   static std::string get_accelerator_info(const std::string &pkg = "");
 
   void get_memory_info(double *);

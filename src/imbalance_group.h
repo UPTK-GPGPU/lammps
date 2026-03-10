@@ -21,14 +21,14 @@ namespace LAMMPS_NS {
 class ImbalanceGroup : public Imbalance {
  public:
   ImbalanceGroup(class LAMMPS *);
-  ~ImbalanceGroup() override;
+  virtual ~ImbalanceGroup();
 
   // parse options, return number of arguments consumed
-  int options(int, char **) override;
+  virtual int options(int, char **) override;
   // compute and apply weight factors to local atom array
-  void compute(double *) override;
+  virtual void compute(double *) override;
   // print information about the state of this imbalance compute
-  std::string info() override;
+  virtual std::string info() override;
 
  private:
   int num;           // number of groups with weights

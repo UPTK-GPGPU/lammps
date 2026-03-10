@@ -39,7 +39,7 @@ class Bond : protected Pointers {
   int copymode;
 
   Bond(class LAMMPS *);
-  ~Bond() override;
+  virtual ~Bond();
   virtual void init();
   virtual void init_style() {}
   virtual void compute(int, int) = 0;

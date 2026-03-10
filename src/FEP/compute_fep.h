@@ -31,9 +31,9 @@ namespace LAMMPS_NS {
 class ComputeFEP : public Compute {
  public:
   ComputeFEP(class LAMMPS *, int, char **);
-  ~ComputeFEP() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeFEP();
+  void init();
+  void compute_vector();
 
  private:
   int npert;

@@ -28,19 +28,19 @@ namespace LAMMPS_NS {
 class PPPMOMP : public PPPM, public ThrOMP {
  public:
   PPPMOMP(class LAMMPS *);
-  ~PPPMOMP() override;
-  void compute(int, int) override;
+  virtual ~PPPMOMP();
+  virtual void compute(int, int);
 
  protected:
-  void allocate() override;
+  virtual void allocate();
 
-  void compute_gf_ik() override;
-  void compute_gf_ad() override;
+  virtual void compute_gf_ik();
+  virtual void compute_gf_ad();
 
-  void make_rho() override;
-  void fieldforce_ik() override;
-  void fieldforce_ad() override;
-  void fieldforce_peratom() override;
+  virtual void make_rho();
+  virtual void fieldforce_ik();
+  virtual void fieldforce_ad();
+  virtual void fieldforce_peratom();
 
  private:
   void compute_rho1d_thr(FFT_SCALAR *const *const, const FFT_SCALAR &, const FFT_SCALAR &,

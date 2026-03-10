@@ -27,14 +27,14 @@ namespace LAMMPS_NS {
 class DihedralTableCut : public DihedralTable {
  public:
   DihedralTableCut(class LAMMPS *);
-  ~DihedralTableCut() override;
-  void compute(int, int) override;
-  void coeff(int, char **) override;
+  virtual ~DihedralTableCut();
+  virtual void compute(int, int);
+  virtual void coeff(int, char **);
 
  protected:
   double *aat_k, *aat_theta0_1, *aat_theta0_2;
 
-  void allocate() override;
+  virtual void allocate();
 };
 
 }    // namespace LAMMPS_NS

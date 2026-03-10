@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class DisplaceAtoms : public Command {
  public:
   DisplaceAtoms(class LAMMPS *);
-  ~DisplaceAtoms() override;
-  void command(int, char **) override;
+  ~DisplaceAtoms();
+  void command(int, char **);
 
  private:
   int igroup, groupbit;

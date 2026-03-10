@@ -26,9 +26,11 @@ namespace user_manifold {
     enum { NPARAMS = 2 };
     manifold_supersphere(LAMMPS *lmp, int, char **) : manifold(lmp) {}
 
+    virtual ~manifold_supersphere() {}
+
     double my_sign(double a) { return (a > 0) - (a < 0); }
 
-    double g(const double *x) override
+    virtual double g(const double *x)
     {
       double R = params[0];
       double q = params[1];
@@ -41,7 +43,7 @@ namespace user_manifold {
       return rr - pow(R, q);
     }
 
-    void n(const double *x, double *nn) override
+    virtual void n(const double *x, double *nn)
     {
       double q = params[1];
       double xx = fabs(x[0]);
@@ -54,9 +56,9 @@ namespace user_manifold {
     }
 
     static const char *type() { return "supersphere"; }
-    const char *id() override { return type(); }
+    virtual const char *id() { return type(); }
     static int expected_argc() { return NPARAMS; }
-    int nparams() override { return NPARAMS; }
+    virtual int nparams() { return NPARAMS; }
   };
 }    // namespace user_manifold
 

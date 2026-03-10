@@ -67,7 +67,7 @@ void ComputeTempDrude::init()
   for (ifix = 0; ifix < modify->nfix; ifix++)
     if (strcmp(modify->fix[ifix]->style,"drude") == 0) break;
   if (ifix == modify->nfix) error->all(FLERR, "compute temp/drude requires fix drude");
-  fix_drude = dynamic_cast<FixDrude *>( modify->fix[ifix]);
+  fix_drude = (FixDrude *) modify->fix[ifix];
 
   if (!comm->ghost_velocity)
     error->all(FLERR,"compute temp/drude requires ghost velocities. Use comm_modify vel yes");
@@ -89,7 +89,9 @@ void ComputeTempDrude::dof_compute()
   int dim = domain->dimension;
   int *drudetype = fix_drude->drudetype;
 
-  adjust_dof_fix();
+  fix_dof = 0;
+  for (int i = 0; i < modify->nfix; i++)
+    fix_dof += modify->fix[i]->dof(igroup);
 
   bigint dof_core_loc = 0, dof_drude_loc = 0;
   for (int i = 0; i < nlocal; i++) {

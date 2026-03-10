@@ -187,7 +187,7 @@ void FixStore::restart(char *buf)
 {
   // first 2 values in buf are vec/array sizes
 
-  auto dbuf = (double *) buf;
+  double *dbuf = (double *) buf;
   int nrow_restart = dbuf[0];
   int ncol_restart = dbuf[1];
 

@@ -100,10 +100,11 @@ class NPairKokkos : public NPair {
 
  public:
   NPairKokkos(class LAMMPS *);
-  void copy_neighbor_info() override;
-  void copy_bin_info() override;
-  void copy_stencil_info() override;
-  void build(class NeighList *) override;
+  ~NPairKokkos() {}
+  void copy_neighbor_info();
+  void copy_bin_info();
+  void copy_stencil_info();
+  void build(class NeighList *);
 
  private:
   int newton_pair;
@@ -137,7 +138,7 @@ class NPairKokkos : public NPair {
 
   // data from NStencil class
 
-  int nstencil;
+  int nstencil,last_stencil_old;
   DAT::tdual_int_1d k_stencil;  // # of J neighs for each I
   DAT::tdual_int_1d_3 k_stencilxyz;
 };
@@ -208,7 +209,7 @@ class NeighborKokkosExecute
   const X_FLOAT bininvx,bininvy,bininvz;
   X_FLOAT bboxhi[3],bboxlo[3];
 
-  const int nlocal,nall,neigh_transpose;
+  const int nlocal;
 
   typename AT::t_int_scalar resize;
   typename AT::t_int_scalar new_maxneighs;
@@ -230,7 +231,7 @@ class NeighborKokkosExecute
                         const int _mbins,const int _nstencil,
                         const typename AT::t_int_1d &_d_stencil,
                         const typename AT::t_int_1d_3 &_d_stencilxyz,
-                        const int _nlocal,const int _nall,const int _neigh_transpose,
+                        const int _nlocal,
                         const typename AT::t_x_array_randomread &_x,
                         const typename AT::t_float_1d &_radius,
                         const typename AT::t_int_1d_const &_type,
@@ -280,7 +281,7 @@ class NeighborKokkosExecute
     mbinx(_mbinx),mbiny(_mbiny),mbinz(_mbinz),
     mbinxlo(_mbinxlo),mbinylo(_mbinylo),mbinzlo(_mbinzlo),
     bininvx(_bininvx),bininvy(_bininvy),bininvz(_bininvz),
-    nlocal(_nlocal),nall(_nall),neigh_transpose(_neigh_transpose),
+    nlocal(_nlocal),
     xperiodic(_xperiodic),yperiodic(_yperiodic),zperiodic(_zperiodic),
     xprd_half(_xprd_half),yprd_half(_yprd_half),zprd_half(_zprd_half),
     skin(_skin),resize(_resize),h_resize(_h_resize),
@@ -304,7 +305,7 @@ class NeighborKokkosExecute
 
   template<int HalfNeigh>
   KOKKOS_FUNCTION
-  void build_ItemGhost(const int &i) const;
+  void build_Item_Ghost(const int &i) const;
 
   template<int HalfNeigh, int Newton, int Tri>
   KOKKOS_FUNCTION
@@ -314,11 +315,6 @@ class NeighborKokkosExecute
   template<int HalfNeigh, int Newton, int Tri>
   LAMMPS_DEVICE_FUNCTION inline
   void build_ItemGPU(typename Kokkos::TeamPolicy<DeviceType>::member_type dev,
-                     size_t sharedsize) const;
-
-  template<int HalfNeigh>
-  LAMMPS_DEVICE_FUNCTION inline
-  void build_ItemGhostGPU(typename Kokkos::TeamPolicy<DeviceType>::member_type dev,
                      size_t sharedsize) const;
 
   template<int HalfNeigh, int Newton, int Tri>
@@ -427,43 +423,13 @@ struct NPairKokkosBuildFunctorGhost {
   typedef DeviceType device_type;
 
   const NeighborKokkosExecute<DeviceType> c;
-  size_t sharedsize;
 
-  NPairKokkosBuildFunctorGhost(const NeighborKokkosExecute<DeviceType> &_c,
-                             size_t _sharedsize):c(_c),
-                             sharedsize(_sharedsize) {}
+  NPairKokkosBuildFunctorGhost(const NeighborKokkosExecute<DeviceType> &_c):c(_c) {}
 
   KOKKOS_INLINE_FUNCTION
   void operator() (const int & i) const {
-    c.template build_ItemGhost<HALF_NEIGH>(i);
+    c.template build_Item_Ghost<HALF_NEIGH>(i);
   }
-
-#ifdef LMP_KOKKOS_GPU
-  LAMMPS_DEVICE_FUNCTION inline
-  void operator() (typename Kokkos::TeamPolicy<DeviceType>::member_type dev) const {
-    c.template build_ItemGhostGPU<HALF_NEIGH>(dev, sharedsize);
-  }
-  size_t team_shmem_size(const int team_size) const { (void) team_size; return sharedsize; }
-#endif
-};
-
-template<int HALF_NEIGH>
-struct NPairKokkosBuildFunctorGhost<LMPHostType,HALF_NEIGH> {
-  typedef LMPHostType device_type;
-
-  const NeighborKokkosExecute<LMPHostType> c;
-  size_t sharedsize;
-
-  NPairKokkosBuildFunctorGhost(const NeighborKokkosExecute<LMPHostType> &_c,
-                             size_t _sharedsize):c(_c),
-                             sharedsize(_sharedsize) {}
-
-  KOKKOS_INLINE_FUNCTION
-  void operator() (const int & i) const {
-    c.template build_ItemGhost<HALF_NEIGH>(i);
-  }
-
-  void operator() (typename Kokkos::TeamPolicy<LMPHostType>::member_type /*dev*/) const {} // Should error out
 };
 
 template <class DeviceType, int HALF_NEIGH, int GHOST_NEWTON, int TRI>

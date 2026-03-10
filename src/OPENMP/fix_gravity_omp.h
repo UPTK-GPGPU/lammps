@@ -28,8 +28,8 @@ class FixGravityOMP : public FixGravity {
 
  public:
   FixGravityOMP(class LAMMPS *, int, char **);
-  void post_force(int) override;
-  void post_force_respa(int, int, int) override;
+  virtual void post_force(int);
+  virtual void post_force_respa(int, int, int);
 };
 
 }    // namespace LAMMPS_NS

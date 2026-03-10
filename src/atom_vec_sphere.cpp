@@ -95,7 +95,7 @@ void AtomVecSphere::init()
 
   for (int i = 0; i < modify->nfix; i++)
     if (strcmp(modify->fix[i]->style,"adapt") == 0) {
-      auto fix = dynamic_cast<FixAdapt *>( modify->fix[i]);
+      FixAdapt *fix = (FixAdapt *) modify->fix[i];
       if (fix->diamflag && radvary == 0)
         error->all(FLERR,"Fix adapt changes particle radii "
                    "but atom_style sphere is not dynamic");

@@ -151,7 +151,9 @@ void CreateAtoms::command(int narg, char **arg)
       iarg += 3;
     } else if (strcmp(arg[iarg],"remap") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal create_atoms command");
-      remapflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) remapflag = 1;
+      else if (strcmp(arg[iarg+1],"no") == 0) remapflag = 0;
+      else error->all(FLERR,"Illegal create_atoms command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"mol") == 0) {
       if (iarg+3 > narg) error->all(FLERR,"Illegal create_atoms command");
@@ -378,7 +380,7 @@ void CreateAtoms::command(int narg, char **arg)
   // Record wall time for atom creation
 
   MPI_Barrier(world);
-  double time1 = platform::walltime();
+  double time1 = MPI_Wtime();
 
   // clear ghost count and any ghost bonus data internal to AtomVec
   // same logic as beginning of Comm::exchange()
@@ -553,7 +555,7 @@ void CreateAtoms::command(int narg, char **arg)
 
     if (domain->triclinic) domain->x2lamda(atom->nlocal);
     domain->reset_box();
-    auto irregular = new Irregular(lmp);
+    Irregular *irregular = new Irregular(lmp);
     irregular->migrate_atoms(1);
     delete irregular;
     if (domain->triclinic) domain->lamda2x(atom->nlocal);
@@ -591,7 +593,7 @@ void CreateAtoms::command(int narg, char **arg)
     if (scaleflag) domain->print_box("  using lattice units in ");
     else domain->print_box("  using box units in ");
     utils::logmesg(lmp,"  create_atoms CPU = {:.3f} seconds\n",
-                   platform::walltime() - time1);
+                   MPI_Wtime() - time1);
   }
 }
 
@@ -654,7 +656,7 @@ void CreateAtoms::add_random()
   // warm up the generator 30x to avoid correlations in first-particle
   // positions if runs are repeated with consecutive seeds
 
-  auto random = new RanPark(lmp,seed);
+  RanPark *random = new RanPark(lmp,seed);
   for (int ii=0; ii < 30; ii++) random->uniform();
 
   // bounding box for atom creation
@@ -693,7 +695,7 @@ void CreateAtoms::add_random()
 
   int valid;
   for (int i = 0; i < nrandom; i++) {
-    while (true) {
+    while (1) {
       xone[0] = xlo + random->uniform() * (xhi-xlo);
       xone[1] = ylo + random->uniform() * (yhi-ylo);
       xone[2] = zlo + random->uniform() * (zhi-zlo);

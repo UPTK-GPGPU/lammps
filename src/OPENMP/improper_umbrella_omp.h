@@ -33,7 +33,7 @@ class ImproperUmbrellaOMP : public ImproperUmbrella, public ThrOMP {
 
  public:
   ImproperUmbrellaOMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

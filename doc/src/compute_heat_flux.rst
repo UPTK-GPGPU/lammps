@@ -89,19 +89,12 @@ included in the calculation.
 .. warning::
 
    The compute *heat/flux* has been reported to produce unphysical
-   values for angle, dihedral, improper and constraint force contributions
+   values for angle, dihedral and improper contributions
    when used with :doc:`compute stress/atom <compute_stress_atom>`,
-   as discussed in :ref:`(Surblys2019) <Surblys3>`, :ref:`(Boone) <Boone>`
-   and :ref:`(Surblys2021) <Surblys4>`. You are strongly advised to
+   as discussed in :ref:`(Surblys) <Surblys2>` and :ref:`(Boone) <Boone>`.
+   You are strongly advised to
    use :doc:`compute centroid/stress/atom <compute_stress_atom>`,
    which has been implemented specifically for such cases.
-
-.. warning::
-
-   Due to an implementation detail, the :math:`y` and :math:`z`
-   components of heat flux from :doc:`fix rigid <fix_rigid>`
-   contribution when computed via :doc:`compute stress/atom <compute_stress_atom>`
-   are highly unphysical and should not be used.
 
 The Green-Kubo formulas relate the ensemble average of the
 auto-correlation of the heat flux :math:`\mathbf{J}`
@@ -239,14 +232,10 @@ none
 
 ----------
 
-.. _Surblys3:
+.. _Surblys2:
 
-**(Surblys2019)** Surblys, Matsubara, Kikugawa, Ohara, Phys Rev E, 99, 051301(R) (2019).
+**(Surblys)** Surblys, Matsubara, Kikugawa, Ohara, Phys Rev E, 99, 051301(R) (2019).
 
 .. _Boone:
 
 **(Boone)** Boone, Babaei, Wilmer, J Chem Theory Comput, 15, 5579--5587 (2019).
-
-.. _Surblys4:
-
-**(Surblys2021)** Surblys, Matsubara, Kikugawa, Ohara, J Appl Phys 130, 215104 (2021).

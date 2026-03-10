@@ -15,7 +15,6 @@
 #define LMP_THERMO_H
 
 #include "pointers.h"
-#include <map>
 
 namespace LAMMPS_NS {
 
@@ -23,7 +22,6 @@ class Thermo : protected Pointers {
   friend class MinCG;              // accesses compute_pe
   friend class DumpNetCDF;         // accesses thermo properties
   friend class DumpNetCDFMPIIO;    // accesses thermo properties
-  friend class DumpYAML;           // accesses thermo properties
 
  public:
   char *style;
@@ -36,22 +34,31 @@ class Thermo : protected Pointers {
   enum { INT, FLOAT, BIGINT };
 
   Thermo(class LAMMPS *, int, char **);
-  ~Thermo() override;
+  ~Thermo();
   void init();
   bigint lost_check();
   void modify_params(int, char **);
   void header();
-  void footer();
   void compute(int);
-  int evaluate_keyword(const std::string &, double *);
+  int evaluate_keyword(const char *, double *);
 
  private:
-  int nfield, nfield_initial;
+  char *line;
+  char **keyword;
   int *vtype;
-  std::string line;
-  std::vector<std::string> keyword, format, format_column_user, keyword_user;
-  std::string format_line_user, format_float_user, format_int_user, format_bigint_user;
-  std::map<std::string, int> key2col;
+
+  int nfield, nfield_initial;
+  int me;
+
+  char **format;
+  char *format_line_user;
+  char *format_float_user, *format_int_user, *format_bigint_user;
+  char **format_column_user;
+
+  char *format_float_one_def, *format_float_multi_def;
+  char *format_int_one_def, *format_int_multi_def;
+  char format_multi[128];
+  char format_bigint_one_def[8], format_bigint_multi_def[8];
 
   int normvalue;       // use this for normflag unless natoms = 0
   int normuserflag;    // 0 if user has not set, 1 if has
@@ -81,6 +88,7 @@ class Thermo : protected Pointers {
   // id = ID of Compute objects
   // Compute * = ptrs to the Compute objects
   int index_temp, index_press_scalar, index_press_vector, index_pe;
+  char *id_temp, *id_press, *id_pe;
   class Compute *temperature, *pressure, *pe;
 
   int ncompute;                // # of Compute objects called by thermo
@@ -101,15 +109,10 @@ class Thermo : protected Pointers {
   void allocate();
   void deallocate();
 
-  void parse_fields(const std::string &);
+  void parse_fields(char *);
   int add_compute(const char *, int);
   int add_fix(const char *);
   int add_variable(const char *);
-
-  void check_temp(const std::string &);
-  void check_pe(const std::string &);
-  void check_press_scalar(const std::string &);
-  void check_press_vector(const std::string &);
 
   typedef void (Thermo::*FnPtr)();
   void addfield(const char *, FnPtr, int);

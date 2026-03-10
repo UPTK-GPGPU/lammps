@@ -48,17 +48,17 @@ class PairTableKokkos : public PairTable {
   typedef ArrayTypes<DeviceType> AT;
 
   PairTableKokkos(class LAMMPS *);
-  ~PairTableKokkos() override;
+  virtual ~PairTableKokkos();
 
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
   template<int TABSTYLE>
   void compute_style(int, int);
 
-  void settings(int, char **) override;
-  double init_one(int, int) override;
+  void settings(int, char **);
+  double init_one(int, int);
 
-  void init_style() override;
+  void init_style();
 
 
  protected:
@@ -103,8 +103,8 @@ class PairTableKokkos : public PairTable {
 
   typename AT::t_ffloat_2d d_cutsq;
 
-  void allocate() override;
-  void compute_table(Table *) override;
+  virtual void allocate();
+  void compute_table(Table *);
 
   typename AT::t_x_array_randomread x;
   typename AT::t_x_array_const c_x;

@@ -33,13 +33,13 @@ class FixMinimizeKokkos : public FixMinimize {
 
  public:
   FixMinimizeKokkos(class LAMMPS *, int, char **);
-  ~FixMinimizeKokkos() override;
-  void init() override {}
+  virtual ~FixMinimizeKokkos();
+  void init() {}
 
-  void grow_arrays(int) override;
-  void copy_arrays(int, int, int) override;
-  int pack_exchange(int, double *) override;
-  int unpack_exchange(int, double *) override;
+  void grow_arrays(int);
+  void copy_arrays(int, int, int);
+  int pack_exchange(int, double *);
+  int unpack_exchange(int, double *);
 
   void add_vector_kokkos();
   DAT::t_float_1d request_vector_kokkos(int);

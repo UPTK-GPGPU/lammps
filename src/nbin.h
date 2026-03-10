@@ -14,7 +14,7 @@
 #ifndef LMP_NBIN_H
 #define LMP_NBIN_H
 
-#include "pointers.h"    // IWYU pragma: keep
+#include "pointers.h"
 
 namespace LAMMPS_NS {
 
@@ -50,7 +50,7 @@ class NBin : protected Pointers {
   int **binhead_multi;
 
   NBin(class LAMMPS *);
-  ~NBin() override;
+  ~NBin();
   void post_constructor(class NeighRequest *);
   virtual void copy_neighbor_info();
 

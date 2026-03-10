@@ -27,9 +27,10 @@ namespace LAMMPS_NS {
 class PairLJCutTIP4PLongOpt : public PairLJCutTIP4PLong {
  public:
   PairLJCutTIP4PLongOpt(class LAMMPS *);
+  virtual ~PairLJCutTIP4PLongOpt(){};
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   template <const int, const int, const int, const int> void eval();

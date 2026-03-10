@@ -259,7 +259,7 @@ void Balance::command(int narg, char **arg)
   // must reset atom map after exchange() since it clears it
 
   MPI_Barrier(world);
-  double start_time = platform::walltime();
+  double start_time = MPI_Wtime();
 
   lmp->init();
 
@@ -355,7 +355,7 @@ void Balance::command(int narg, char **arg)
   // set disable = 0, so weights migrate with atoms for imbfinal calculation
 
   if (domain->triclinic) domain->x2lamda(atom->nlocal);
-  auto irregular = new Irregular(lmp);
+  Irregular *irregular = new Irregular(lmp);
   if (wtflag) fixstore->disable = 0;
   if (style == BISECTION) irregular->migrate_atoms(1,1,rcb->sendproc);
   else irregular->migrate_atoms(1);
@@ -386,7 +386,7 @@ void Balance::command(int narg, char **arg)
 
   if (me == 0) {
     std::string mesg = fmt::format(" rebalancing time: {:.3f} seconds\n",
-                                   platform::walltime()-start_time);
+                                   MPI_Wtime()-start_time);
     mesg += fmt::format("  iteration count = {}\n",niter);
     for (int i = 0; i < nimbalance; ++i) mesg += imbalances[i]->info();
     mesg += fmt::format("  initial/final maximal load/proc = {:.8} {:.8}\n"
@@ -496,8 +496,11 @@ void Balance::weight_storage(char *prefix)
   if (prefix) cmd = prefix;
   cmd += "IMBALANCE_WEIGHTS";
 
-  fixstore = dynamic_cast<FixStore *>( modify->get_fix_by_id(cmd));
-  if (!fixstore) fixstore = dynamic_cast<FixStore *>( modify->add_fix(cmd + " all STORE peratom 0 1"));
+  int ifix = modify->find_fix(cmd);
+  if (ifix < 1) {
+    cmd += " all STORE peratom 0 1";
+    fixstore = (FixStore *) modify->add_fix(cmd);
+  } else fixstore = (FixStore *) modify->fix[ifix];
 
   // do not carry weights with atoms during normal atom migration
 
@@ -927,7 +930,7 @@ int Balance::shift()
         // else add split I-1 or J+1 to set and try again
         // delta = size of expanded split set that will satisy criterion
 
-        while (true) {
+        while (1) {
           delta = (j-i) * close;
           midpt = 0.5 * (split[i]+split[j]);
           start = midpt - 0.5*delta;

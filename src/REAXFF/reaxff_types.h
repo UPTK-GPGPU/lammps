@@ -77,7 +77,6 @@ struct single_body_parameters {
   double b_o_131;
   double b_o_132;
   double b_o_133;
-  double bcut_acks2; // ACKS2 bond cutoff
 
   /* Line four in the field file */
   double p_ovun2;
@@ -212,7 +211,6 @@ struct reax_system {
   LR_lookup_table **LR;
 
   int omp_active;
-  int acks2_flag;
 };
 
 /* system control parameters */
@@ -340,9 +338,6 @@ struct storage {
   rvec *forceReduction;
   double *CdDeltaReduction;
   int *valence_angle_atom_myoffset;
-
-  /* acks2 */
-  double *s;
 
   reallocate_data realloc;
 };

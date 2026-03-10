@@ -27,18 +27,18 @@ namespace LAMMPS_NS {
 class FixNPHug : public FixNH {
  public:
   FixNPHug(class LAMMPS *, int, char **);
-  ~FixNPHug() override;
-  void init() override;
-  void setup(int) override;
-  int modify_param(int, char **) override;
-  int pack_restart_data(double *) override;    // pack restart data
-  void restart(char *) override;
+  ~FixNPHug();
+  void init();
+  void setup(int);
+  int modify_param(int, char **);
+  int pack_restart_data(double *);    // pack restart data
+  void restart(char *);
 
  private:
   class Compute *pe;    // PE compute pointer
 
-  void compute_temp_target() override;
-  double compute_vector(int) override;
+  void compute_temp_target();
+  double compute_vector(int);
   double compute_etotal();
   double compute_vol();
   double compute_hugoniot();
@@ -52,7 +52,7 @@ class FixNPHug : public FixNH {
   int idir;
   int uniaxial;
 
-  int size_restart_global() override;
+  int size_restart_global();
 };
 
 }    // namespace LAMMPS_NS

@@ -27,15 +27,16 @@ namespace LAMMPS_NS {
 class PairDPDTstat : public PairDPD {
  public:
   PairDPDTstat(class LAMMPS *);
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  void write_restart(FILE *) override;
-  void read_restart(FILE *) override;
-  void write_restart_settings(FILE *) override;
-  void read_restart_settings(FILE *) override;
-  void write_data(FILE *) override;
-  void write_data_all(FILE *) override;
+  ~PairDPDTstat() {}
+  void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  void write_restart(FILE *);
+  void read_restart(FILE *);
+  void write_restart_settings(FILE *);
+  void read_restart_settings(FILE *);
+  void write_data(FILE *);
+  void write_data_all(FILE *);
 
  protected:
   double t_start, t_stop;

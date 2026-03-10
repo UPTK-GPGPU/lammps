@@ -21,10 +21,10 @@ namespace LAMMPS_NS {
 class MinLineSearch : public Min {
  public:
   MinLineSearch(class LAMMPS *);
-  ~MinLineSearch() override;
-  void init() override;
-  void setup_style() override;
-  void reset_vectors() override;
+  ~MinLineSearch();
+  void init();
+  void setup_style();
+  void reset_vectors();
 
  protected:
   // vectors needed by linesearch minimizers

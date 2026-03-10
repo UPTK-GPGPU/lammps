@@ -29,8 +29,8 @@ class PairLJCutCoulLongDielectricOMP : public PairLJCutCoulLongDielectric, publi
 
  public:
   PairLJCutCoulLongDielectricOMP(class LAMMPS *);
-  ~PairLJCutCoulLongDielectricOMP() override = default;
-  void compute(int, int) override;
+  virtual ~PairLJCutCoulLongDielectricOMP();
+  virtual void compute(int, int);
 
  protected:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR>

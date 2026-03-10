@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class PairLubricateUPoly : public PairLubricateU {
  public:
   PairLubricateUPoly(class LAMMPS *);
-
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void init_style() override;
+  ~PairLubricateUPoly() {}
+  void compute(int, int);
+  void settings(int, char **);
+  void init_style();
 
  private:
   double vol_P;
@@ -38,9 +38,9 @@ class PairLubricateUPoly : public PairLubricateU {
   class FixWall *wallfix;
 
   void iterate(double **, int);
-  void compute_RE(double **) override;
-  void compute_RU(double **) override;
-  void compute_Fh(double **) override;
+  void compute_RE(double **);
+  void compute_RU(double **);
+  void compute_Fh(double **);
 };
 
 }    // namespace LAMMPS_NS

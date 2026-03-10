@@ -154,18 +154,18 @@ using namespace FixConst;
 FixNVEAsphereGPU::FixNVEAsphereGPU(LAMMPS *lmp, int narg, char **arg) :
   FixNVE(lmp, narg, arg)
 {
-  _dtfm = nullptr;
+  _dtfm = 0;
   _nlocal_max = 0;
-  _inertia0 = nullptr;
-  _inertia1 = nullptr;
-  _inertia2 = nullptr;
+  _inertia0 = 0;
+  _inertia1 = 0;
+  _inertia2 = 0;
 }
 
 /* ---------------------------------------------------------------------- */
 
 void FixNVEAsphereGPU::init()
 {
-  avec = dynamic_cast<AtomVecEllipsoid *>( atom->style_match("ellipsoid"));
+  avec = (AtomVecEllipsoid *) atom->style_match("ellipsoid");
   if (!avec)
     error->all(FLERR,"Compute nve/asphere requires atom style ellipsoid");
 

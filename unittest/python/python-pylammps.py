@@ -1,13 +1,6 @@
-import os,unittest
+import sys,os,unittest
 from lammps import PyLammps
 
-try:
-    import numpy
-    NUMPY_INSTALLED = True
-except ImportError:
-    NUMPY_INSTALLED = False
-
-@unittest.skipIf(not NUMPY_INSTALLED, "numpy is not available")
 class PythonPyLammps(unittest.TestCase):
     def setUp(self):
         machine = None
@@ -56,8 +49,8 @@ class PythonPyLammps(unittest.TestCase):
         self.assertEqual(self.pylmp.lmp.create_atoms(2, id=None, type=types, x=x), 2)
         self.assertEqual(self.pylmp.system.natoms, 2)
         self.assertEqual(len(self.pylmp.atoms), 2)
-        numpy.testing.assert_array_equal(self.pylmp.atoms[0].position, tuple(x[0:3]))
-        numpy.testing.assert_array_equal(self.pylmp.atoms[1].position, tuple(x[3:6]))
+        self.assertEqual(self.pylmp.atoms[0].position, tuple(x[0:3]))
+        self.assertEqual(self.pylmp.atoms[1].position, tuple(x[3:6]))
         self.assertEqual(self.pylmp.last_run, None)
 
 

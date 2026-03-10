@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class DumpCustomMPIIO : public DumpCustom {
  public:
   DumpCustomMPIIO(class LAMMPS *, int, char **);
-  ~DumpCustomMPIIO() override;
+  virtual ~DumpCustomMPIIO();
 
  protected:
   bigint
@@ -43,12 +43,12 @@ class DumpCustomMPIIO : public DumpCustom {
   int convert_string_omp(int, double *);    // multithreaded version of convert_string
 #endif
 
-  void openfile() override;
-  void write_header(bigint) override;
-  void write() override;
-  void write_data(int, double *) override;
+  virtual void openfile();
+  virtual void write_header(bigint);
+  virtual void write();
+  virtual void write_data(int, double *);
 
-  void init_style() override;
+  virtual void init_style();
   typedef void (DumpCustomMPIIO::*FnPtrHeader)(bigint);
   FnPtrHeader header_choice;    // ptr to write header functions
   void header_binary(bigint);

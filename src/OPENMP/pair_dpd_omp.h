@@ -33,10 +33,10 @@ class PairDPDOMP : public PairDPD, public ThrOMP {
 
  public:
   PairDPDOMP(class LAMMPS *);
-  ~PairDPDOMP() override;
+  virtual ~PairDPDOMP();
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   class RanMars **random_thr;

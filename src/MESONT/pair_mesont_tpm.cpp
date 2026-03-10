@@ -16,6 +16,7 @@
 #include "pair_mesont_tpm.h"
 #include "export_mesont.h"
 
+
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -23,11 +24,12 @@
 #include "error.h"
 #include "neighbor.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 
 #include <cstring>
 #include <cmath>
-
 #include <array>
+
 #include <fstream>
 #include <algorithm>
 
@@ -36,7 +38,7 @@ using namespace LAMMPS_NS;
 class MESONTList {
 public:
   MESONTList(const Atom* atom, const NeighList* nblist);
-  ~MESONTList() = default;;
+  ~MESONTList() {};
   //list of segments
   const std::vector<std::array<int,2>>& get_segments() const;
   //list of triplets
@@ -195,7 +197,7 @@ MESONTList::MESONTList(const Atom* atom, const NeighList* nblist) {
       index_list.push_back(i);
       index_list_b[i] = index_list.size() - 1;
       int idx = i;
-      while (true) {
+      while (1) {
         idx = chain_list[idx][1];
         if (idx == cnt_end || idx == domain_end) break;
         else index_list.push_back(idx);
@@ -406,7 +408,7 @@ void PairMESONTTPM::compute(int eflag, int vflag) {
       int idx = ntlist.get_idx(i);
       buckling[idx] = b_sort[i];
     }
-    comm->forward_comm(this);
+    comm->forward_comm_pair(this);
     for (int i = 0; i < nall; i++) {
       int idx = ntlist.get_idx(i);
       b_sort[i] = buckling[idx];
@@ -763,7 +765,10 @@ void PairMESONTTPM::write_data_all(FILE *fp) {
 
 void PairMESONTTPM::init_style() {
   //make sure that a full list is created (including ghost nodes)
-  neighbor->add_request(this, NeighConst::REQ_FULL | NeighConst::REQ_GHOST);
+  int r = neighbor->request(this,instance_me);
+  neighbor->requests[r]->half = false;
+  neighbor->requests[r]->full = true;
+  neighbor->requests[r]->ghost = true;
 }
 
 void* PairMESONTTPM::extract(const char *str, int &) {

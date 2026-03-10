@@ -125,8 +125,10 @@ void remap_3d(FFT_SCALAR *in, FFT_SCALAR *out, FFT_SCALAR *buf,
       for (int i=0;i<plan->nrecv;i++)
         recvBufferSize += plan->recv_size[i];
 
-      auto packedSendBuffer = (FFT_SCALAR *) malloc(sizeof(FFT_SCALAR) * sendBufferSize);
-      auto packedRecvBuffer = (FFT_SCALAR *) malloc(sizeof(FFT_SCALAR) * recvBufferSize);
+      FFT_SCALAR *packedSendBuffer
+        = (FFT_SCALAR *) malloc(sizeof(FFT_SCALAR) * sendBufferSize);
+      FFT_SCALAR *packedRecvBuffer
+        = (FFT_SCALAR *) malloc(sizeof(FFT_SCALAR) * recvBufferSize);
 
       int *sendcnts = (int *) malloc(sizeof(int) * plan->commringlen);
       int *rcvcnts = (int *) malloc(sizeof(int) * plan->commringlen);

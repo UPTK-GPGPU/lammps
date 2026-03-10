@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class MSMCG : public MSM {
  public:
   MSMCG(class LAMMPS *);
-  ~MSMCG() override;
-  void settings(int, char **) override;
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual ~MSMCG();
+  virtual void settings(int, char **);
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   int num_charged;
@@ -38,10 +38,10 @@ class MSMCG : public MSM {
   double smallq;
 
  protected:
-  void particle_map() override;
-  void make_rho() override;
-  void fieldforce() override;
-  void fieldforce_peratom() override;
+  virtual void particle_map();
+  virtual void make_rho();
+  virtual void fieldforce();
+  virtual void fieldforce_peratom();
 };
 
 }    // namespace LAMMPS_NS

@@ -27,8 +27,9 @@ namespace LAMMPS_NS {
 class ComputePE : public Compute {
  public:
   ComputePE(class LAMMPS *, int, char **);
-  void init() override {}
-  double compute_scalar() override;
+  ~ComputePE() {}
+  void init() {}
+  double compute_scalar();
 
  private:
   int pairflag, bondflag, angleflag, dihedralflag, improperflag, kspaceflag, fixflag;

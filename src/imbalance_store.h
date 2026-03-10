@@ -21,15 +21,15 @@ namespace LAMMPS_NS {
 class ImbalanceStore : public Imbalance {
  public:
   ImbalanceStore(class LAMMPS *);
-  ~ImbalanceStore() override;
+  virtual ~ImbalanceStore();
 
  public:
   // parse options, return number of arguments consumed
-  int options(int, char **) override;
+  virtual int options(int, char **) override;
   // compute per-atom imbalance and apply to weight array
-  void compute(double *) override;
+  virtual void compute(double *) override;
   // print information about the state of this imbalance compute (required)
-  std::string info() override;
+  virtual std::string info() override;
 
  private:
   char *name;    // property name

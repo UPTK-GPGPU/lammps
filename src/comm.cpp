@@ -201,9 +201,8 @@ void Comm::init()
   if (ghost_velocity) size_forward += atom->avec->size_velocity;
   if (ghost_velocity) size_border += atom->avec->size_velocity;
 
-  const auto &fix_list = modify->get_fix_list();
-  for (const auto &fix : fix_list)
-    size_border += fix->comm_border;
+  for (int i = 0; i < modify->nfix; i++)
+    size_border += modify->fix[i]->comm_border;
 
   // per-atom limits for communication
   // maxexchange = max # of datums in exchange comm, set in exchange()
@@ -218,9 +217,9 @@ void Comm::init()
   if (force->pair) maxforward = MAX(maxforward,force->pair->comm_forward);
   if (force->pair) maxreverse = MAX(maxreverse,force->pair->comm_reverse);
 
-  for (const auto &fix : fix_list) {
-    maxforward = MAX(maxforward,fix->comm_forward);
-    maxreverse = MAX(maxreverse,fix->comm_reverse);
+  for (int i = 0; i < modify->nfix; i++) {
+    maxforward = MAX(maxforward,modify->fix[i]->comm_forward);
+    maxreverse = MAX(maxreverse,modify->fix[i]->comm_reverse);
   }
 
   for (int i = 0; i < modify->ncompute; i++) {
@@ -242,9 +241,12 @@ void Comm::init()
 
   maxexchange_atom = atom->avec->maxexchange;
 
+  int nfix = modify->nfix;
+  Fix **fix = modify->fix;
+
   maxexchange_fix_dynamic = 0;
-  for (const auto &fix : fix_list)
-    if (fix->maxexchange_dynamic) maxexchange_fix_dynamic = 1;
+  for (int i = 0; i < nfix; i++)
+    if (fix[i]->maxexchange_dynamic) maxexchange_fix_dynamic = 1;
 
   if ((mode == Comm::MULTI) && (neighbor->style != Neighbor::MULTI))
     error->all(FLERR,"Cannot use comm mode multi without multi-style neighbor lists");
@@ -265,9 +267,12 @@ void Comm::init()
 
 void Comm::init_exchange()
 {
+  int nfix = modify->nfix;
+  Fix **fix = modify->fix;
+
   maxexchange_fix = 0;
-  for (const auto &fix : modify->get_fix_list())
-    maxexchange_fix += fix->maxexchange;
+  for (int i = 0; i < nfix; i++)
+    maxexchange_fix += fix[i]->maxexchange;
 
   maxexchange = maxexchange_atom + maxexchange_fix;
   bufextra = maxexchange + BUFEXTRA;
@@ -390,7 +395,9 @@ void Comm::modify_params(int narg, char **arg)
       iarg += 1;
     } else if (strcmp(arg[iarg],"vel") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal comm_modify command");
-      ghost_velocity = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) ghost_velocity = 1;
+      else if (strcmp(arg[iarg+1],"no") == 0) ghost_velocity = 0;
+      else error->all(FLERR,"Illegal comm_modify command");
       iarg += 2;
     } else error->all(FLERR,"Illegal comm_modify command");
   }
@@ -550,7 +557,7 @@ void Comm::set_proc_grid(int outflag)
 
   // create ProcMap class to create 3d grid and map procs to it
 
-  auto pmap = new ProcMap(lmp);
+  ProcMap *pmap = new ProcMap(lmp);
 
   // create 3d grid of processors
   // produces procgrid and coregrid (if relevant)
@@ -732,8 +739,7 @@ double Comm::get_comm_cutoff()
       error->warning(FLERR,"Communication cutoff adjusted to {}",maxcommcutoff);
   }
 
-  // check maximum interval size for neighbor multi
-
+  // Check maximum interval size for neighbor multi
   if (neighbor->interval_collection_flag) {
     for (int i = 0; i < neighbor->ncollections; i++){
       maxcommcutoff = MAX(maxcommcutoff, neighbor->collection2cut[i]);
@@ -1011,7 +1017,7 @@ rendezvous_irregular(int n, char *inbuf, int insize, int inorder, int *procs,
 {
   // irregular comm of inbuf from caller decomp to rendezvous decomp
 
-  auto irregular = new Irregular(lmp);
+  Irregular *irregular = new Irregular(lmp);
 
   int nrvous;
   if (inorder) nrvous = irregular->create_data_grouped(n,procs);
@@ -1019,7 +1025,8 @@ rendezvous_irregular(int n, char *inbuf, int insize, int inorder, int *procs,
 
   // add 1 item to the allocated buffer size, so the returned pointer is not a null pointer
 
-  auto inbuf_rvous = (char *) memory->smalloc((bigint) nrvous*insize+1, "rendezvous:inbuf");
+  char *inbuf_rvous = (char *) memory->smalloc((bigint) nrvous*insize+1,
+                                               "rendezvous:inbuf");
   irregular->exchange_data(inbuf,insize,inbuf_rvous);
 
   bigint irregular1_bytes = irregular->memory_usage();
@@ -1032,12 +1039,14 @@ rendezvous_irregular(int n, char *inbuf, int insize, int inorder, int *procs,
   int flag;
   int *procs_rvous;
   char *outbuf_rvous;
-  int nrvous_out = callback(nrvous,inbuf_rvous,flag, procs_rvous,outbuf_rvous,ptr);
+  int nrvous_out = callback(nrvous,inbuf_rvous,flag,
+                            procs_rvous,outbuf_rvous,ptr);
 
   if (flag != 1) memory->sfree(inbuf_rvous);  // outbuf_rvous = inbuf_vous
   if (flag == 0) {
     if (statflag) rendezvous_stats(n,0,nrvous,nrvous_out,insize,outsize,
-                                   (bigint) nrvous_out*sizeof(int) + irregular1_bytes);
+                                   (bigint) nrvous_out*sizeof(int) +
+                                   irregular1_bytes);
     return 0;    // all nout_rvous are 0, no 2nd comm stage
   }
 
@@ -1047,12 +1056,14 @@ rendezvous_irregular(int n, char *inbuf, int insize, int inorder, int *procs,
   irregular = new Irregular(lmp);
 
   int nout;
-  if (outorder) nout = irregular->create_data_grouped(nrvous_out,procs_rvous);
+  if (outorder)
+    nout = irregular->create_data_grouped(nrvous_out,procs_rvous);
   else nout = irregular->create_data(nrvous_out,procs_rvous);
 
   // add 1 item to the allocated buffer size, so the returned pointer is not a null pointer
 
-  outbuf = (char *) memory->smalloc((bigint) nout*outsize+1, "rendezvous:outbuf");
+  outbuf = (char *) memory->smalloc((bigint) nout*outsize+1,
+                                    "rendezvous:outbuf");
   irregular->exchange_data(outbuf_rvous,outsize,outbuf);
 
   bigint irregular2_bytes = irregular->memory_usage();
@@ -1159,7 +1170,8 @@ rendezvous_all2all(int n, char *inbuf, int insize, int inorder, int *procs,
   // all2all comm of inbuf from caller decomp to rendezvous decomp
   // add 1 item to the allocated buffer size, so the returned pointer is not a null pointer
 
-  auto inbuf_rvous = (char *) memory->smalloc((bigint) nrvous*insize+1, "rendezvous:inbuf");
+  char *inbuf_rvous = (char *) memory->smalloc((bigint) nrvous*insize+1,
+                                               "rendezvous:inbuf");
   memset(inbuf_rvous,0,(bigint) nrvous*insize*sizeof(char));
 
   MPI_Alltoallv(inbuf_a2a,sendcount,sdispls,MPI_CHAR,
@@ -1178,7 +1190,8 @@ rendezvous_all2all(int n, char *inbuf, int insize, int inorder, int *procs,
   int *procs_rvous;
   char *outbuf_rvous;
 
-  int nrvous_out = callback(nrvous,inbuf_rvous,flag, procs_rvous,outbuf_rvous,ptr);
+  int nrvous_out = callback(nrvous,inbuf_rvous,flag,
+                            procs_rvous,outbuf_rvous,ptr);
 
   if (flag != 1) memory->sfree(inbuf_rvous);  // outbuf_rvous = inbuf_vous
   if (flag == 0) {
@@ -1199,7 +1212,8 @@ rendezvous_all2all(int n, char *inbuf, int insize, int inorder, int *procs,
 
     // add 1 item to the allocated buffer size, so the returned pointer is not a null pointer
 
-    outbuf_a2a = (char *) memory->smalloc((bigint) nrvous_out*outsize+1, "rendezvous:outbuf");
+    outbuf_a2a = (char *) memory->smalloc((bigint) nrvous_out*outsize+1,
+                                          "rendezvous:outbuf");
     memory->create(offsets,nprocs,"rendezvous:offsets");
 
     for (int i = 0; i < nprocs; i++) procs_a2a[i] = 0;
@@ -1217,7 +1231,8 @@ rendezvous_all2all(int n, char *inbuf, int insize, int inorder, int *procs,
       offset += outsize;
     }
 
-    all2all2_bytes = nprocs*sizeof(int) + nprocs*sizeof(bigint) + (bigint)nrvous_out*outsize;
+    all2all2_bytes = nprocs*sizeof(int) + nprocs*sizeof(bigint) +
+      (bigint)nrvous_out*outsize;
 
   } else {
     procs_a2a = procs_rvous;

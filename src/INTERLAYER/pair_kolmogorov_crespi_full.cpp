@@ -31,6 +31,7 @@
 #include "memory.h"
 #include "my_page.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "potential_file_reader.h"
 
@@ -312,7 +313,10 @@ void PairKolmogorovCrespiFull::init_style()
 
   // need a full neighbor list, including neighbors of ghosts
 
-  neighbor->add_request(this, NeighConst::REQ_FULL | NeighConst::REQ_GHOST);
+  int irequest = neighbor->request(this, instance_me);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
+  neighbor->requests[irequest]->ghost = 1;
 
   // local KC neighbor list
   // create pages if first time or if neighbor pgsize/oneatom has changed

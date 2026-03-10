@@ -21,15 +21,15 @@ namespace LAMMPS_NS {
 class FixNHSphere : public FixNH {
  public:
   FixNHSphere(class LAMMPS *, int, char **);
-
-  void init() override;
+  virtual ~FixNHSphere() {}
+  void init();
 
  protected:
   double inertia;
 
-  void nve_v() override;
-  void nve_x() override;
-  void nh_v_temp() override;
+  void nve_v();
+  void nve_x();
+  void nh_v_temp();
 };
 
 }    // namespace LAMMPS_NS

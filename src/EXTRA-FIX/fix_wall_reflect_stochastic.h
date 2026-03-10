@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class FixWallReflectStochastic : public FixWallReflect {
  public:
   FixWallReflectStochastic(class LAMMPS *, int, char **);
-  ~FixWallReflectStochastic() override;
+  virtual ~FixWallReflectStochastic();
 
  private:
   int seedfix;
@@ -36,7 +36,7 @@ class FixWallReflectStochastic : public FixWallReflect {
 
   class RanMars *random;
 
-  void wall_particle(int m, int which, double coord) override;
+  void wall_particle(int m, int which, double coord);
 };
 
 }    // namespace LAMMPS_NS

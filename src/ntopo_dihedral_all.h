@@ -27,7 +27,8 @@ namespace LAMMPS_NS {
 class NTopoDihedralAll : public NTopo {
  public:
   NTopoDihedralAll(class LAMMPS *);
-  void build() override;
+  ~NTopoDihedralAll() {}
+  void build();
 };
 
 }    // namespace LAMMPS_NS

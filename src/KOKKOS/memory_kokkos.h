@@ -172,11 +172,13 @@ TYPE create_kokkos(TYPE &data, typename TYPE::value_type **&array,
   bigint nbytes = ((bigint) sizeof(typename TYPE::value_type *)) * n1;
   array = (typename TYPE::value_type **) smalloc(nbytes,name);
 
+  bigint n = 0;
   for (int i = 0; i < n1; i++) {
     if (n2==0)
       array[i] = nullptr;
     else
       array[i] = &data.h_view(i,0);
+    n += n2;
   }
   return data;
 }
@@ -191,11 +193,13 @@ template <typename TYPE, typename HTYPE>
   bigint nbytes = ((bigint) sizeof(typename TYPE::value_type *)) * n1;
   array = (typename TYPE::value_type **) smalloc(nbytes,name);
 
+  bigint n = 0;
   for (int i = 0; i < n1; i++) {
     if (n2==0)
       array[i] = nullptr;
     else
       array[i] = &h_data(i,0);
+    n += n2;
   }
   return data;
 }

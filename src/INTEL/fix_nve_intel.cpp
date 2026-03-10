@@ -32,7 +32,7 @@ using namespace FixConst;
 FixNVEIntel::FixNVEIntel(LAMMPS *lmp, int narg, char **arg) :
   FixNVE(lmp, narg, arg)
 {
-  _dtfm = nullptr;
+  _dtfm = 0;
   _nlocal3 = 0;
   _nlocal_max = 0;
 }

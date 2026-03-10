@@ -34,8 +34,8 @@ class PairGranHertzHistoryOMP : public PairGranHertzHistory, public ThrOMP {
  public:
   PairGranHertzHistoryOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   template <int EVFLAG, int SHEARUPDATE, int NEWTON_PAIR>

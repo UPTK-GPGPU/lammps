@@ -17,7 +17,6 @@
 #include "info.h"
 #include "input.h"
 #include "lammps.h"
-#include "platform.h"
 #include "variable.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -28,20 +27,20 @@
 
 using namespace LAMMPS_NS;
 
-using ::testing::ContainsRegex;
+using ::testing::MatchesRegex;
 
 #define TEST_FAILURE(errmsg, ...)                                                               \
     if (Info::has_exceptions()) {                                                               \
         ::testing::internal::CaptureStdout();                                                   \
         ASSERT_ANY_THROW({__VA_ARGS__});                                                        \
         auto mesg = ::testing::internal::GetCapturedStdout();                                   \
-        ASSERT_THAT(mesg, ContainsRegex(errmsg));                                               \
+        ASSERT_THAT(mesg, MatchesRegex(errmsg));                                                \
     } else {                                                                                    \
-        if (platform::mpi_vendor() != "Open MPI") {                                             \
+        if (Info::get_mpi_vendor() != "Open MPI") {                                             \
             ::testing::internal::CaptureStdout();                                               \
             ASSERT_DEATH({__VA_ARGS__}, "");                                                    \
             auto mesg = ::testing::internal::GetCapturedStdout();                               \
-            ASSERT_THAT(mesg, ContainsRegex(errmsg));                                           \
+            ASSERT_THAT(mesg, MatchesRegex(errmsg));                                            \
         } else {                                                                                \
             std::cerr << "[          ] [ INFO ] Skipping death test (no exception support) \n"; \
         }                                                                                       \

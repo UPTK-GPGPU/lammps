@@ -36,12 +36,12 @@ class FixNHKokkos : public FixNH {
   typedef DeviceType device_type;
 
   FixNHKokkos(class LAMMPS *, int, char **);
-  ~FixNHKokkos() override;
-  void init() override;
-  void setup(int) override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
-  void pre_exchange() override;
+  virtual ~FixNHKokkos();
+  virtual void init();
+  virtual void setup(int);
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
+  virtual void pre_exchange();
 
   template<int TRICLINIC_FLAG>
   KOKKOS_INLINE_FUNCTION
@@ -58,12 +58,12 @@ class FixNHKokkos : public FixNH {
   void operator()(TagFixNH_nh_v_temp, const int&) const;
 
  protected:
-  void remap() override;
+  virtual void remap();
 
-  void nve_x() override;            // may be overwritten by child classes
-  void nve_v() override;
-  void nh_v_press() override;
-  void nh_v_temp() override;
+  virtual void nve_x();            // may be overwritten by child classes
+  virtual void nve_v();
+  virtual void nh_v_press();
+  virtual void nh_v_temp();
 
   F_FLOAT factor[3];
 

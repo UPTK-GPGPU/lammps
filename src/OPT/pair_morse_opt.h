@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class PairMorseOpt : public PairMorse {
  public:
   PairMorseOpt(class LAMMPS *);
-  void compute(int, int) override;
+  void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR> void eval();

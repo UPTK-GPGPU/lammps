@@ -29,6 +29,7 @@
 #include "tokenizer.h"
 
 #include <cmath>
+#include <cstring>
 
 using namespace LAMMPS_NS;
 
@@ -171,7 +172,7 @@ void PairEAMCD::compute(int eflag, int vflag)
 
   if (newton_pair) {
     communicationStage = 1;
-    comm->reverse_comm(this);
+    comm->reverse_comm_pair(this);
   }
 
   // fp = derivative of embedding energy at each atom
@@ -192,7 +193,7 @@ void PairEAMCD::compute(int eflag, int vflag)
   // and D_values (this for one-site formulation only).
 
   communicationStage = 2;
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 
   // The electron densities may not drop to zero because then the
   // concentration would no longer be defined.  But the concentration
@@ -269,10 +270,10 @@ void PairEAMCD::compute(int eflag, int vflag)
 
     if (newton_pair) {
       communicationStage = 3;
-      comm->reverse_comm(this);
+      comm->reverse_comm_pair(this);
     }
     communicationStage = 4;
-    comm->forward_comm(this);
+    comm->forward_comm_pair(this);
   }
 
   // Stage III
@@ -489,33 +490,19 @@ void PairEAMCD::read_h_coeff(char *filename)
     // Open potential file
 
     FILE *fptr;
-    int convert_flag = unit_convert_flag;
+    char line[2][MAXLINE];
+    int convert_flag = unit_convert_flag, toggle = 0;
     fptr = utils::open_potential(filename, lmp, &convert_flag);
     if (fptr == nullptr)
       error->one(FLERR,"Cannot open EAMCD potential file {}", filename);
 
     // h coefficients are stored at the end of the file.
-    // Seek to end of file, read last part into a buffer and
-    // then skip over lines in buffer until reaching the end.
+    // Skip to last line of file.
 
-    if ( (platform::fseek(fptr, platform::END_OF_FILE) < 0)
-         || (platform::fseek(fptr, platform::ftell(fptr) - MAXLINE) < 0))
-      error->one(FLERR,"Failure to seek to end-of-file for reading h(x) coeffs: {}",
-                 utils::getsyserror());
+    while (fgets(line[toggle], MAXLINE, fptr) != nullptr)
+      toggle = !toggle;
 
-    auto buf = new char[MAXLINE+1];
-    auto rv = fread(buf,1,MAXLINE,fptr);
-    if (rv == 0) error->one(FLERR,"Failure to read h(x) coeffs: {}", utils::getsyserror());
-    buf[rv] = '\0';        // must 0-terminate buffer for string processing
-
-    Tokenizer lines(buf, "\n");
-    delete[] buf;
-
-    std::string lastline;
-    while (lines.has_next())
-      lastline = lines.next();
-
-    ValueTokenizer values(lastline);
+    ValueTokenizer values(line[!toggle]);
     int degree = values.next_int();
     nhcoeff = degree+1;
 

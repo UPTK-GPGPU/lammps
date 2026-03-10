@@ -62,6 +62,12 @@ FixTDPDSource::FixTDPDSource(LAMMPS *lmp, int narg, char **arg) :
 
 /* ---------------------------------------------------------------------- */
 
+FixTDPDSource::~FixTDPDSource()
+{
+}
+
+/* ---------------------------------------------------------------------- */
+
 int FixTDPDSource::setmask()
 {
   int mask = 0;

@@ -21,16 +21,17 @@ namespace LAMMPS_NS {
 class ImbalanceTime : public Imbalance {
  public:
   ImbalanceTime(class LAMMPS *);
+  virtual ~ImbalanceTime() {}
 
  public:
   // parse options, return number of arguments consumed
-  int options(int, char **) override;
+  virtual int options(int, char **) override;
   // reinitialize internal data
-  void init(int) override;
+  virtual void init(int) override;
   // compute and apply weight factors to local atom array
-  void compute(double *) override;
+  virtual void compute(double *) override;
   // print information about the state of this imbalance compute
-  std::string info() override;
+  virtual std::string info() override;
 
  private:
   double factor;    // weight factor for time imbalance

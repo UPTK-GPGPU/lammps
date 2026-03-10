@@ -54,7 +54,9 @@ ComputeFragmentAtom::ComputeFragmentAtom(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"single") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal compute fragment/atom command");
-      singleflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) singleflag = 1;
+      else if (strcmp(arg[iarg+1],"no") == 0) singleflag = 0;
+      else error->all(FLERR,"Illegal compute fragment/atom command");
       iarg += 2;
     } else error->all(FLERR,"Illegal compute fragment/atom command");
   }
@@ -121,7 +123,7 @@ void ComputeFragmentAtom::compute_peratom()
 
   if (group->dynamic[igroup]) {
     commflag = 0;
-    comm->forward_comm(this);
+    comm->forward_comm_compute(this);
   }
 
   // owned + ghost atoms start with fragmentID = atomID
@@ -150,10 +152,10 @@ void ComputeFragmentAtom::compute_peratom()
 
   int iteration = 0;
 
-  while (true) {
+  while (1) {
     iteration++;
 
-    comm->forward_comm(this);
+    comm->forward_comm_compute(this);
     done = 1;
 
     // set markflag = 0 for all owned atoms, for new iteration

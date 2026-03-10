@@ -103,12 +103,16 @@ FixPAFI::FixPAFI(LAMMPS *lmp, int narg, char **arg) :
   int iarg = 7;
   while (iarg < narg) {
     if (strcmp(arg[iarg],"overdamped") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix pafi command");
-      od_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) od_flag = 0;
+      else if (strcmp(arg[iarg+1],"0") == 0) od_flag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) od_flag = 1;
+      else if (strcmp(arg[iarg+1],"1") == 0) od_flag = 1;
       iarg += 2;
     } else if (strcmp(arg[iarg],"com") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix pafi command");
-      com_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) com_flag = 0;
+      else if (strcmp(arg[iarg+1],"0") == 0) com_flag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) com_flag = 1;
+      else if (strcmp(arg[iarg+1],"1") == 0) com_flag = 1;
       iarg += 2;
     } else error->all(FLERR,"Illegal fix pafi command");
   }
@@ -178,8 +182,8 @@ void FixPAFI::init()
 
 
   if (utils::strmatch(update->integrate_style,"^respa")) {
-    step_respa = (dynamic_cast<Respa *>( update->integrate))->step; // nve
-    nlevels_respa = (dynamic_cast<Respa *>( update->integrate))->nlevels;
+    step_respa = ((Respa *) update->integrate)->step; // nve
+    nlevels_respa = ((Respa *) update->integrate)->nlevels;
     if (respa_level >= 0) ilevel_respa = MIN(respa_level,nlevels_respa-1);
     else ilevel_respa = nlevels_respa-1;
   }
@@ -192,9 +196,9 @@ void FixPAFI::setup(int vflag)
     post_force(vflag);
   else
     for (int ilevel = 0; ilevel < nlevels_respa; ilevel++) {
-      (dynamic_cast<Respa *>( update->integrate))->copy_flevel_f(ilevel);
+      ((Respa *) update->integrate)->copy_flevel_f(ilevel);
       post_force_respa(vflag,ilevel,0);
-      (dynamic_cast<Respa *>( update->integrate))->copy_f_flevel(ilevel);
+      ((Respa *) update->integrate)->copy_f_flevel(ilevel);
     }
 }
 

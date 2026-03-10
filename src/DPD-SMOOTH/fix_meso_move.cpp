@@ -818,7 +818,7 @@ void FixMesoMove::write_restart (FILE *fp) {
 
 void FixMesoMove::restart (char *buf) {
   int n = 0;
-  auto list = (double *) buf;
+  double *list = (double *) buf;
 
   time_origin = static_cast<int> (list[n++]);
 }

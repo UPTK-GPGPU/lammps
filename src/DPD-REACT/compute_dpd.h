@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeDpd : public Compute {
  public:
   ComputeDpd(class LAMMPS *, int, char **);
-  ~ComputeDpd() override;
-  void init() override {}
-  void compute_vector() override;
+  ~ComputeDpd();
+  void init() {}
+  void compute_vector();
 
  private:
   double *dpdU;

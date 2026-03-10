@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class FixDummy : public Fix {
  public:
   FixDummy(class LAMMPS *, int, char **);
-
-  int setmask() override;
+  virtual ~FixDummy() {}
+  int setmask();
 
  protected:
   int initial_integrate_flag, final_integrate_flag;

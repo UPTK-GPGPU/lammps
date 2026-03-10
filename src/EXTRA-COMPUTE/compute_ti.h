@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeTI : public Compute {
  public:
   ComputeTI(class LAMMPS *, int, char **);
-  ~ComputeTI() override;
-  void init() override;
-  double compute_scalar() override;
+  ~ComputeTI();
+  void init();
+  double compute_scalar();
 
  private:
   int nterms;

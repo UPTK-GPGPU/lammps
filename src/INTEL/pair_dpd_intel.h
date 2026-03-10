@@ -41,12 +41,12 @@ class PairDPDIntel : public PairDPD {
 
  public:
   PairDPDIntel(class LAMMPS *);
-  ~PairDPDIntel() override;
+  ~PairDPDIntel();
 
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void init_style() override;
-  void read_restart_settings(FILE *) override;
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void init_style();
+  void read_restart_settings(FILE *);
 
  private:
   FixIntel *fix;

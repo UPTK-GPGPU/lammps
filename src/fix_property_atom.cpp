@@ -18,7 +18,6 @@
 #include "comm.h"
 #include "error.h"
 #include "memory.h"
-#include "read_data.h"
 #include "tokenizer.h"
 
 #include <cstring>
@@ -55,7 +54,8 @@ FixPropertyAtom::FixPropertyAtom(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"mol") == 0) {
       if (atom->molecule_flag)
-        error->all(FLERR,"Fix property/atom mol when atom_style already has molecule attribute");
+        error->all(FLERR,"Fix property/atom mol when atom_style "
+                   "already has molecule attribute");
       if (molecule_flag)
         error->all(FLERR,"Fix property/atom cannot specify mol twice");
       styles[nvalue] = MOLECULE;
@@ -95,8 +95,6 @@ FixPropertyAtom::FixPropertyAtom(LAMMPS *lmp, int narg, char **arg) :
       index[nvalue] = atom->find_custom(&arg[iarg][2],flag,ncols);
       if (index[nvalue] >= 0)
         error->all(FLERR,"Fix property/atom vector name already exists");
-      if (ReadData::is_data_section(id))
-        error->all(FLERR,"Fix property/atom fix ID must not be a data file section name");
       index[nvalue] = atom->add_custom(&arg[iarg][2],0,0);
       cols[nvalue] = 0;
       values_peratom++;
@@ -109,8 +107,6 @@ FixPropertyAtom::FixPropertyAtom(LAMMPS *lmp, int narg, char **arg) :
       index[nvalue] = atom->find_custom(&arg[iarg][2],flag,ncols);
       if (index[nvalue] >= 0)
         error->all(FLERR,"Fix property/atom vector name already exists");
-      if (ReadData::is_data_section(id))
-        error->all(FLERR,"Fix property/atom fix ID must not be a data file section name");
       index[nvalue] = atom->add_custom(&arg[iarg][2],1,0);
       cols[nvalue] = 0;
       values_peratom++;
@@ -126,8 +122,6 @@ FixPropertyAtom::FixPropertyAtom(LAMMPS *lmp, int narg, char **arg) :
       which = atom->find_custom(&arg[iarg][3],flag,ncols);
       if (which >= 0)
         error->all(FLERR,"Fix property/atom array name {} already exists", &arg[iarg][3]);
-      if (ReadData::is_data_section(id))
-        error->all(FLERR,"Fix property/atom fix ID must not be a data file section name");
 
       ncols = utils::inumeric(FLERR,arg[iarg+1],true,lmp);
       if (ncols < 1)
@@ -157,7 +151,9 @@ FixPropertyAtom::FixPropertyAtom(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"ghost") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix property/atom command");
-      border = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) border = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) border = 1;
+      else error->all(FLERR,"Illegal fix property/atom command");
       iarg += 2;
     } else error->all(FLERR,"Illegal fix property/atom command");
   }
@@ -445,35 +441,34 @@ void FixPropertyAtom::write_data_section(int /*mth*/, FILE *fp,
                                          int n, double **buf, int /*index*/)
 {
   int k,icol,ncol,nv;
-  std::string line;
 
   for (int i = 0; i < n; i++) {
-    line = fmt::format("{}",(tagint) ubuf(buf[i][0]).i);
+    fprintf(fp,TAGINT_FORMAT,(tagint) ubuf(buf[i][0]).i);
     icol = 1;
     for (nv = 0; nv < nvalue; nv++) {
       if (styles[nv] == MOLECULE)
-        line += fmt::format(" {}",(tagint) ubuf(buf[i][icol++]).i);
+        fprintf(fp," " TAGINT_FORMAT,(tagint) ubuf(buf[i][icol++]).i);
       else if (styles[nv] == CHARGE)
-        line += fmt::format(" {}",buf[i][icol++]);
+        fprintf(fp," %g",buf[i][icol++]);
       else if (styles[nv] == RMASS)
-        line += fmt::format(" {}",buf[i][icol++]);
+        fprintf(fp," %g",buf[i][icol++]);
       else if (styles[nv] == IVEC)
-        line += fmt::format(" {}",(int) ubuf(buf[i][icol++]).i);
+        fprintf(fp," %d",(int) ubuf(buf[i][icol++]).i);
       else if (styles[nv] == DVEC)
-        line += fmt::format(" {}",buf[i][icol++]);
+        fprintf(fp," %g",buf[i][icol++]);
       else if (styles[nv] == IARRAY) {
         ncol = cols[nv];
         for (k = 0; k < ncol; k++)
-          line += fmt::format(" {}",(int) ubuf(buf[i][icol+k]).i);
+          fprintf(fp," %d",(int) ubuf(buf[i][icol+k]).i);
         icol += ncol;
       } else if (styles[nv] == DARRAY) {
         ncol = cols[nv];
         for (k = 0; k < ncol; k++)
-          line += fmt::format(" {}",buf[i][icol+k]);
+          fprintf(fp," %g",buf[i][icol+k]);
         icol += ncol;
       }
     }
-    fmt::print(fp,line+"\n");
+    fprintf(fp,"\n");
   }
 }
 

@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class PairLJCutCoulMSM : public PairLJCutCoulLong {
  public:
   PairLJCutCoulMSM(class LAMMPS *);
-  ~PairLJCutCoulMSM() override;
-  void compute(int, int) override;
-  double single(int, int, int, int, double, double, double, double &) override;
-  void compute_outer(int, int) override;
-  void *extract(const char *, int &) override;
+  virtual ~PairLJCutCoulMSM();
+  virtual void compute(int, int);
+  virtual double single(int, int, int, int, double, double, double, double &);
+  virtual void compute_outer(int, int);
+  virtual void *extract(const char *, int &);
 
  protected:
   int nmax;

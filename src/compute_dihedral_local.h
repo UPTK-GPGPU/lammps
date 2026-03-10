@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeDihedralLocal : public Compute {
  public:
   ComputeDihedralLocal(class LAMMPS *, int, char **);
-  ~ComputeDihedralLocal() override;
-  void init() override;
-  void compute_local() override;
-  double memory_usage() override;
+  ~ComputeDihedralLocal();
+  void init();
+  void compute_local();
+  double memory_usage();
 
  private:
   int nvalues, nvar, ncount, setflag;

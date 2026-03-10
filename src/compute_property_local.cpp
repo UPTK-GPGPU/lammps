@@ -264,10 +264,12 @@ void ComputePropertyLocal::init()
   // this should enable it to always be a copy list  (e.g. for granular pstyle)
 
   if (kindflag == NEIGH || kindflag == PAIR) {
-    int neighflags = NeighConst::REQ_OCCASIONAL;
-    auto pairrequest = neighbor->find_request(force->pair);
-    if (pairrequest && pairrequest->get_size()) neighflags |= NeighConst::REQ_SIZE;
-    neighbor->add_request(this, neighflags);
+    int irequest = neighbor->request(this, instance_me);
+    neighbor->requests[irequest]->pair = 0;
+    neighbor->requests[irequest]->compute = 1;
+    neighbor->requests[irequest]->occasional = 1;
+    NeighRequest *pairrequest = neighbor->find_request((void *) force->pair);
+    if (pairrequest) neighbor->requests[irequest]->size = pairrequest->size;
   }
 
   // do initial memory allocation so that memory_usage() is correct

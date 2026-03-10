@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class FixNVENoforce : public Fix {
  public:
   FixNVENoforce(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void initial_integrate_respa(int, int, int) override;
-  void reset_dt() override;
+  int setmask();
+  virtual void init();
+  virtual void initial_integrate(int);
+  void initial_integrate_respa(int, int, int);
+  void reset_dt();
 
  protected:
   double dtv;

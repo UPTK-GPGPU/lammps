@@ -1123,11 +1123,8 @@ Bibliography
 **(Sun)**
    Sun, J. Phys. Chem. B, 102, 7338-7364 (1998).
 
-**(Surblys2019)**
+**(Surblys)**
    Surblys, Matsubara, Kikugawa, Ohara, Phys Rev E, 99, 051301(R) (2019).
-
-**(Surblys2021)**
-   Surblys, Matsubara, Kikugawa, Ohara, J Appl Phys 130, 215104 (2021).
 
 **(Sutmann)**
    Sutmann, Arnold, Fahrenberger, et. al., Physical review / E 88(6), 063308 (2013)

@@ -14,18 +14,18 @@
 
 #include "pair_lj_class2_coul_long_soft.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "kspace.h"
-#include "math_const.h"
-#include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-
 #include <cmath>
 #include <cstring>
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "kspace.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "math_const.h"
+#include "memory.h"
+#include "error.h"
+
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -277,9 +277,10 @@ void PairLJClass2CoulLongSoft::coeff(int narg, char **arg)
 void PairLJClass2CoulLongSoft::init_style()
 {
   if (!atom->q_flag)
-    error->all(FLERR, "Pair style lj/class2/coul/long/soft requires atom attribute q");
+    error->all(FLERR,
+               "Pair style lj/class2/coul/long/soft requires atom attribute q");
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 
   cut_coulsq = cut_coul * cut_coul;
 

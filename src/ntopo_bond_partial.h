@@ -27,7 +27,8 @@ namespace LAMMPS_NS {
 class NTopoBondPartial : public NTopo {
  public:
   NTopoBondPartial(class LAMMPS *);
-  void build() override;
+  ~NTopoBondPartial() {}
+  void build();
 };
 
 }    // namespace LAMMPS_NS

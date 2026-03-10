@@ -30,7 +30,8 @@ namespace LAMMPS_NS {
 class NPairFullNsqGhost : public NPair {
  public:
   NPairFullNsqGhost(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairFullNsqGhost() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

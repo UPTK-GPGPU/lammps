@@ -35,12 +35,11 @@ namespace LAMMPS_NS {
 class FixReaxFFSpeciesKokkos : public FixReaxFFSpecies {
  public:
   FixReaxFFSpeciesKokkos(class LAMMPS *, int, char **);
-  ~FixReaxFFSpeciesKokkos() override;
-
-  void init() override;
+  virtual ~FixReaxFFSpeciesKokkos();
+  void init();
 
  private:
-  void FindMolecule() override;
+  void FindMolecule();
 };
 }
 

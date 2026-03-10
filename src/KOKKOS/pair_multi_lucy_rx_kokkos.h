@@ -52,22 +52,22 @@ class PairMultiLucyRXKokkos : public PairMultiLucyRX, public KokkosBase {
   typedef EV_FLOAT value_type;
 
   PairMultiLucyRXKokkos(class LAMMPS *);
-  ~PairMultiLucyRXKokkos() override;
+  virtual ~PairMultiLucyRXKokkos();
 
-  void compute(int, int) override;
-  void settings(int, char **) override;
+  void compute(int, int);
+  void settings(int, char **);
 
   template<int TABSTYLE>
   void compute_style(int, int);
 
-  void init_style() override;
+  void init_style();
   int pack_forward_comm_kokkos(int, DAT::tdual_int_2d, int, DAT::tdual_xfloat_1d&,
-                               int, int *) override;
-  void unpack_forward_comm_kokkos(int, int, DAT::tdual_xfloat_1d&) override;
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
-  int pack_reverse_comm(int, int, double *) override;
-  void unpack_reverse_comm(int, int *, double *) override;
+                               int, int *);
+  void unpack_forward_comm_kokkos(int, int, DAT::tdual_xfloat_1d&);
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
+  int pack_reverse_comm(int, int, double *);
+  void unpack_reverse_comm(int, int *, double *);
   void computeLocalDensity();
 
   KOKKOS_INLINE_FUNCTION
@@ -150,7 +150,7 @@ class PairMultiLucyRXKokkos : public PairMultiLucyRX, public KokkosBase {
 
   F_FLOAT m_cutsq[MAX_TYPES_STACKPARAMS+1][MAX_TYPES_STACKPARAMS+1];
 
-  void allocate() override;
+  void allocate();
   int update_table;
   void create_kokkos_tables();
 

@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class CreateBonds : public Command {
  public:
   CreateBonds(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 
  private:
   int igroup, group1bit, group2bit;

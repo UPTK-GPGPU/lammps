@@ -40,6 +40,7 @@
 #include "memory.h"
 #include "msm_dielectric.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "pair_coul_cut_dielectric.h"
 #include "pair_coul_long_dielectric.h"
@@ -71,7 +72,7 @@ FixPolarizeFunctional::FixPolarizeFunctional(LAMMPS *lmp, int narg, char **arg) 
 {
   if (narg < 4) error->all(FLERR, "Illegal fix polarize/functional command");
 
-  avec = dynamic_cast<AtomVecDielectric *>( atom->style_match("dielectric"));
+  avec = (AtomVecDielectric *) atom->style_match("dielectric");
   if (!avec) error->all(FLERR, "Fix polarize/functional requires atom style dielectric");
 
   nevery = utils::inumeric(FLERR, arg[3], false, lmp);
@@ -264,7 +265,12 @@ void FixPolarizeFunctional::init()
   // need a full neighbor list w/ Newton off and ghost neighbors
   // built whenever re-neighboring occurs
 
-  neighbor->add_request(this, NeighConst::REQ_FULL | NeighConst::REQ_OCCASIONAL);
+  int irequest = neighbor->request(this, instance_me);
+  neighbor->requests[irequest]->pair = 0;
+  neighbor->requests[irequest]->fix = 1;
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
+  neighbor->requests[irequest]->occasional = 0;
 
   if (force->kspace)
     g_ewald = force->kspace->g_ewald;
@@ -290,19 +296,19 @@ void FixPolarizeFunctional::setup(int /*vflag*/)
   // check if the pair styles in use are compatible
 
   if (strcmp(force->pair_style, "lj/cut/coul/long/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/long/dielectric/omp") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/msm/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulMSMDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulMSMDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/cut/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulCutDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "lj/cut/coul/cut/dielectric/omp") == 0)
-    efield_pair = (dynamic_cast<PairLJCutCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairLJCutCoulCutDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "coul/long/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairCoulLongDielectric *>( force->pair))->efield;
+    efield_pair = ((PairCoulLongDielectric *) force->pair)->efield;
   else if (strcmp(force->pair_style, "coul/cut/dielectric") == 0)
-    efield_pair = (dynamic_cast<PairCoulCutDielectric *>( force->pair))->efield;
+    efield_pair = ((PairCoulCutDielectric *) force->pair)->efield;
   else
     error->all(FLERR, "Pair style not compatible with fix polarize/functional");
 
@@ -310,9 +316,9 @@ void FixPolarizeFunctional::setup(int /*vflag*/)
 
     kspaceflag = 1;
     if (strcmp(force->kspace_style, "pppm/dielectric") == 0)
-      efield_kspace = (dynamic_cast<PPPMDielectric *>( force->kspace))->efield;
+      efield_kspace = ((PPPMDielectric *) force->kspace)->efield;
     else if (strcmp(force->kspace_style, "msm/dielectric") == 0)
-      efield_kspace = (dynamic_cast<MSMDielectric *>( force->kspace))->efield;
+      efield_kspace = ((MSMDielectric *) force->kspace)->efield;
     else
       error->all(FLERR, "Kspace style not compatible with fix polarize/functional");
 
@@ -406,7 +412,7 @@ void FixPolarizeFunctional::charge_rescaled(int scaled2real)
       if (induced_charge_idx[i] < 0) q[i] = q_real[i] / epsilon[i];
   }
 
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -472,7 +478,12 @@ int FixPolarizeFunctional::modify_param(int narg, char **arg)
   while (iarg < narg) {
     if (strcmp(arg[iarg], "kspace") == 0) {
       if (iarg + 2 > narg) error->all(FLERR, "Illegal fix_modify command");
-      kspaceflag = utils::logical(FLERR, arg[iarg + 1], false, lmp);
+      if (strcmp(arg[iarg + 1], "yes") == 0)
+        kspaceflag = 1;
+      else if (strcmp(arg[iarg + 1], "no") == 0)
+        kspaceflag = 0;
+      else
+        error->all(FLERR, "Illegal fix_modify command for fix polarize/functional");
       iarg += 2;
     } else if (strcmp(arg[iarg], "dielectrics") == 0) {
       if (iarg + 6 > narg) error->all(FLERR, "Illegal fix_modify command");

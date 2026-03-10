@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeKEAtom : public Compute {
  public:
   ComputeKEAtom(class LAMMPS *, int, char **);
-  ~ComputeKEAtom() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeKEAtom();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

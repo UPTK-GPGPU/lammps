@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class ComputeCNPAtom : public Compute {
  public:
   ComputeCNPAtom(class LAMMPS *, int, char **);
-  ~ComputeCNPAtom() override;
-  void init() override;
-  void init_list(int, class NeighList *) override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeCNPAtom();
+  void init();
+  void init_list(int, class NeighList *);
+  void compute_peratom();
+  double memory_usage();
 
  private:
   //revise

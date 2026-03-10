@@ -43,7 +43,7 @@ class Angle : protected Pointers {
   int copymode;
 
   Angle(class LAMMPS *);
-  ~Angle() override;
+  virtual ~Angle();
   virtual void init();
   virtual void compute(int, int) = 0;
   virtual void settings(int, char **) {}

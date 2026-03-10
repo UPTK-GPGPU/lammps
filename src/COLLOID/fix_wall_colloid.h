@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class FixWallColloid : public FixWall {
  public:
   FixWallColloid(class LAMMPS *, int, char **);
-  void init() override;
-  void precompute(int) override;
-  void wall_particle(int, int, double) override;
+  void init();
+  void precompute(int);
+  void wall_particle(int, int, double);
 
  private:
   double coeff1[6], coeff2[6], coeff3[6], coeff4[6];

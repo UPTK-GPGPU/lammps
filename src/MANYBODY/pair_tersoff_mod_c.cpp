@@ -22,6 +22,7 @@
 #include "error.h"
 #include "memory.h"
 #include "potential_file_reader.h"
+#include "tokenizer.h"
 
 #include <cmath>
 #include <cstring>

@@ -45,7 +45,8 @@ namespace LAMMPS_NS {
 class NPairHalffullNewtonIntel : public NPair {
  public:
   NPairHalffullNewtonIntel(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairHalffullNewtonIntel() {}
+  void build(class NeighList *);
 
  protected:
   FixIntel *_fix;

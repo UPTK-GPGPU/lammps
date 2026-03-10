@@ -34,8 +34,8 @@ class DihedralHarmonicIntel : public DihedralHarmonic {
 
  public:
   DihedralHarmonicIntel(class LAMMPS *lmp);
-  void compute(int, int) override;
-  void init_style() override;
+  virtual void compute(int, int);
+  void init_style();
 
  private:
   FixIntel *fix;

@@ -94,13 +94,13 @@ bool AnswerT::init(const int inum, const bool charge, const bool rot,
 template <class numtyp, class acctyp>
 bool AnswerT::add_fields(const bool charge, const bool rot) {
   bool realloc=false;
-  if (charge && !_charge) {
+  if (charge && _charge==false) {
     _charge=true;
     _e_fields++;
     _ev_fields++;
     realloc=true;
   }
-  if (rot && !_rot) {
+  if (rot && _rot==false) {
     _rot=true;
     realloc=true;
   }
@@ -163,8 +163,10 @@ void AnswerT::copy_answers(const bool eflag, const bool vflag,
   #endif
 
   int csize=_ev_fields;
-  if (!eflag) csize-=_e_fields;
-  if (!vflag) csize-=6;
+  if (!eflag)
+    csize-=_e_fields;
+  if (!vflag)
+    csize-=6;
 
   if (csize>0)
     engv.update_host(_ev_stride*csize,true);
@@ -190,7 +192,8 @@ void AnswerT::copy_answers(const bool eflag, const bool vflag,
 template <class numtyp, class acctyp>
 double AnswerT::energy_virial(double *eatom, double **vatom,
                                   double *virial) {
-  if (!_eflag && !_vflag) return 0.0;
+  if (_eflag==false && _vflag==false)
+    return 0.0;
 
   double evdwl=0.0;
   int vstart=0;
@@ -238,12 +241,14 @@ double AnswerT::energy_virial(double *eatom, double **vatom,
 template <class numtyp, class acctyp>
 double AnswerT::energy_virial(double *eatom, double **vatom,
                               double *virial, double &ecoul) {
-  if (!_eflag && !_vflag) return 0.0;
+  if (_eflag==false && _vflag==false)
+    return 0.0;
 
-  if (!_charge) return energy_virial(eatom,vatom,virial);
+  if (_charge==false)
+    return energy_virial(eatom,vatom,virial);
 
   double evdwl=0.0;
-  int vstart=0, iend=_ev_stride;
+  int ii, vstart=0, iend=_ev_stride;
   if (_eflag) {
     iend=_ev_stride*2;
     #if (LAL_USE_OMP_SIMD == 1)
@@ -300,8 +305,8 @@ void AnswerT::get_answers(double **f, double **tor) {
   if (_ilist==nullptr) {
     typedef struct { double x,y,z; } vec3d;
     typedef struct { acctyp x,y,z,w; } vec4d_t;
-    auto fp=reinterpret_cast<vec3d*>(&(f[0][0]));
-    auto forcep=reinterpret_cast<vec4d_t*>(&(force[0]));
+    vec3d *fp=reinterpret_cast<vec3d*>(&(f[0][0]));
+    vec4d_t *forcep=reinterpret_cast<vec4d_t*>(&(force[0]));
 
     #if (LAL_USE_OMP == 1)
     #pragma omp parallel
@@ -314,6 +319,7 @@ void AnswerT::get_answers(double **f, double **tor) {
       const int ifrom = tid * idelta;
       const int ito = std::min(ifrom + idelta, _inum);
       #else
+      const int tid = 0;
       const int ifrom = 0;
       const int ito = _inum;
       #endif
@@ -324,8 +330,8 @@ void AnswerT::get_answers(double **f, double **tor) {
         fp[i].z+=forcep[i].z;
       }
       if (_rot) {
-        auto torp=reinterpret_cast<vec3d*>(&(tor[0][0]));
-        auto torquep=reinterpret_cast<vec4d_t*>(&(force[_inum*4]));
+        vec3d *torp=reinterpret_cast<vec3d*>(&(tor[0][0]));
+        vec4d_t *torquep=reinterpret_cast<vec4d_t*>(&(force[_inum*4]));
         for (int i=ifrom; i<ito; i++) {
           torp[i].x+=torquep[i].x;
           torp[i].y+=torquep[i].y;
@@ -346,6 +352,7 @@ void AnswerT::get_answers(double **f, double **tor) {
       const int ito = std::min(ifrom + idelta, _inum);
       int fl=ifrom*4;
       #else
+      const int tid = 0;
       const int ifrom = 0;
       const int ito = _inum;
       int fl=0;

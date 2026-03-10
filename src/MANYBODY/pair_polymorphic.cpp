@@ -29,9 +29,11 @@
 #include "math_extra.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "potential_file_reader.h"
 #include "tabular_function.h"
+#include "tokenizer.h"
 
 #include <cmath>
 
@@ -524,7 +526,9 @@ void PairPolymorphic::init_style()
 
   // need a full neighbor list
 
-  neighbor->add_request(this, NeighConst::REQ_FULL);
+  int irequest = neighbor->request(this);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
 }
 
 /* ----------------------------------------------------------------------
@@ -589,7 +593,7 @@ void PairPolymorphic::read_file(char *file)
 
         if ((ng == 0) || (nr == 0) || (nx == 0))
           error->one(FLERR,"Error reading potential file header");
-      } catch (TokenizerException &) {
+      } catch (TokenizerException &e) {
         error->one(FLERR,"Potential file incompatible with this pair style version");
       }
 
@@ -635,7 +639,7 @@ void PairPolymorphic::read_file(char *file)
   MPI_Bcast(pairParameters, npair*sizeof(PairParameters), MPI_BYTE, 0, world);
 
   // start reading tabular functions
-  auto  singletable = new double[nr];
+  double * singletable = new double[nr];
   for (int i = 0; i < npair; i++) { // U
     PairParameters &p = pairParameters[i];
     if (comm->me == 0) reader->next_dvector(singletable, nr);

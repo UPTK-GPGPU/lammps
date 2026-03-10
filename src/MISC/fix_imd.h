@@ -64,13 +64,13 @@ namespace LAMMPS_NS {
 class FixIMD : public Fix {
  public:
   FixIMD(class LAMMPS *, int, char **);
-  ~FixIMD() override;
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void post_force(int) override;
-  void post_force_respa(int, int, int) override;
-  double memory_usage() override;
+  ~FixIMD();
+  int setmask();
+  void init();
+  void setup(int);
+  void post_force(int);
+  void post_force_respa(int, int, int);
+  double memory_usage();
 
  protected:
   int imd_port;

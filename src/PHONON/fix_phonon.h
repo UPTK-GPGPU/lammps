@@ -49,15 +49,15 @@ namespace LAMMPS_NS {
 class FixPhonon : public Fix {
  public:
   FixPhonon(class LAMMPS *, int, char **);
-  ~FixPhonon() override;
+  ~FixPhonon();
 
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void end_of_step() override;
-  void post_run() override;
-  double memory_usage() override;
-  int modify_param(int, char **) override;
+  int setmask();
+  void init();
+  void setup(int);
+  void end_of_step();
+  void post_run();
+  double memory_usage();
+  int modify_param(int, char **);
 
  private:
   int me, nprocs;

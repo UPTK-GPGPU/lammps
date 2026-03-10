@@ -43,7 +43,7 @@ class Dihedral : protected Pointers {
   int copymode;
 
   Dihedral(class LAMMPS *);
-  ~Dihedral() override;
+  virtual ~Dihedral();
   virtual void init();
   virtual void init_style() {}
   virtual void compute(int, int) = 0;

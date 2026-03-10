@@ -48,15 +48,6 @@ using namespace LAMMPS_NS;
 #define BONDSTRETCH 1.1
 
 /* ----------------------------------------------------------------------
-   one instance per region style in style_region.h
-------------------------------------------------------------------------- */
-
-template <typename T> static Region *region_creator(LAMMPS *lmp, int narg, char ** arg)
-{
-  return new T(lmp, narg, arg);
-}
-
-/* ----------------------------------------------------------------------
    default is periodic
 ------------------------------------------------------------------------- */
 
@@ -100,7 +91,7 @@ Domain::Domain(LAMMPS *lmp) : Pointers(lmp)
   boxhi_lamda[0] = boxhi_lamda[1] = boxhi_lamda[2] = 1.0;
 
   lattice = nullptr;
-  auto args = new char*[2];
+  char **args = new char*[2];
   args[0] = (char *) "none";
   args[1] = (char *) "1.0";
   set_lattice(2,args);
@@ -149,19 +140,19 @@ void Domain::init()
 
   int box_change_x=0, box_change_y=0, box_change_z=0;
   int box_change_yz=0, box_change_xz=0, box_change_xy=0;
-  const auto &fixes = modify->get_fix_list();
+  Fix **fixes = modify->fix;
 
   if (nonperiodic == 2) box_change_size = 1;
-  for (const auto &fix : fixes) {
-    if (fix->box_change & Fix::BOX_CHANGE_SIZE)   box_change_size = 1;
-    if (fix->box_change & Fix::BOX_CHANGE_SHAPE)  box_change_shape = 1;
-    if (fix->box_change & Fix::BOX_CHANGE_DOMAIN) box_change_domain = 1;
-    if (fix->box_change & Fix::BOX_CHANGE_X)      box_change_x++;
-    if (fix->box_change & Fix::BOX_CHANGE_Y)      box_change_y++;
-    if (fix->box_change & Fix::BOX_CHANGE_Z)      box_change_z++;
-    if (fix->box_change & Fix::BOX_CHANGE_YZ)     box_change_yz++;
-    if (fix->box_change & Fix::BOX_CHANGE_XZ)     box_change_xz++;
-    if (fix->box_change & Fix::BOX_CHANGE_XY)     box_change_xy++;
+  for (int i = 0; i < modify->nfix; i++) {
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_SIZE)   box_change_size = 1;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_SHAPE)  box_change_shape = 1;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_DOMAIN) box_change_domain = 1;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_X)      box_change_x++;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_Y)      box_change_y++;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_Z)      box_change_z++;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_YZ)     box_change_yz++;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_XZ)     box_change_xz++;
+    if (fixes[i]->box_change & Fix::BOX_CHANGE_XY)     box_change_xy++;
   }
 
   std::string mesg = "Must not have multiple fixes change box parameter ";
@@ -183,12 +174,12 @@ void Domain::init()
   // check for fix deform
 
   deform_flag = deform_vremap = deform_groupbit = 0;
-  for (const auto &fix : fixes)
-    if (utils::strmatch(fix->style,"^deform")) {
+  for (int i = 0; i < modify->nfix; i++)
+    if (utils::strmatch(modify->fix[i]->style,"^deform")) {
       deform_flag = 1;
-      if ((dynamic_cast<FixDeform *>( fix))->remapflag == Domain::V_REMAP) {
+      if (((FixDeform *) modify->fix[i])->remapflag == Domain::V_REMAP) {
         deform_vremap = 1;
-        deform_groupbit = fix->groupbit;
+        deform_groupbit = modify->fix[i]->groupbit;
       }
     }
 
@@ -1751,7 +1742,7 @@ void Domain::add_region(int narg, char **arg)
   if (narg < 2) error->all(FLERR,"Illegal region command");
 
   if (strcmp(arg[1],"delete") == 0) {
-    delete_region(arg[0]);
+    delete_region(narg,arg);
     return;
   }
 
@@ -1807,8 +1798,28 @@ void Domain::add_region(int narg, char **arg)
 }
 
 /* ----------------------------------------------------------------------
+   one instance per region style in style_region.h
+------------------------------------------------------------------------- */
+
+template <typename T>
+Region *Domain::region_creator(LAMMPS *lmp, int narg, char ** arg)
+{
+  return new T(lmp, narg, arg);
+}
+
+/* ----------------------------------------------------------------------
    delete a region
 ------------------------------------------------------------------------- */
+
+void Domain::delete_region(int narg, char **arg)
+{
+  if (narg != 2) error->all(FLERR,"Illegal region command");
+
+  int iregion = find_region(arg[0]);
+  if (iregion == -1) error->all(FLERR,"Delete region ID does not exist");
+
+  delete_region(iregion);
+}
 
 void Domain::delete_region(int iregion)
 {
@@ -1822,20 +1833,12 @@ void Domain::delete_region(int iregion)
   nregion--;
 }
 
-void Domain::delete_region(const std::string &id)
-{
-  int iregion = find_region(id);
-  if (iregion == -1) error->all(FLERR,"Delete region ID does not exist");
-
-  delete_region(iregion);
-}
-
 /* ----------------------------------------------------------------------
    return region index if name matches existing region ID
    return -1 if no such region
 ------------------------------------------------------------------------- */
 
-int Domain::find_region(const std::string &name) const
+int Domain::find_region(const std::string &name)
 {
   for (int iregion = 0; iregion < nregion; iregion++)
     if (name == regions[iregion]->id) return iregion;
@@ -1843,31 +1846,15 @@ int Domain::find_region(const std::string &name) const
 }
 
 /* ----------------------------------------------------------------------
-   return pointer to region name matches existing region ID
-   return null if no match
+   return region index if name matches existing region style
+   return -1 if no such region
 ------------------------------------------------------------------------- */
 
-Region *Domain::get_region_by_id(const std::string &name) const
+int Domain::find_region_by_style(const std::string &name)
 {
   for (int iregion = 0; iregion < nregion; iregion++)
-    if (name == regions[iregion]->id) return regions[iregion];
-  return nullptr;
-}
-
-/* ----------------------------------------------------------------------
-   look up pointers to regions by region style name
-   return vector with matching pointers
-------------------------------------------------------------------------- */
-
-const std::vector<Region *> Domain::get_region_by_style(const std::string &name) const
-{
-  std::vector<Region *> matches;
-  if (name.empty()) return matches;
-
-  for (int iregion = 0; iregion < nregion; iregion++)
-    if (name == regions[iregion]->style) matches.push_back(regions[iregion]);
-
-  return matches;
+    if (name == regions[iregion]->style) return iregion;
+  return -1;
 }
 
 /* ----------------------------------------------------------------------

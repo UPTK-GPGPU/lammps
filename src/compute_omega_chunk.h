@@ -27,17 +27,17 @@ namespace LAMMPS_NS {
 class ComputeOmegaChunk : public Compute {
  public:
   ComputeOmegaChunk(class LAMMPS *, int, char **);
-  ~ComputeOmegaChunk() override;
-  void init() override;
-  void compute_array() override;
+  ~ComputeOmegaChunk();
+  void init();
+  void compute_array();
 
-  void lock_enable() override;
-  void lock_disable() override;
-  int lock_length() override;
-  void lock(class Fix *, bigint, bigint) override;
-  void unlock(class Fix *) override;
+  void lock_enable();
+  void lock_disable();
+  int lock_length();
+  void lock(class Fix *, bigint, bigint);
+  void unlock(class Fix *);
 
-  double memory_usage() override;
+  double memory_usage();
 
  private:
   int nchunk, maxchunk;

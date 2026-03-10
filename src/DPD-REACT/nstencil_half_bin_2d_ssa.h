@@ -29,7 +29,8 @@ namespace LAMMPS_NS {
 class NStencilHalfBin2dSSA : public NStencilSSA {
  public:
   NStencilHalfBin2dSSA(class LAMMPS *);
-  void create() override;
+  ~NStencilHalfBin2dSSA() {}
+  void create();
 };
 
 }    // namespace LAMMPS_NS

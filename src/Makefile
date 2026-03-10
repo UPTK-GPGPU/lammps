@@ -2,7 +2,6 @@
 
 SHELL = /bin/bash
 PYTHON = python
-DYN_LIB = -ldl
 
 #.IGNORE:
 
@@ -93,6 +92,7 @@ PACKAGE = \
 	mdi \
 	meam \
 	mesont \
+	message \
 	mgpt \
 	misc \
 	ml-hdnnp \
@@ -206,6 +206,7 @@ PACKLIB = \
 	kim \
 	kokkos \
 	latte \
+	message \
 	mpiio \
 	mscg \
 	poems \
@@ -232,7 +233,7 @@ PACKLIB = \
 
 PACKSYS = compress latboltz mpiio python
 
-PACKINT = atc awpmd colvars gpu kokkos mesont poems
+PACKINT = atc awpmd colvars gpu kokkos mesont message poems
 
 PACKEXT = \
 	adios \
@@ -353,10 +354,10 @@ gitversion:
 	  branch='(unknown)' ;				\
 	  describe='(unknown)' ;			\
 	fi ; \
-	echo "bool LAMMPS_NS::LAMMPS::has_git_info() { return $${git}; }"        >> ${TMPNAME}.lmpgitversion ; \
-	echo "const char *LAMMPS_NS::LAMMPS::git_commit() { return \"$${commit}\"; }" >> ${TMPNAME}.lmpgitversion ; \
-	echo "const char *LAMMPS_NS::LAMMPS::git_branch() { return \"$${branch}\"; }" >> ${TMPNAME}.lmpgitversion ; \
-	echo "const char *LAMMPS_NS::LAMMPS::git_descriptor() { return \"$${describe}\"; }" >> ${TMPNAME}.lmpgitversion
+	echo "const bool LAMMPS_NS::LAMMPS::has_git_info = $${git};"        >> ${TMPNAME}.lmpgitversion ; \
+	echo "const char LAMMPS_NS::LAMMPS::git_commit[] = \"$${commit}\";" >> ${TMPNAME}.lmpgitversion ; \
+	echo "const char LAMMPS_NS::LAMMPS::git_branch[] = \"$${branch}\";" >> ${TMPNAME}.lmpgitversion ; \
+	echo "const char LAMMPS_NS::LAMMPS::git_descriptor[] = \"$${describe}\";" >> ${TMPNAME}.lmpgitversion
 	@echo '#endif' >> ${TMPNAME}.lmpgitversion
 	@if [ -f lmpgitversion.h ]; \
           then test "`diff --brief ${TMPNAME}.lmpgitversion lmpgitversion.h`" != "" && \
@@ -398,14 +399,14 @@ ifeq ($(mode),static)
 	@cd $(objdir); \
 	$(MAKE) $(MFLAGS) "OBJ = $(OBJLIB)" "INC = $(INC)" "SHFLAGS =" \
 	  "LMPLIB = $(ARLIB)" "ARLIB = $(ARLIB)" "SHLIB = $(SHLIB)" \
-	  "LMPLINK = $(LMPLINK)" "DYN_LIB = $(DYN_LIB)" "EXE = ../$(EXE)" ../$(EXE)
+	  "LMPLINK = $(LMPLINK)" "EXE = ../$(EXE)" ../$(EXE)
 	@ln -s $(ARLIB) $(ARLINK)
 endif
 ifeq ($(mode),shared)
 	@cd $(objdir); \
 	$(MAKE) $(MFLAGS) "OBJ = $(OBJLIB)" "INC = $(INC)" \
 	  "LMPLIB = $(SHLIB)" "ARLIB = $(ARLIB)" "SHLIB = $(SHLIB)" \
-	  "LMPLINK = $(LMPLINK)" "DYN_LIB = $(DYN_LIB)" "EXE = ../$(EXE)" ../$(EXE)
+	  "LMPLINK = $(LMPLINK)" "EXE = ../$(EXE)" ../$(EXE)
 	@ln -s $(SHLIB) $(SHLINK)
 endif
 # backward compatibility
@@ -456,7 +457,8 @@ mpi-stubs:
 sinclude ../lib/python/Makefile.lammps
 install-python:
 	@rm -rf ../python/build
-	@$(PYTHON) ../python/install.py -p ../python/lammps -l ../src/liblammps.so
+	@$(PYTHON) ../python/install.py -v ../src/version.h \
+		-p ../python/lammps -l ../src/liblammps.so
 
 # Create a tarball of src dir and packages
 

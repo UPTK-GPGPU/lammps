@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class PPPMDipoleSpin : public PPPMDipole {
  public:
   PPPMDipoleSpin(class LAMMPS *);
-  ~PPPMDipoleSpin() override;
-  void init() override;
-  void compute(int, int) override;
+  virtual ~PPPMDipoleSpin();
+  void init();
+  void compute(int, int);
 
  protected:
   double hbar;            // reduced Planck's constant
@@ -38,7 +38,7 @@ class PPPMDipoleSpin : public PPPMDipole {
   double mub2mu0;         // prefactor for mech force
   double mub2mu0hbinv;    // prefactor for mag force
 
-  void slabcorr() override;
+  void slabcorr();
 
   // spin
 

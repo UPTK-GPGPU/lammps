@@ -27,6 +27,7 @@
 #include "error.h"
 #include "memory.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 
 #include <cmath>
@@ -66,7 +67,9 @@ void PairMDPDRhoSum::init_style()
     error->all(FLERR,"Pair style mdpd/rhosum requires atom attribute rho");
 
   // need a full neighbor list
-  neighbor->add_request(this, NeighConst::REQ_FULL);
+  int irequest = neighbor->request(this,instance_me);
+  neighbor->requests[irequest]->half = 0;
+  neighbor->requests[irequest]->full = 1;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -154,7 +157,7 @@ void PairMDPDRhoSum::compute(int eflag, int vflag) {
   }
 
   // communicate densities
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 }
 
 /* ----------------------------------------------------------------------

@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class ComputeDamageAtom : public Compute {
  public:
   ComputeDamageAtom(class LAMMPS *, int, char **);
-  ~ComputeDamageAtom() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeDamageAtom();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;
   double *damage;
-  class FixPeriNeigh *fix_peri_neigh;
+  int ifix_peri;
 };
 
 }    // namespace LAMMPS_NS

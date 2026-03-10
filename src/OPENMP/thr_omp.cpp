@@ -53,6 +53,13 @@ ThrOMP::ThrOMP(LAMMPS *ptr, int style)
   fix = static_cast<FixOMP *>(lmp->modify->fix[ifix]);
 }
 
+/* ---------------------------------------------------------------------- */
+
+ThrOMP::~ThrOMP()
+{
+  // nothing to do?
+}
+
 /* ----------------------------------------------------------------------
    Hook up per thread per atom arrays into the tally infrastructure
    ---------------------------------------------------------------------- */
@@ -210,7 +217,7 @@ void ThrOMP::reduce_thr(void *style, const int eflag, const int vflag,
     }
 
     if (evflag) {
-      auto  const pair = (Pair *)style;
+      Pair * const pair = (Pair *)style;
 
 #if defined(_OPENMP)
 #pragma omp critical

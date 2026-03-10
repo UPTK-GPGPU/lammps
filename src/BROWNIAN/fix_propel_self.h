@@ -26,11 +26,11 @@ namespace LAMMPS_NS {
 class FixPropelSelf : public Fix {
  public:
   FixPropelSelf(class LAMMPS *, int, char **);
-
-  void init() override;
-  void post_force(int) override;
-  void setup(int) override;
-  int setmask() override;
+  virtual ~FixPropelSelf(){};
+  void init();
+  void post_force(int);
+  void setup(int);
+  int setmask();
 
  private:
   double magnitude;

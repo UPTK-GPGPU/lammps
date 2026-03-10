@@ -33,7 +33,7 @@ class DihedralClass2OMP : public DihedralClass2, public ThrOMP {
 
  public:
   DihedralClass2OMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

@@ -29,9 +29,9 @@ class DumpImage : public DumpCustom {
   int multifile_override;    // used by write_dump command
 
   DumpImage(class LAMMPS *, int, char **);
-  ~DumpImage() override;
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
+  virtual ~DumpImage();
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
 
  protected:
   int filetype;
@@ -91,9 +91,9 @@ class DumpImage : public DumpCustom {
   double **bufcopy;    // buffer for communicating bond/atom info
   int maxbufcopy;
 
-  void init_style() override;
-  int modify_param(int, char **) override;
-  void write() override;
+  virtual void init_style();
+  int modify_param(int, char **);
+  void write();
 
   void box_center();
   void view_params();

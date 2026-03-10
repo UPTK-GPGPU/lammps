@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class FixWallLJ93 : public FixWall {
  public:
   FixWallLJ93(class LAMMPS *, int, char **);
-  void precompute(int) override;
-  void wall_particle(int, int, double) override;
+  void precompute(int);
+  virtual void wall_particle(int, int, double);
 
  protected:
   double coeff1[6], coeff2[6], coeff3[6], coeff4[6], offset[6];

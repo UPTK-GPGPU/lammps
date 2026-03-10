@@ -21,20 +21,20 @@
 ------------------------------------------------------------------------- */
 
 #include "pair_lj_charmmfsw_coul_long.h"
-
-#include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "kspace.h"
-#include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-#include "respa.h"
-#include "update.h"
-
 #include <cmath>
 #include <cstring>
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "kspace.h"
+#include "update.h"
+#include "respa.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "neigh_request.h"
+#include "memory.h"
+#include "error.h"
+
 
 using namespace LAMMPS_NS;
 
@@ -738,14 +738,20 @@ void PairLJCharmmfswCoulLong::init_style()
 
   // request regular or rRESPA neighbor lists
 
-  int list_style = NeighConst::REQ_DEFAULT;
+  int irequest;
 
-  if (update->whichflag == 1 && utils::strmatch(update->integrate_style, "^respa")) {
-    auto respa = dynamic_cast<Respa *>( update->integrate);
-    if (respa->level_inner >= 0) list_style = NeighConst::REQ_RESPA_INOUT;
-    if (respa->level_middle >= 0) list_style = NeighConst::REQ_RESPA_ALL;
+  int respa = 0;
+  if (update->whichflag == 1 && utils::strmatch(update->integrate_style,"^respa")) {
+    if (((Respa *) update->integrate)->level_inner >= 0) respa = 1;
+    if (((Respa *) update->integrate)->level_middle >= 0) respa = 2;
   }
-  neighbor->add_request(this, list_style);
+
+  irequest = neighbor->request(this,instance_me);
+  if (respa >= 1) {
+    neighbor->requests[irequest]->respaouter = 1;
+    neighbor->requests[irequest]->respainner = 1;
+  }
+  if (respa == 2) neighbor->requests[irequest]->respamiddle = 1;
 
   // require cut_lj_inner < cut_lj
 
@@ -775,8 +781,8 @@ void PairLJCharmmfswCoulLong::init_style()
   // set & error check interior rRESPA cutoffs
 
   if (utils::strmatch(update->integrate_style,"^respa") &&
-      (dynamic_cast<Respa *>( update->integrate))->level_inner >= 0) {
-    cut_respa = (dynamic_cast<Respa *>( update->integrate))->cutoff;
+      ((Respa *) update->integrate)->level_inner >= 0) {
+    cut_respa = ((Respa *) update->integrate)->cutoff;
     if (MIN(cut_lj,cut_coul) < cut_respa[3])
       error->all(FLERR,"Pair cutoff < Respa interior cutoff");
     if (cut_lj_inner < cut_respa[1])

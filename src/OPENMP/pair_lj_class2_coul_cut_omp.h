@@ -34,8 +34,8 @@ class PairLJClass2CoulCutOMP : public PairLJClass2CoulCut, public ThrOMP {
  public:
   PairLJClass2CoulCutOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR>

@@ -35,19 +35,19 @@ class PairTableRXKokkos : public PairTable {
   typedef DeviceType device_type;
 
   PairTableRXKokkos(class LAMMPS *);
-  ~PairTableRXKokkos() override;
+  virtual ~PairTableRXKokkos();
 
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
   template<int TABSTYLE>
   void compute_style(int, int);
 
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  double init_one(int, int) override;
-  double single(int, int, int, int, double, double, double, double &) override;
+  void settings(int, char **);
+  void coeff(int, char **);
+  double init_one(int, int);
+  virtual double single(int, int, int, int, double, double, double, double &);
 
-  void init_style() override;
+  void init_style();
 
   struct TableDeviceConst {
     typename ArrayTypes<DeviceType>::t_ffloat_2d cutsq;
@@ -81,8 +81,8 @@ class PairTableRXKokkos : public PairTable {
 
   typename ArrayTypes<DeviceType>::t_ffloat_2d d_cutsq;
 
-  void allocate() override;
-  void compute_table(Table *) override;
+  virtual void allocate();
+  void compute_table(Table *);
 
   typename ArrayTypes<DeviceType>::t_x_array_randomread x;
   typename ArrayTypes<DeviceType>::t_f_array f;

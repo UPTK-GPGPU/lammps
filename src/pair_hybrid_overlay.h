@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class PairHybridOverlay : public PairHybrid {
  public:
   PairHybridOverlay(class LAMMPS *);
+  virtual ~PairHybridOverlay() {}
+  void coeff(int, char **);
 
-  void coeff(int, char **) override;
-
-  void init_svector() override;
-  void copy_svector(int, int) override;
+  void init_svector();
+  void copy_svector(int, int);
 };
 
 }    // namespace LAMMPS_NS

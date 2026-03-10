@@ -157,7 +157,7 @@ void PairLJCutIntel::eval(const int offload, const int vflag,
 
   const int * _noalias const ilist = list->ilist;
   const int * _noalias const numneigh = list->numneigh;
-  const int ** _noalias const firstneigh = (const int **)list->firstneigh;  // NOLINT
+  const int ** _noalias const firstneigh = (const int **)list->firstneigh;
   const flt_t * _noalias const special_lj = fc.special_lj;
   const FC_PACKED1_T * _noalias const ljc12o = fc.ljc12o[0];
   const FC_PACKED2_T * _noalias const lj34 = fc.lj34[0];
@@ -384,7 +384,7 @@ void PairLJCutIntel::eval(const int offload, const int vflag,
   if (EFLAG || vflag)
     fix->add_result_array(f_start, ev_global, offload, eatom, 0, vflag);
   else
-    fix->add_result_array(f_start, nullptr, offload);
+    fix->add_result_array(f_start, 0, offload);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -392,11 +392,19 @@ void PairLJCutIntel::eval(const int offload, const int vflag,
 void PairLJCutIntel::init_style()
 {
   PairLJCut::init_style();
-  if (force->newton_pair == 0)
-    neighbor->find_request(this)->enable_full();
+  auto request = neighbor->find_request(this);
 
-  fix = static_cast<FixIntel *>(modify->get_fix_by_id("package_intel"));
-  if (!fix) error->all(FLERR, "The 'package intel' command is required for /intel styles");
+  if (force->newton_pair == 0) {
+    request->half = 0;
+    request->full = 1;
+  }
+  request->intel = 1;
+
+  int ifix = modify->find_fix("package_intel");
+  if (ifix < 0)
+    error->all(FLERR,
+               "The 'package intel' command is required for /intel styles");
+  fix = static_cast<FixIntel *>(modify->fix[ifix]);
 
   fix->pair_init_check();
   #ifdef _LMP_INTEL_OFFLOAD

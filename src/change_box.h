@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class ChangeBox : public Command {
  public:
   ChangeBox(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 
  private:
   int scaleflag;

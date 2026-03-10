@@ -27,13 +27,13 @@ namespace LAMMPS_NS {
 class AtomVecMDPD : public AtomVec {
  public:
   AtomVecMDPD(class LAMMPS *);
-  void init() override;
+  void init();
 
-  void grow_pointers() override;
-  void force_clear(int, size_t) override;
-  void data_atom_post(int) override;
-  int property_atom(char *) override;
-  void pack_property_atom(int, double *, int, int) override;
+  void grow_pointers();
+  void force_clear(int, size_t);
+  void data_atom_post(int);
+  int property_atom(char *);
+  void pack_property_atom(int, double *, int, int);
 
  private:
   double *rho, *drho;

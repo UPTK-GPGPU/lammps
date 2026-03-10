@@ -28,18 +28,18 @@ class ComputeHeatFluxTally : public Compute {
 
  public:
   ComputeHeatFluxTally(class LAMMPS *, int, char **);
-  ~ComputeHeatFluxTally() override;
+  virtual ~ComputeHeatFluxTally();
 
-  void init() override;
+  void init();
 
-  void compute_vector() override;
+  void compute_vector();
 
-  int pack_reverse_comm(int, int, double *) override;
-  void unpack_reverse_comm(int, int *, double *) override;
-  double memory_usage() override;
+  int pack_reverse_comm(int, int, double *);
+  void unpack_reverse_comm(int, int *, double *);
+  double memory_usage();
 
-  void pair_setup_callback(int, int) override;
-  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double) override;
+  void pair_setup_callback(int, int);
+  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double);
 
  private:
   bigint did_setup;

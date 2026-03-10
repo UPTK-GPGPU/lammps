@@ -49,10 +49,10 @@ class PairVashishtaKokkos : public PairVashishta {
   typedef EV_FLOAT value_type;
 
   PairVashishtaKokkos(class LAMMPS *);
-  ~PairVashishtaKokkos() override;
-  void compute(int, int) override;
-  void coeff(int, char **) override;
-  void init_style() override;
+  virtual ~PairVashishtaKokkos();
+  virtual void compute(int, int);
+  virtual void coeff(int, char **);
+  virtual void init_style();
 
   template<int NEIGHFLAG, int EVFLAG>
   KOKKOS_INLINE_FUNCTION
@@ -112,7 +112,7 @@ class PairVashishtaKokkos : public PairVashishta {
 
   t_param_1d d_params;
 
-  void setup_params() override;
+  virtual void setup_params();
 
   KOKKOS_INLINE_FUNCTION
   void twobody(const Param&, const F_FLOAT&, F_FLOAT&, const int&, F_FLOAT&) const;

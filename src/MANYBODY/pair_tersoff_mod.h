@@ -28,20 +28,21 @@ namespace LAMMPS_NS {
 class PairTersoffMOD : public PairTersoff {
  public:
   PairTersoffMOD(class LAMMPS *);
+  ~PairTersoffMOD() {}
 
   static constexpr int NPARAMS_PER_LINE = 20;
 
  protected:
-  void read_file(char *) override;
-  void setup_params() override;
-  double zeta(Param *, double, double, double *, double *) override;
+  virtual void read_file(char *);
+  virtual void setup_params();
+  double zeta(Param *, double, double, double *, double *);
 
-  double ters_fc(double, Param *) override;
-  double ters_fc_d(double, Param *) override;
-  double ters_bij(double, Param *) override;
-  double ters_bij_d(double, Param *) override;
+  double ters_fc(double, Param *);
+  double ters_fc_d(double, Param *);
+  double ters_bij(double, Param *);
+  double ters_bij_d(double, Param *);
   void ters_zetaterm_d(double, double *, double, double, double *, double, double, double *,
-                       double *, double *, Param *) override;
+                       double *, double *, Param *);
 
   // inlined functions for efficiency
   // these replace but do not override versions in PairTersoff

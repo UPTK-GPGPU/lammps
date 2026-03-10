@@ -43,7 +43,7 @@ class ResetIDs : public Command {
 #endif
 
   ResetIDs(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 
  private:
   bigint binlo, binhi;

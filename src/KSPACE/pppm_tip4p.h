@@ -27,14 +27,15 @@ namespace LAMMPS_NS {
 class PPPMTIP4P : public PPPM {
  public:
   PPPMTIP4P(class LAMMPS *);
-  void init() override;
+  virtual ~PPPMTIP4P(){};
+  void init();
 
  protected:
-  void particle_map() override;
-  void make_rho() override;
-  void fieldforce_ik() override;
-  void fieldforce_ad() override;
-  void fieldforce_peratom() override;
+  virtual void particle_map();
+  virtual void make_rho();
+  virtual void fieldforce_ik();
+  virtual void fieldforce_ad();
+  virtual void fieldforce_peratom();
 
  private:
   void find_M(int, int &, int &, double *);

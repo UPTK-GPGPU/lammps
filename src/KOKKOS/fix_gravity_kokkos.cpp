@@ -24,6 +24,8 @@
 
 using namespace LAMMPS_NS;
 
+enum{CONSTANT,EQUAL};
+
 /* ---------------------------------------------------------------------- */
 
 template<class DeviceType>

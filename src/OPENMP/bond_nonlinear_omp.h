@@ -33,7 +33,7 @@ class BondNonlinearOMP : public BondNonlinear, public ThrOMP {
 
  public:
   BondNonlinearOMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

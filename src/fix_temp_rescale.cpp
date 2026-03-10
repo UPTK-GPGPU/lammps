@@ -256,7 +256,7 @@ void FixTempRescale::write_restart(FILE *fp)
 void FixTempRescale::restart(char *buf)
 {
   int n = 0;
-  auto list = (double *) buf;
+  double *list = (double *) buf;
 
   energy = list[n++];
 }

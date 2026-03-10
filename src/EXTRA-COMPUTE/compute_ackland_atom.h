@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class ComputeAcklandAtom : public Compute {
  public:
   ComputeAcklandAtom(class LAMMPS *, int, char **);
-  ~ComputeAcklandAtom() override;
-  void init() override;
-  void init_list(int, class NeighList *) override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeAcklandAtom();
+  void init();
+  void init_list(int, class NeighList *);
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax, maxneigh, legacy;

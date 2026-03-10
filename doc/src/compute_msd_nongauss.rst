@@ -74,11 +74,8 @@ the third is dimensionless.
 Restrictions
 """"""""""""
 
-Compute *msd/nongauss* cannot be used with a dynamic group.
-
-This compute is part of the EXTRA-COMPUTE package.  It is only enabled
-if LAMMPS was built with that package.  See the :doc:`Build package
-<Build_package>` page for more info.
+This compute is part of the EXTRA-COMPUTE package.  It is only enabled if
+LAMMPS was built with that package.  See the :doc:`Build package <Build_package>` page for more info.
 
 Related commands
 """"""""""""""""

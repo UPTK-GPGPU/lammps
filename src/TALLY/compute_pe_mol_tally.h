@@ -28,13 +28,13 @@ class ComputePEMolTally : public Compute {
 
  public:
   ComputePEMolTally(class LAMMPS *, int, char **);
-  ~ComputePEMolTally() override;
+  virtual ~ComputePEMolTally();
 
-  void init() override;
-  void compute_vector() override;
+  void init();
+  void compute_vector();
 
-  void pair_setup_callback(int, int) override;
-  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double) override;
+  void pair_setup_callback(int, int);
+  void pair_tally_callback(int, int, int, int, double, double, double, double, double, double);
 
  private:
   bigint did_setup;

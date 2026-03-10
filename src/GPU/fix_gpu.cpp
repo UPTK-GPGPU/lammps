@@ -136,17 +136,16 @@ FixGPU::FixGPU(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"neigh") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package gpu command");
-      const std::string modearg = arg[iarg+1];
-      if ((modearg == "yes") || (modearg == "on") || (modearg == "true"))
-        _gpu_mode = GPU_NEIGH;
-      else if ((modearg == "no") || (modearg == "off") || (modearg == "false"))
-        _gpu_mode = GPU_FORCE;
-      else if (modearg == "hybrid") _gpu_mode = GPU_HYB_NEIGH;
+      if (strcmp(arg[iarg+1],"yes") == 0) _gpu_mode = GPU_NEIGH;
+      else if (strcmp(arg[iarg+1],"no") == 0) _gpu_mode = GPU_FORCE;
+      else if (strcmp(arg[iarg+1],"hybrid") == 0) _gpu_mode = GPU_HYB_NEIGH;
       else error->all(FLERR,"Illegal package gpu command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"newton") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package gpu command");
-      newtonflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) newtonflag = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) newtonflag = 1;
+      else error->all(FLERR,"Illegal package gpu command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"binsize") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package gpu command");
@@ -186,7 +185,9 @@ FixGPU::FixGPU(LAMMPS *lmp, int narg, char **arg) :
       iarg += 2;
     } else if (strcmp(arg[iarg],"pair/only") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package gpu command");
-      pair_only_flag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"off") == 0) pair_only_flag = 0;
+      else if (strcmp(arg[iarg+1],"on") == 0) pair_only_flag = 1;
+      else error->all(FLERR,"Illegal package gpu command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"ocl_args") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal package gpu command");
@@ -206,15 +207,13 @@ FixGPU::FixGPU(LAMMPS *lmp, int narg, char **arg) :
   #endif
 
   // set newton pair flag
+  // require newtonflag = 0 since currently required by all GPU pair styles
+
+  if (newtonflag == 1) error->all(FLERR,"Illegal package gpu command");
 
   force->newton_pair = newtonflag;
   if (force->newton_pair || force->newton_bond) force->newton = 1;
   else force->newton = 0;
-
-  // require newton pair off if _particle_split < 1
-
-  if (force->newton_pair == 1 && _particle_split < 1)
-    error->all(FLERR,"Cannot use newton pair on for split less than 1 for now");
 
   if (pair_only_flag) {
     lmp->suffixp = lmp->suffix;
@@ -275,7 +274,7 @@ void FixGPU::init()
   // also disallow GPU neighbor lists for hybrid styles
 
   if (force->pair_match("^hybrid",0) != nullptr) {
-    auto hybrid = dynamic_cast<PairHybrid *>( force->pair);
+    PairHybrid *hybrid = (PairHybrid *) force->pair;
     for (int i = 0; i < hybrid->nstyles; i++)
       if (!utils::strmatch(hybrid->keywords[i],"/gpu$"))
         force->pair->no_virial_fdotr_compute = 1;
@@ -286,7 +285,7 @@ void FixGPU::init()
   // rRESPA support
 
   if (utils::strmatch(update->integrate_style,"^respa"))
-    _nlevels_respa = (dynamic_cast<Respa *>( update->integrate))->nlevels;
+    _nlevels_respa = ((Respa *) update->integrate)->nlevels;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -300,9 +299,9 @@ void FixGPU::setup(int vflag)
   if (utils::strmatch(update->integrate_style,"^verlet")) post_force(vflag);
   else {
     // In setup only, all forces calculated on GPU are put in the outer level
-    (dynamic_cast<Respa *>( update->integrate))->copy_flevel_f(_nlevels_respa-1);
+    ((Respa *) update->integrate)->copy_flevel_f(_nlevels_respa-1);
     post_force(vflag);
-    (dynamic_cast<Respa *>( update->integrate))->copy_f_flevel(_nlevels_respa-1);
+    ((Respa *) update->integrate)->copy_f_flevel(_nlevels_respa-1);
   }
 }
 
@@ -337,6 +336,7 @@ void FixGPU::post_force(int /* vflag */)
   force->pair->virial[4] += lvirial[4];
   force->pair->virial[5] += lvirial[5];
 
+  if (force->pair->vflag_fdotr) force->pair->virial_fdotr_compute();
   timer->stamp(Timer::PAIR);
 }
 

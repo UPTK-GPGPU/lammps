@@ -165,4 +165,5 @@ changed.  How to do this depends on the build system you are using.
    URL "git@github.com:lammps/lammps.git".
 
 The LAMMPS GitHub project is currently managed by Axel Kohlmeyer
-(Temple U, akohlmey at gmail.com).
+(Temple U, akohlmey at gmail.com) and Richard Berger (Temple U,
+richard.berger at temple.edu).

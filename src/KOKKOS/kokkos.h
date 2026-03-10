@@ -46,7 +46,6 @@ class KokkosLMP : protected Pointers {
   int gpu_aware_flag;
   int neigh_thread;
   int neigh_thread_set;
-  int neigh_transpose;
   int newtonflag;
   double binsize;
 
@@ -55,18 +54,16 @@ class KokkosLMP : protected Pointers {
   static int init_ngpus;
 
   KokkosLMP(class LAMMPS *, int, char **);
-  ~KokkosLMP() override;
+  ~KokkosLMP();
   static void initialize(Kokkos::InitArguments, Error *);
   static void finalize();
   void accelerator(int, char **);
   int neigh_count(int);
 
   template<class DeviceType>
-  int need_dup(int qeq_flag = 0)
+  int need_dup()
   {
     int value = 0;
-    int neighflag = this->neighflag;
-    if (qeq_flag) neighflag = this->neighflag_qeq;
 
     if (neighflag == HALFTHREAD)
       value = std::is_same<typename NeedDup<HALFTHREAD,DeviceType>::value,Kokkos::Experimental::ScatterDuplicated>::value;
@@ -88,7 +85,7 @@ E: Invalid Kokkos command-line args
 
 Self-explanatory.  See Section 2.7 of the manual for details.
 
-E: Could not determine local MPI rank for multiple GPUs with Kokkos
+E: Could not determine local MPI rank for multiple GPUs with Kokkos CUDA
 because MPI library not recognized
 
 The local MPI rank was not found in one of four supported environment variables.
@@ -97,22 +94,13 @@ E: Invalid number of threads requested for Kokkos: must be 1 or greater
 
 Self-explanatory.
 
-E: GPUs are requested but Kokkos has not been compiled using GPU-enabled backend
+E: GPUs are requested but Kokkos has not been compiled for CUDA
 
-Recompile Kokkos with GPU-enabled backend to use GPUs.
+Recompile Kokkos with CUDA support to use GPUs.
 
-E: Kokkos has been compiled with GPU-enabled backend but no GPUs are requested
+E: Kokkos has been compiled for CUDA, HIP, or SYCL but no GPUs are requested
 
-One or more GPUs must be used when Kokkos is compiled for CUDA/HIP/SYCL/OpenMPTarget.
-
-E: Multiple CPU threads are requested but Kokkos has not been compiled using a threading-enabled backend
-
-Must use the Kokkos OpenMP or Threads backend for multiple threads.
-
-W: When using a single thread, the Kokkos Serial backend (i.e. Makefile.kokkos_mpi_only)
-gives better performance than the OpenMP backend
-
-Self-expanatory.
+One or more GPUs must be used when Kokkos is compiled for CUDA/HIP/SYCL.
 
 W: Kokkos package already initalized, cannot reinitialize with different parameters
 

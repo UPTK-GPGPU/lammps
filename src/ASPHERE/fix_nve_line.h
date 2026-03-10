@@ -27,10 +27,11 @@ namespace LAMMPS_NS {
 class FixNVELine : public FixNVE {
  public:
   FixNVELine(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  ~FixNVELine() {}
+  int setmask();
+  void init();
+  void initial_integrate(int);
+  void final_integrate();
 
  private:
   double MINUSPI, TWOPI;

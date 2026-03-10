@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputePressureGrem : public ComputePressure {
  public:
   ComputePressureGrem(class LAMMPS *, int, char **);
-  ~ComputePressureGrem() override;
-  void init() override;
-  double compute_scalar() override;
-  void compute_vector() override;
+  virtual ~ComputePressureGrem();
+  virtual void init();
+  virtual double compute_scalar();
+  virtual void compute_vector();
 
  protected:
   // Access to gREM fix scale factor

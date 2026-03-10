@@ -38,10 +38,10 @@ namespace LAMMPS_NS {
 class ComputeSMDTLSPHstrain : public Compute {
  public:
   ComputeSMDTLSPHstrain(class LAMMPS *, int, char **);
-  ~ComputeSMDTLSPHstrain() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeSMDTLSPHstrain();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

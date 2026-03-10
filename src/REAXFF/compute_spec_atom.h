@@ -28,10 +28,10 @@ namespace LAMMPS_NS {
 class ComputeSpecAtom : public Compute {
  public:
   ComputeSpecAtom(class LAMMPS *, int, char **);
-  ~ComputeSpecAtom() override;
-  void init() override {}
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeSpecAtom();
+  void init() {}
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nvalues;

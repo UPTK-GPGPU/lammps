@@ -34,6 +34,7 @@ using LAMMPS_NS::utils::split_words;
 
 namespace LAMMPS_NS {
 using ::testing::ExitedWithCode;
+using ::testing::MatchesRegex;
 using ::testing::StrEq;
 
 class GroupTest : public LAMMPSTest {
@@ -203,7 +204,7 @@ TEST_F(GroupTest, SelectRestart)
     command("write_restart group.restart");
     command("clear");
     command("read_restart group.restart");
-    platform::unlink("group.restart");
+    unlink("group.restart");
     END_HIDE_OUTPUT();
     group = lmp->group;
     ASSERT_EQ(group->count(group->find("one")), 16);
@@ -315,7 +316,7 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     ::testing::InitGoogleMock(&argc, argv);
 
-    if (platform::mpi_vendor() == "Open MPI" && !LAMMPS_NS::Info::has_exceptions())
+    if (Info::get_mpi_vendor() == "Open MPI" && !LAMMPS_NS::Info::has_exceptions())
         std::cout << "Warning: using OpenMPI without exceptions. "
                      "Death tests will be skipped\n";
 

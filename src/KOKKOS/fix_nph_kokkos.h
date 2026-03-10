@@ -31,6 +31,7 @@ template<class DeviceType>
 class FixNPHKokkos : public FixNHKokkos<DeviceType> {
  public:
   FixNPHKokkos(class LAMMPS *, int, char **);
+  ~FixNPHKokkos() {}
 };
 
 }

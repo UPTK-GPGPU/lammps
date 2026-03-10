@@ -28,7 +28,6 @@ include:
     - src/**
     - lib/**
     - tools/coding_standard
-    - tools/python
 exclude:
     - lib/colvars/Install.py
     - lib/gpu/geryon/file_to_cstr.sh

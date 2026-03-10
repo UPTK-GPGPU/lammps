@@ -27,7 +27,8 @@ namespace LAMMPS_NS {
 class NTopoBondAll : public NTopo {
  public:
   NTopoBondAll(class LAMMPS *);
-  void build() override;
+  ~NTopoBondAll() {}
+  void build();
 };
 
 }    // namespace LAMMPS_NS

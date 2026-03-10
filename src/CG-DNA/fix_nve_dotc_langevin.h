@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class FixNVEDotcLangevin : public FixNVE {
  public:
   FixNVEDotcLangevin(class LAMMPS *, int, char **);
-  ~FixNVEDotcLangevin() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  virtual ~FixNVEDotcLangevin();
+  void init();
+  void initial_integrate(int);
+  void final_integrate();
 
  private:
   double dt, dthlf, dthlfm, dtqrt;

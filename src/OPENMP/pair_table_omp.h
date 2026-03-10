@@ -34,8 +34,8 @@ class PairTableOMP : public PairTable, public ThrOMP {
  public:
   PairTableOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR>

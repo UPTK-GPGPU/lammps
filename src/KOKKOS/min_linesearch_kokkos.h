@@ -43,10 +43,10 @@ namespace LAMMPS_NS {
 class MinLineSearchKokkos : public MinKokkos {
  public:
   MinLineSearchKokkos(class LAMMPS *);
-  ~MinLineSearchKokkos() override;
-  void init() override;
-  void setup_style() override;
-  void reset_vectors() override;
+  ~MinLineSearchKokkos();
+  void init();
+  void setup_style();
+  void reset_vectors();
 
  //protected: // won't compile with CUDA
   // vectors needed by linesearch minimizers

@@ -26,9 +26,13 @@ DumpXYZGZ::DumpXYZGZ(LAMMPS *lmp, int narg, char **arg) : DumpXYZ(lmp, narg, arg
   if (!compressed) error->all(FLERR, "Dump xyz/gz only writes compressed files");
 }
 
+/* ---------------------------------------------------------------------- */
+
+DumpXYZGZ::~DumpXYZGZ() {}
+
 /* ----------------------------------------------------------------------
    generic opening of a dump file
-   ASCII or binary or compressed
+   ASCII or binary or gzipped
    some derived classes override this function
 ------------------------------------------------------------------------- */
 
@@ -45,7 +49,19 @@ void DumpXYZGZ::openfile()
   if (multiproc) filecurrent = multiname;
 
   if (multifile) {
-    filecurrent = utils::strdup(utils::star_subst(filecurrent, update->ntimestep, padflag));
+    char *filestar = filecurrent;
+    filecurrent = new char[strlen(filestar) + 16];
+    char *ptr = strchr(filestar, '*');
+    *ptr = '\0';
+    if (padflag == 0)
+      sprintf(filecurrent, "%s" BIGINT_FORMAT "%s", filestar, update->ntimestep, ptr + 1);
+    else {
+      char bif[8], pad[16];
+      strcpy(bif, BIGINT_FORMAT);
+      sprintf(pad, "%%s%%0%d%s%%s", padflag, &bif[1]);
+      sprintf(filecurrent, pad, filestar, update->ntimestep, ptr + 1);
+    }
+    *ptr = '*';
     if (maxfiles > 0) {
       if (numfiles < maxfiles) {
         nameslist[numfiles] = utils::strdup(filecurrent);
@@ -76,14 +92,11 @@ void DumpXYZGZ::openfile()
   if (multifile) delete[] filecurrent;
 }
 
-/* ---------------------------------------------------------------------- */
-
 void DumpXYZGZ::write_header(bigint ndump)
 {
   if (me == 0) {
-    auto header = fmt::format("{}\n Atoms. Timestep: {}", ndump, update->ntimestep);
-    if (time_flag) header += fmt::format(" Time: {:.6f}", compute_time());
-    header += "\n";
+    std::string header = fmt::format("{}\n", ndump);
+    header += fmt::format("Atoms. Timestep: {}\n", update->ntimestep);
     writer.write(header.c_str(), header.length());
   }
 }

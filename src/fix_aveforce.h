@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class FixAveForce : public Fix {
  public:
   FixAveForce(class LAMMPS *, int, char **);
-  ~FixAveForce() override;
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void min_setup(int) override;
-  void post_force(int) override;
-  void post_force_respa(int, int, int) override;
-  void min_post_force(int) override;
-  double compute_vector(int) override;
+  ~FixAveForce();
+  int setmask();
+  void init();
+  void setup(int);
+  void min_setup(int);
+  void post_force(int);
+  void post_force_respa(int, int, int);
+  void min_post_force(int);
+  double compute_vector(int);
 
  private:
   double xvalue, yvalue, zvalue;

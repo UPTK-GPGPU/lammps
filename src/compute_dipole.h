@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class ComputeDipole : public Compute {
  public:
   ComputeDipole(class LAMMPS *, int, char **);
-  ~ComputeDipole() override;
-  void init() override{};
-  void compute_vector() override;
-  double compute_scalar() override;
+  virtual ~ComputeDipole();
+  void init(){};
+  void compute_vector();
+  double compute_scalar();
 
  private:
   int usecenter;

@@ -41,29 +41,28 @@ DumpMovie::DumpMovie(LAMMPS *lmp, int narg, char **arg) :
 
 /* ---------------------------------------------------------------------- */
 
-DumpMovie::~DumpMovie()
-{
-  if (fp) platform::pclose(fp);
-  fp = nullptr;
-}
-
-/* ---------------------------------------------------------------------- */
-
 void DumpMovie::openfile()
 {
+  char moviecmd[1024];
+
   if ((comm->me == 0) && (fp == nullptr)) {
 
 #ifdef LAMMPS_FFMPEG
-    auto moviecmd = fmt::format("ffmpeg -v error -y -r {:.2f} -f image2pipe -c:v ppm -i - "
-                                "-r 24.0 -b:v {}k {}", framerate, bitrate, filename);
-    fp = platform::popen(moviecmd,"w");
+    sprintf(moviecmd,"ffmpeg -v error -y -r %.2f -f image2pipe -c:v ppm -i - "
+            "-r 24.0 -b:v %dk %s ", framerate, bitrate, filename);
 #else
-    fp = nullptr;
     error->one(FLERR,"Support for writing movies not included");
 #endif
 
+#if defined(_WIN32)
+    fp = _popen(moviecmd,"wb");
+#else
+    fp = popen(moviecmd,"w");
+#endif
+
     if (fp == nullptr)
-      error->one(FLERR,"Failed to open FFmpeg pipeline to file {}",filename);
+      error->one(FLERR,"Failed to open FFmpeg pipeline to "
+                                   "file {}",filename);
   }
 }
 /* ---------------------------------------------------------------------- */
@@ -101,3 +100,4 @@ int DumpMovie::modify_param(int narg, char **arg)
 
   return 0;
 }
+

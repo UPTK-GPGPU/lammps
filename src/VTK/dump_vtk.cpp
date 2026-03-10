@@ -96,8 +96,8 @@ enum{VTK,VTP,VTU,PVTP,PVTU}; // file formats
 #define ONEFIELD 32
 #define DELTA 1048576
 
-#if (VTK_MAJOR_VERSION < 5) || (VTK_MAJOR_VERSION > 9)
-#error This code has only been tested with VTK 5, 6, 7, 8, and 9
+#if (VTK_MAJOR_VERSION < 5) || (VTK_MAJOR_VERSION > 8)
+#error This code has only been tested with VTK 5, 6, 7, and 8
 #elif VTK_MAJOR_VERSION > 6
 #define InsertNextTupleValue InsertNextTypedTuple
 #endif
@@ -1009,13 +1009,13 @@ void DumpVTK::write_data(int n, double *mybuf)
 /* ---------------------------------------------------------------------- */
 
 void DumpVTK::setFileCurrent() {
-  delete[] filecurrent;
+  delete [] filecurrent;
   filecurrent = nullptr;
 
   char *filestar = filename;
   if (multiproc) {
     if (multiproc > 1) { // if dump_modify fileper or nfile was used
-      delete[] multiname_ex;
+      delete [] multiname_ex;
       multiname_ex = nullptr;
       char *ptr = strchr(filename,'%');
       if (ptr) {
@@ -1034,13 +1034,26 @@ void DumpVTK::setFileCurrent() {
   }
 
   if (multifile == 0) {
-    filecurrent = utils::strdup(filestar);
+    filecurrent = new char[strlen(filestar) + 1];
+    strcpy(filecurrent, filestar);
   } else {
-    filecurrent = utils::strdup(utils::star_subst(filestar, update->ntimestep, padflag));
+    filecurrent = new char[strlen(filestar) + 16];
+    char *ptr = strchr(filestar,'*');
+    *ptr = '\0';
+    if (padflag == 0) {
+      sprintf(filecurrent,"%s" BIGINT_FORMAT "%s",
+              filestar,update->ntimestep,ptr+1);
+    } else {
+      char bif[8],pad[16];
+      strcpy(bif,BIGINT_FORMAT);
+      sprintf(pad,"%%s%%0%d%s%%s",padflag,&bif[1]);
+      sprintf(filecurrent,pad,filestar,update->ntimestep,ptr+1);
+    }
+    *ptr = '*';
   }
 
   // filename of domain box data file
-  delete[] domainfilecurrent;
+  delete [] domainfilecurrent;
   domainfilecurrent = nullptr;
   if (multiproc) {
     // remove '%' character
@@ -1061,9 +1074,21 @@ void DumpVTK::setFileCurrent() {
       domainfilecurrent = new char[strlen(filestar) + 1];
       strcpy(domainfilecurrent, filestar);
     } else {
-      domainfilecurrent = utils::strdup(utils::star_subst(filestar, update->ntimestep, padflag));
+      domainfilecurrent = new char[strlen(filestar) + 16];
+      char *ptr = strchr(filestar,'*');
+      *ptr = '\0';
+      if (padflag == 0) {
+        sprintf(domainfilecurrent,"%s" BIGINT_FORMAT "%s",
+                filestar,update->ntimestep,ptr+1);
+      } else {
+        char bif[8],pad[16];
+        strcpy(bif,BIGINT_FORMAT);
+        sprintf(pad,"%%s%%0%d%s%%s",padflag,&bif[1]);
+        sprintf(domainfilecurrent,pad,filestar,update->ntimestep,ptr+1);
+      }
+      *ptr = '*';
     }
-    delete[] filestar;
+    delete [] filestar;
     filestar = nullptr;
   } else {
     domainfilecurrent = new char[strlen(filecurrent) + 16];
@@ -1075,7 +1100,7 @@ void DumpVTK::setFileCurrent() {
 
   // filename of parallel file
   if (multiproc && me == 0) {
-    delete[] parallelfilecurrent;
+    delete [] parallelfilecurrent;
     parallelfilecurrent = nullptr;
 
     // remove '%' character and add 'p' to file extension
@@ -1094,11 +1119,24 @@ void DumpVTK::setFileCurrent() {
     *ptr++= 0;
 
     if (multifile == 0) {
-      parallelfilecurrent = utils::strdup(filestar);
+      parallelfilecurrent = new char[strlen(filestar) + 1];
+      strcpy(parallelfilecurrent, filestar);
     } else {
-      parallelfilecurrent = utils::strdup(utils::star_subst(filestar, update->ntimestep, padflag));
+      parallelfilecurrent = new char[strlen(filestar) + 16];
+      char *ptr = strchr(filestar,'*');
+      *ptr = '\0';
+      if (padflag == 0) {
+        sprintf(parallelfilecurrent,"%s" BIGINT_FORMAT "%s",
+                filestar,update->ntimestep,ptr+1);
+      } else {
+        char bif[8],pad[16];
+        strcpy(bif,BIGINT_FORMAT);
+        sprintf(pad,"%%s%%0%d%s%%s",padflag,&bif[1]);
+        sprintf(parallelfilecurrent,pad,filestar,update->ntimestep,ptr+1);
+      }
+      *ptr = '*';
     }
-    delete[] filestar;
+    delete [] filestar;
     filestar = nullptr;
   }
 }
@@ -1916,12 +1954,7 @@ void DumpVTK::identify_vectors()
        name.count(vector3_starts[v3s]+2) )
     {
       std::string vectorName = name[vector3_starts[v3s]];
-      std::string::size_type erase_start = vectorName.find_first_of('x');
-      if (erase_start == 0) {
-        vectorName.erase(0,1);
-      } else {
-        vectorName.erase(erase_start);
-      }
+      vectorName.erase(vectorName.find_first_of('x'));
       name[vector3_starts[v3s]] = vectorName;
       vector_set.insert(vector3_starts[v3s]);
     }
@@ -2074,7 +2107,9 @@ int DumpVTK::modify_param(int narg, char **arg)
 
   if (strcmp(arg[0],"binary") == 0) {
      if (narg < 2) error->all(FLERR,"Illegal dump_modify command [binary]");
-     binary = utils::logical(FLERR,arg[1],false,lmp);
+     if (strcmp(arg[1],"yes") == 0) binary = 1;
+     else if (strcmp(arg[1],"no") == 0) binary = 0;
+     else error->all(FLERR,"Illegal dump_modify command [binary]");
      return 2;
   }
 

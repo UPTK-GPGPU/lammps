@@ -31,6 +31,7 @@ namespace LAMMPS_NS {
 class FixNPTGPU : public FixNHGPU {
  public:
   FixNPTGPU(class LAMMPS *, int, char **);
+  ~FixNPTGPU() {}
 };
 
 }    // namespace LAMMPS_NS

@@ -27,14 +27,14 @@ namespace LAMMPS_NS {
 class PairCoulStreitz : public Pair {
  public:
   PairCoulStreitz(class LAMMPS *);
-  ~PairCoulStreitz() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  void init_style() override;
-  double init_one(int, int) override;
-  double memory_usage() override;
-  void *extract(const char *, int &) override;
+  virtual ~PairCoulStreitz();
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  void init_style();
+  double init_one(int, int);
+  double memory_usage();
+  virtual void *extract(const char *, int &);
 
   static constexpr int NPARAMS_PER_LINE = 6;
 

@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class MinCG : public MinLineSearch {
  public:
   MinCG(class LAMMPS *);
-  int iterate(int) override;
+  int iterate(int);
 };
 
 }    // namespace LAMMPS_NS

@@ -27,22 +27,22 @@ namespace LAMMPS_NS {
 class PairSpinMagelec : public PairSpin {
  public:
   PairSpinMagelec(LAMMPS *lmp) : PairSpin(lmp) {}
-  ~PairSpinMagelec() override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  double init_one(int, int) override;
-  void *extract(const char *, int &) override;
+  virtual ~PairSpinMagelec();
+  void settings(int, char **);
+  void coeff(int, char **);
+  double init_one(int, int);
+  void *extract(const char *, int &);
 
-  void compute(int, int) override;
-  void compute_single_pair(int, double *) override;
+  void compute(int, int);
+  void compute_single_pair(int, double *);
 
   void compute_magelec(int, int, double *, double *, double *);
   void compute_magelec_mech(int, int, double *, double *, double *);
 
-  void write_restart(FILE *) override;
-  void read_restart(FILE *) override;
-  void write_restart_settings(FILE *) override;
-  void read_restart_settings(FILE *) override;
+  void write_restart(FILE *);
+  void read_restart(FILE *);
+  void write_restart_settings(FILE *);
+  void read_restart_settings(FILE *);
 
   double cut_spin_magelec_global;    // global me cutoff
 
@@ -51,7 +51,7 @@ class PairSpinMagelec : public PairSpin {
   double **v_mex, **v_mey, **v_mez;    // magelec direction
   double **cut_spin_magelec;           // magelec cutoff distance
 
-  void allocate() override;
+  void allocate();
 };
 
 }    // namespace LAMMPS_NS

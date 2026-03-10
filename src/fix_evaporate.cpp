@@ -14,20 +14,19 @@
 
 #include "fix_evaporate.h"
 
+#include <cstring>
 #include "atom.h"
 #include "atom_vec.h"
-#include "comm.h"
+#include "molecule.h"
+#include "update.h"
 #include "domain.h"
-#include "error.h"
+#include "region.h"
+#include "comm.h"
 #include "force.h"
 #include "group.h"
-#include "memory.h"
-#include "molecule.h"
 #include "random_park.h"
-#include "region.h"
-#include "update.h"
-
-#include <cstring>
+#include "memory.h"
+#include "error.h"
 
 using namespace LAMMPS_NS;
 using namespace FixConst;
@@ -70,7 +69,9 @@ FixEvaporate::FixEvaporate(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"molecule") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix evaporate command");
-      molflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) molflag = 0;
+      else if (strcmp(arg[iarg+1],"yes") == 0) molflag = 1;
+      else error->all(FLERR,"Illegal fix evaporate command");
       iarg += 2;
     } else error->all(FLERR,"Illegal fix evaporate command");
   }

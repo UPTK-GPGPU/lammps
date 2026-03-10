@@ -33,10 +33,10 @@ class PairLJCutTIP4PLongOMP : public PairLJCutTIP4PLong, public ThrOMP {
 
  public:
   PairLJCutTIP4PLongOMP(class LAMMPS *);
-  ~PairLJCutTIP4PLongOMP() override;
+  virtual ~PairLJCutTIP4PLongOMP();
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   dbl3_t *newsite_thr;

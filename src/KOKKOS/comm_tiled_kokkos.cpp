@@ -137,9 +137,9 @@ void CommTiledKokkos::borders()
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::forward_comm(Pair *pair)
+void CommTiledKokkos::forward_comm_pair(Pair *pair)
 {
-  CommTiled::forward_comm(pair);
+  CommTiled::forward_comm_pair(pair);
 }
 
 /* ----------------------------------------------------------------------
@@ -147,9 +147,9 @@ void CommTiledKokkos::forward_comm(Pair *pair)
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::reverse_comm(Pair *pair)
+void CommTiledKokkos::reverse_comm_pair(Pair *pair)
 {
-  CommTiled::reverse_comm(pair);
+  CommTiled::reverse_comm_pair(pair);
 }
 
 /* ----------------------------------------------------------------------
@@ -161,9 +161,9 @@ void CommTiledKokkos::reverse_comm(Pair *pair)
      some are smaller than max stored in its comm_forward
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::forward_comm(Fix *fix, int size)
+void CommTiledKokkos::forward_comm_fix(Fix *fix, int size)
 {
-  CommTiled::forward_comm(fix,size);
+  CommTiled::forward_comm_fix(fix,size);
 }
 
 /* ----------------------------------------------------------------------
@@ -175,9 +175,9 @@ void CommTiledKokkos::forward_comm(Fix *fix, int size)
      some are smaller than max stored in its comm_forward
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::reverse_comm(Fix *fix, int size)
+void CommTiledKokkos::reverse_comm_fix(Fix *fix, int size)
 {
-  CommTiled::reverse_comm(fix,size);
+  CommTiled::reverse_comm_fix(fix,size);
 }
 
 /* ----------------------------------------------------------------------
@@ -187,9 +187,9 @@ void CommTiledKokkos::reverse_comm(Fix *fix, int size)
    NOTE: how to setup one big buf recv with correct offsets ??
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::reverse_comm_variable(Fix *fix)
+void CommTiledKokkos::reverse_comm_fix_variable(Fix *fix)
 {
-  CommTiled::reverse_comm_variable(fix);
+  CommTiled::reverse_comm_fix_variable(fix);
 }
 
 /* ----------------------------------------------------------------------
@@ -197,9 +197,9 @@ void CommTiledKokkos::reverse_comm_variable(Fix *fix)
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::forward_comm(Compute *compute)
+void CommTiledKokkos::forward_comm_compute(Compute *compute)
 {
-  CommTiled::forward_comm(compute);
+  CommTiled::forward_comm_compute(compute);
 }
 
 /* ----------------------------------------------------------------------
@@ -207,9 +207,9 @@ void CommTiledKokkos::forward_comm(Compute *compute)
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::reverse_comm(Compute *compute)
+void CommTiledKokkos::reverse_comm_compute(Compute *compute)
 {
-  CommTiled::reverse_comm(compute);
+  CommTiled::reverse_comm_compute(compute);
 }
 
 /* ----------------------------------------------------------------------
@@ -217,9 +217,9 @@ void CommTiledKokkos::reverse_comm(Compute *compute)
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::forward_comm(Dump *dump)
+void CommTiledKokkos::forward_comm_dump(Dump *dump)
 {
-  CommTiled::forward_comm(dump);
+  CommTiled::forward_comm_dump(dump);
 }
 
 /* ----------------------------------------------------------------------
@@ -227,9 +227,9 @@ void CommTiledKokkos::forward_comm(Dump *dump)
    nsize used only to set recv buffer limit
 ------------------------------------------------------------------------- */
 
-void CommTiledKokkos::reverse_comm(Dump *dump)
+void CommTiledKokkos::reverse_comm_dump(Dump *dump)
 {
-  CommTiled::reverse_comm(dump);
+  CommTiled::reverse_comm_dump(dump);
 }
 
 /* ----------------------------------------------------------------------

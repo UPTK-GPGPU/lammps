@@ -33,7 +33,7 @@ class AngleFourierSimpleOMP : public AngleFourierSimple, public ThrOMP {
 
  public:
   AngleFourierSimpleOMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

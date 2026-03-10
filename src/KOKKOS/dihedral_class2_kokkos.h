@@ -39,10 +39,10 @@ class DihedralClass2Kokkos : public DihedralClass2 {
   typedef ArrayTypes<DeviceType> AT;
 
   DihedralClass2Kokkos(class LAMMPS *);
-  ~DihedralClass2Kokkos() override;
-  void compute(int, int) override;
-  void coeff(int, char **) override;
-  void read_restart(FILE *) override;
+  virtual ~DihedralClass2Kokkos();
+  void compute(int, int);
+  void coeff(int, char **);
+  void read_restart(FILE *);
 
   template<int NEWTON_BOND, int EVFLAG>
   KOKKOS_INLINE_FUNCTION

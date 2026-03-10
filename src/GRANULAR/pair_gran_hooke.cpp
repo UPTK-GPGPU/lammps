@@ -59,7 +59,7 @@ void PairGranHooke::compute(int eflag, int vflag)
   if (fix_rigid && neighbor->ago == 0) {
     int tmp;
     int *body = (int *) fix_rigid->extract("body",tmp);
-    auto mass_body = (double *) fix_rigid->extract("masstotal",tmp);
+    double *mass_body = (double *) fix_rigid->extract("masstotal",tmp);
     if (atom->nmax > nmax) {
       memory->destroy(mass_rigid);
       nmax = atom->nmax;
@@ -69,7 +69,7 @@ void PairGranHooke::compute(int eflag, int vflag)
     for (i = 0; i < nlocal; i++)
       if (body[i] >= 0) mass_rigid[i] = mass_body[body[i]];
       else mass_rigid[i] = 0.0;
-    comm->forward_comm(this);
+    comm->forward_comm_pair(this);
   }
 
   double **x = atom->x;

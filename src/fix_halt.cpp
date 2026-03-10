@@ -34,7 +34,7 @@ using namespace FixConst;
 enum{BONDMAX,TLIMIT,DISKFREE,VARIABLE};
 enum{LT,LE,GT,GE,EQ,NEQ,XOR};
 enum{HARD,SOFT,CONTINUE};
-enum{NOMSG=0,YESMSG=1};
+enum{NOMSG,YESMSG};
 
 /* ---------------------------------------------------------------------- */
 
@@ -102,19 +102,22 @@ FixHalt::FixHalt(LAMMPS *lmp, int narg, char **arg) :
       iarg += 2;
     } else if (strcmp(arg[iarg],"message") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix halt command");
-      msgflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"no") == 0) msgflag = NOMSG;
+      else if (strcmp(arg[iarg+1],"yes") == 0) msgflag = YESMSG;
+      else error->all(FLERR,"Illegal fix halt command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"path") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix halt command");
       ++iarg;
-      delete[] dlimit_path;
-      // strip off outer quotes, if present
       int len = strlen(arg[iarg])+1;
+      delete[] dlimit_path;
+      dlimit_path = new char[len];
+      // strip off quotes, if present
       if ( ((arg[iarg][0] == '"') || (arg[iarg][0] == '\''))
            && (arg[iarg][0] == arg[iarg][len-2])) {
-        arg[iarg][len-2] = '\0';
-        dlimit_path = utils::strdup(arg[iarg]+1);
-      } else dlimit_path = utils::strdup(arg[iarg]);
+        strcpy(dlimit_path,&arg[iarg][1]);
+        dlimit_path[len-3] = '\0';
+      } else strcpy(dlimit_path,arg[iarg]);
       ++iarg;
     } else error->all(FLERR,"Illegal fix halt command");
   }

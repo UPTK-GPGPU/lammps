@@ -22,6 +22,7 @@ General howto
    Howto_replica
    Howto_library
    Howto_couple
+   Howto_client_server
    Howto_mdi
 
 Settings howto

@@ -321,7 +321,10 @@ void Set::command(int narg, char **arg)
     } else if (strcmp(arg[iarg],"theta") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal set command");
       if (utils::strmatch(arg[iarg+1],"^v_")) varparse(arg[iarg+1],1);
-      else dvalue = DEG2RAD * utils::numeric(FLERR,arg[iarg+1],false,lmp);
+      else {
+        dvalue = utils::numeric(FLERR,arg[iarg+1],false,lmp);
+        dvalue *= MY_PI/180.0;
+      }
       if (!atom->line_flag)
         error->all(FLERR,"Cannot set this attribute for this atom style");
       set(THETA);
@@ -767,10 +770,11 @@ void Set::set(int keyword)
 
   // loop over selected atoms
 
-  auto avec_ellipsoid = dynamic_cast<AtomVecEllipsoid *>( atom->style_match("ellipsoid"));
-  auto avec_line = dynamic_cast<AtomVecLine *>( atom->style_match("line"));
-  auto avec_tri = dynamic_cast<AtomVecTri *>( atom->style_match("tri"));
-  auto avec_body = dynamic_cast<AtomVecBody *>( atom->style_match("body"));
+  AtomVecEllipsoid *avec_ellipsoid =
+    (AtomVecEllipsoid *) atom->style_match("ellipsoid");
+  AtomVecLine *avec_line = (AtomVecLine *) atom->style_match("line");
+  AtomVecTri *avec_tri = (AtomVecTri *) atom->style_match("tri");
+  AtomVecBody *avec_body = (AtomVecBody *) atom->style_match("body");
 
   int nlocal = atom->nlocal;
   for (int i = 0; i < nlocal; i++) {
@@ -1054,16 +1058,17 @@ void Set::setrandom(int keyword)
 {
   int i;
 
-  auto avec_ellipsoid = dynamic_cast<AtomVecEllipsoid *>( atom->style_match("ellipsoid"));
-  auto avec_line = dynamic_cast<AtomVecLine *>( atom->style_match("line"));
-  auto avec_tri = dynamic_cast<AtomVecTri *>( atom->style_match("tri"));
-  auto avec_body = dynamic_cast<AtomVecBody *>( atom->style_match("body"));
+  AtomVecEllipsoid *avec_ellipsoid =
+    (AtomVecEllipsoid *) atom->style_match("ellipsoid");
+  AtomVecLine *avec_line = (AtomVecLine *) atom->style_match("line");
+  AtomVecTri *avec_tri = (AtomVecTri *) atom->style_match("tri");
+  AtomVecBody *avec_body = (AtomVecBody *) atom->style_match("body");
 
   double **x = atom->x;
   int seed = ivalue;
 
-  auto ranpark = new RanPark(lmp,1);
-  auto ranmars = new RanMars(lmp,seed + comm->me);
+  RanPark *ranpark = new RanPark(lmp,1);
+  RanMars *ranmars = new RanMars(lmp,seed + comm->me);
 
   // set approx fraction of atom types to newtype
 

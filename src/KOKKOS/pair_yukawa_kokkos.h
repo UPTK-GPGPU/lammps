@@ -38,11 +38,11 @@ class PairYukawaKokkos : public PairYukawa {
   typedef ArrayTypes<DeviceType> AT;
 
   PairYukawaKokkos(class LAMMPS *);
-  ~PairYukawaKokkos() override;
+  virtual ~PairYukawaKokkos();
 
-  void compute(int, int) override;
-  void init_style() override;
-  double init_one(int,int) override;
+  void compute(int, int);
+  void init_style();
+  double init_one(int,int);
 
   struct params_yukawa {
     KOKKOS_INLINE_FUNCTION
@@ -95,7 +95,7 @@ class PairYukawaKokkos : public PairYukawa {
   int neighflag;
   int nlocal,nall,eflag,vflag;
 
-  void allocate() override;
+  void allocate();
   friend struct PairComputeFunctor<PairYukawaKokkos,FULL,true>;
   friend struct PairComputeFunctor<PairYukawaKokkos,HALF,true>;
   friend struct PairComputeFunctor<PairYukawaKokkos,HALFTHREAD,true>;

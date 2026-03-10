@@ -14,19 +14,19 @@
 
 #include "pair_lj_cut_dipole_long.h"
 
+#include <cmath>
+#include <cstring>
 #include "atom.h"
 #include "comm.h"
-#include "error.h"
+#include "neighbor.h"
+#include "neigh_list.h"
 #include "force.h"
 #include "kspace.h"
 #include "math_const.h"
 #include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
+#include "error.h"
 #include "update.h"
 
-#include <cmath>
-#include <cstring>
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -454,7 +454,7 @@ void PairLJCutDipoleLong::init_style()
 
   cut_coulsq = cut_coul * cut_coul;
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 }
 
 /* ----------------------------------------------------------------------

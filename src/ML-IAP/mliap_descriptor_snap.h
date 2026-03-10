@@ -21,13 +21,13 @@ namespace LAMMPS_NS {
 class MLIAPDescriptorSNAP : public MLIAPDescriptor {
  public:
   MLIAPDescriptorSNAP(LAMMPS *, char *);
-  ~MLIAPDescriptorSNAP() override;
-  void compute_descriptors(class MLIAPData *) override;
-  void compute_forces(class MLIAPData *) override;
-  void compute_force_gradients(class MLIAPData *) override;
-  void compute_descriptor_gradients(class MLIAPData *) override;
-  void init() override;
-  double memory_usage() override;
+  virtual ~MLIAPDescriptorSNAP();
+  virtual void compute_descriptors(class MLIAPData *);
+  virtual void compute_forces(class MLIAPData *);
+  virtual void compute_force_gradients(class MLIAPData *);
+  virtual void compute_descriptor_gradients(class MLIAPData *);
+  virtual void init();
+  virtual double memory_usage();
 
   double rcutfac;
 
@@ -39,11 +39,7 @@ class MLIAPDescriptorSNAP : public MLIAPDescriptor {
 
   int twojmax, switchflag, bzeroflag;
   int chemflag, bnormflag, wselfallflag;
-  int switchinnerflag;
   double rfac0, rmin0;
-
-  double* rinnerelem;
-  double* drinnerelem;
 };
 
 }    // namespace LAMMPS_NS

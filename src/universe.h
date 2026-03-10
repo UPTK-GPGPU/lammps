@@ -37,7 +37,7 @@ class Universe : protected Pointers {
                      // proc uni2orig[I] in original communicator
 
   Universe(class LAMMPS *, MPI_Comm);
-  ~Universe() override;
+  ~Universe();
   void reorder(char *, char *);
   void add_world(char *);
   int consistent();

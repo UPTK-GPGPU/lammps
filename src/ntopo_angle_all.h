@@ -27,7 +27,8 @@ namespace LAMMPS_NS {
 class NTopoAngleAll : public NTopo {
  public:
   NTopoAngleAll(class LAMMPS *);
-  void build() override;
+  ~NTopoAngleAll() {}
+  void build();
 };
 
 }    // namespace LAMMPS_NS

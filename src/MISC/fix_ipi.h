@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class FixIPI : public Fix {
  public:
   FixIPI(class LAMMPS *, int, char **);
-  ~FixIPI() override;
-  int setmask() override;
-  void init() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  virtual ~FixIPI();
+  int setmask();
+  virtual void init();
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
 
  protected:
   char *host;

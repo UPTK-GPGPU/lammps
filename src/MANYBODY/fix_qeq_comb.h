@@ -27,17 +27,17 @@ namespace LAMMPS_NS {
 class FixQEQComb : public Fix {
  public:
   FixQEQComb(class LAMMPS *, int, char **);
-  ~FixQEQComb() override;
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void post_force(int) override;
-  void post_force_respa(int, int, int) override;
-  double memory_usage() override;
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
+  virtual ~FixQEQComb();
+  int setmask();
+  virtual void init();
+  void setup(int);
+  virtual void post_force(int);
+  void post_force_respa(int, int, int);
+  double memory_usage();
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
 
-  void min_post_force(int) override;
+  void min_post_force(int);
 
  protected:
   int me, firstflag;

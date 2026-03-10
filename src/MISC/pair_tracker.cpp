@@ -24,6 +24,7 @@
 #include "memory.h"
 #include "modify.h"
 #include "neigh_list.h"
+#include "neigh_request.h"
 #include "neighbor.h"
 #include "update.h"
 
@@ -51,7 +52,7 @@ PairTracker::PairTracker(LAMMPS *lmp) : Pair(lmp)
 
   fix_history = nullptr;
   modify->add_fix("NEIGH_HISTORY_TRACK_DUMMY all DUMMY");
-  fix_dummy = dynamic_cast<FixDummy *>( modify->fix[modify->nfix - 1]);
+  fix_dummy = (FixDummy *) modify->fix[modify->nfix - 1];
 }
 
 /* ---------------------------------------------------------------------- */
@@ -270,11 +271,15 @@ void PairTracker::init_style()
   if (!atom->radius_flag && finitecutflag)
     error->all(FLERR, "Pair tracker requires atom attribute radius for finite cutoffs");
 
-  int neigh_flags = NeighConst::REQ_DEFAULT;
-  // history flag won't affect results, but match granular pairstyles
-  // so neighborlist can be copied to reduce overhead
-  if (finitecutflag) neigh_flags |= NeighConst::REQ_SIZE | NeighConst::REQ_HISTORY;
-  neighbor->add_request(this, neigh_flags);
+  // need a history neigh list
+
+  int irequest = neighbor->request(this, instance_me);
+  if (finitecutflag) {
+    neighbor->requests[irequest]->size = 1;
+    neighbor->requests[irequest]->history = 1;
+    // history flag won't affect results, but match granular pairstyles
+    // so neighborlist can be copied to reduce overhead
+  }
 
   // if history is stored and first init, create Fix to store history
   // it replaces FixDummy, created in the constructor
@@ -283,12 +288,10 @@ void PairTracker::init_style()
   if (fix_history == nullptr) {
     modify->replace_fix("NEIGH_HISTORY_TRACK_DUMMY",
                         fmt::format("NEIGH_HISTORY_TRACK all NEIGH_HISTORY {}", size_history), 1);
-    fix_history = dynamic_cast<FixNeighHistory *>( modify->get_fix_by_id("NEIGH_HISTORY_TRACK"));
+    int ifix = modify->find_fix("NEIGH_HISTORY_TRACK");
+    fix_history = (FixNeighHistory *) modify->fix[ifix];
     fix_history->pair = this;
     fix_history->use_bit_flag = 0;
-  } else {
-    fix_history = dynamic_cast<FixNeighHistory *>( modify->get_fix_by_id("NEIGH_HISTORY_TRACK"));
-    if (!fix_history) error->all(FLERR, "Could not find pair fix neigh history ID");
   }
 
   if (finitecutflag) {
@@ -339,10 +342,13 @@ void PairTracker::init_style()
     MPI_Allreduce(&onerad_frozen[1], &maxrad_frozen[1], atom->ntypes, MPI_DOUBLE, MPI_MAX, world);
   }
 
-  auto trackfixes = modify->get_fix_by_style("pair/tracker");
-  if (trackfixes.size() != 1)
-    error->all(FLERR, "Must use exactly one fix pair/tracker command with pair style tracker");
-  fix_pair_tracker = dynamic_cast<FixPairTracker *>( trackfixes.front());
+  int ifix = modify->find_fix("NEIGH_HISTORY_TRACK");
+  if (ifix < 0) error->all(FLERR, "Could not find pair fix neigh history ID");
+  fix_history = (FixNeighHistory *) modify->fix[ifix];
+
+  ifix = modify->find_fix_by_style("pair/tracker");
+  if (ifix < 0) error->all(FLERR, "Cannot use pair tracker without fix pair/tracker");
+  fix_pair_tracker = (FixPairTracker *) modify->fix[ifix];
 }
 
 /* ----------------------------------------------------------------------

@@ -33,16 +33,16 @@ namespace LAMMPS_NS {
 class PairSWIntel : public PairSW {
  public:
   PairSWIntel(class LAMMPS *);
-  ~PairSWIntel() override;
-  void compute(int, int) override;
-  void init_style() override;
+  virtual ~PairSWIntel();
+  virtual void compute(int, int);
+  virtual void init_style();
 
  protected:
   FixIntel *fix;
   int _cop;
   template <class flt_t> class ForceConst;
 
-  void allocate() override;
+  virtual void allocate();
 
   template <class flt_t, class acc_t>
   void compute(int eflag, int vflag, IntelBuffers<flt_t, acc_t> *buffers,

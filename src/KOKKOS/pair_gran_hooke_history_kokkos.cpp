@@ -81,15 +81,23 @@ void PairGranHookeHistoryKokkos<DeviceType>::init_style()
 
   PairGranHookeHistory::init_style();
 
-  // adjust neighbor list request for KOKKOS
+  // irequest = neigh request made by parent class
 
   neighflag = lmp->kokkos->neighflag;
-  auto request = neighbor->find_request(this);
-  request->set_kokkos_host(std::is_same<DeviceType,LMPHostType>::value &&
-                           !std::is_same<DeviceType,LMPDeviceType>::value);
-  request->set_kokkos_device(std::is_same<DeviceType,LMPDeviceType>::value);
-  if (neighflag == FULL)
+  int irequest = neighbor->nrequest - 1;
+
+  neighbor->requests[irequest]->
+    kokkos_host = std::is_same<DeviceType,LMPHostType>::value &&
+    !std::is_same<DeviceType,LMPDeviceType>::value;
+  neighbor->requests[irequest]->
+    kokkos_device = std::is_same<DeviceType,LMPDeviceType>::value;
+
+  if (neighflag == HALF || neighflag == HALFTHREAD) {
+    neighbor->requests[irequest]->full = 0;
+    neighbor->requests[irequest]->half = 1;
+  } else {
     error->all(FLERR,"Must use half neighbor list with gran/hooke/history/kk");
+  }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -167,7 +175,7 @@ void PairGranHookeHistoryKokkos<DeviceType>::compute(int eflag_in, int vflag_in)
 
   EV_FLOAT ev;
 
-  if (neighflag == HALF) {
+  if (lmp->kokkos->neighflag == HALF) {
     if (force->newton_pair) {
       if (vflag_atom) {
         if (shearupdate) {

@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class TAD : public Command {
  public:
   TAD(class LAMMPS *);
-  ~TAD() override;
-  void command(int, char **) override;
+  ~TAD();
+  void command(int, char **);
 
  private:
   int me, nprocs;

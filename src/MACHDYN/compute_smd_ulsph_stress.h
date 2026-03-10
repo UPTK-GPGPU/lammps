@@ -38,10 +38,10 @@ namespace LAMMPS_NS {
 class ComputeSMDULSPHStress : public Compute {
  public:
   ComputeSMDULSPHStress(class LAMMPS *, int, char **);
-  ~ComputeSMDULSPHStress() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeSMDULSPHStress();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

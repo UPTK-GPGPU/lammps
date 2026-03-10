@@ -69,7 +69,9 @@ void ResetIDs::command(int narg, char **arg)
   while (iarg < narg) {
     if (strcmp(arg[iarg],"sort") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal reset_atom_ids command");
-      sortflag = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) sortflag = 1;
+      else if (strcmp(arg[iarg+1],"no") == 0) sortflag = 0;
+      else error->all(FLERR,"Illegal reset_atom_ids command");
       iarg += 2;
     } else error->all(FLERR,"Illegal reset_atom_ids command");
   }
@@ -386,7 +388,8 @@ void ResetIDs::sort()
 
   int *proclist;
   memory->create(proclist,nlocal,"special:proclist");
-  auto atombuf = (AtomRvous *) memory->smalloc((bigint) nlocal*sizeof(AtomRvous),"resetIDs:idbuf");
+  AtomRvous *atombuf = (AtomRvous *)
+    memory->smalloc((bigint) nlocal*sizeof(AtomRvous),"resetIDs:idbuf");
 
   int ibinx,ibiny,ibinz,iproc;
   bigint ibin;
@@ -412,9 +415,10 @@ void ResetIDs::sort()
   // perform rendezvous operation, send atombuf to other procs
 
   char *buf;
-  int nreturn = comm->rendezvous(1,nlocal,(char *) atombuf,sizeof(AtomRvous),0,proclist,
+  int nreturn = comm->rendezvous(1,nlocal,(char *) atombuf,sizeof(AtomRvous),
+                                 0,proclist,
                                  sort_bins,0,buf,sizeof(IDRvous),(void *) this);
-  auto outbuf = (IDRvous *) buf;
+  IDRvous *outbuf = (IDRvous *) buf;
 
   memory->destroy(proclist);
   memory->sfree(atombuf);
@@ -437,11 +441,13 @@ void ResetIDs::sort()
    outbuf = list of N IDRvous datums, sent back to sending proc
 ------------------------------------------------------------------------- */
 
-int ResetIDs::sort_bins(int n, char *inbuf, int &flag, int *&proclist, char *&outbuf, void *ptr)
+int ResetIDs::sort_bins(int n, char *inbuf,
+                        int &flag, int *&proclist, char *&outbuf,
+                        void *ptr)
 {
   int i,ibin,index;
 
-  auto rptr = (ResetIDs *) ptr;
+  ResetIDs *rptr = (ResetIDs *) ptr;
   Memory *memory = rptr->memory;
   Error *error = rptr->error;
   MPI_Comm world = rptr->world;
@@ -466,7 +472,7 @@ int ResetIDs::sort_bins(int n, char *inbuf, int &flag, int *&proclist, char *&ou
     count[ibin] = 0;
   }
 
-  auto in = (AtomRvous *) inbuf;
+  AtomRvous *in = (AtomRvous *) inbuf;
 
   for (i = 0; i < n; i++) {
     if (in[i].ibin < binlo || in[i].ibin >= binhi) {
@@ -526,7 +532,8 @@ int ResetIDs::sort_bins(int n, char *inbuf, int &flag, int *&proclist, char *&ou
 
   int nout = n;
   memory->create(proclist,nout,"resetIDs:proclist");
-  auto out = (IDRvous *) memory->smalloc(nout*sizeof(IDRvous),"resetIDs:out");
+  IDRvous *out = (IDRvous *)
+    memory->smalloc(nout*sizeof(IDRvous),"resetIDs:out");
 
   tagint one = nprev + 1;
   for (ibin = 0; ibin < nbins; ibin++) {
@@ -588,7 +595,7 @@ int compare_coords(const void *iptr, const void *jptr)
 
 int compare_coords(const int i, const int j, void *ptr)
 {
-  auto rvous = (ResetIDs::AtomRvous *) ptr;
+  ResetIDs::AtomRvous *rvous = (ResetIDs::AtomRvous *) ptr;
   double *xi = rvous[i].x;
   double *xj = rvous[j].x;
   if (xi[0] < xj[0]) return -1;

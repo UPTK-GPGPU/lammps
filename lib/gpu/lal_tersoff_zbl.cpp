@@ -62,6 +62,7 @@ int TersoffZT::init(const int ntypes, const int nlocal, const int nall,
   int oldparam=-1;
   int onetype=-1;
   int onetype3=0;
+  int spq=1;
   int mtypes=0;
   #ifdef USE_OPENCL
   for (int ii=1; ii<ntypes; ii++) {

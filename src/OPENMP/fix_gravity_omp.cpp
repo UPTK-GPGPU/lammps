@@ -30,6 +30,7 @@ using namespace LAMMPS_NS;
 using namespace FixConst;
 
 enum{CHUTE,SPHERICAL,GRADIENT,VECTOR};
+enum{CONSTANT,EQUAL};
 
 /* ---------------------------------------------------------------------- */
 

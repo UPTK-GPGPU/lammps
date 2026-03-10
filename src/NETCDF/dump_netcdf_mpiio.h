@@ -30,24 +30,25 @@ DumpStyle(netcdf/mpiio,DumpNetCDFMPIIO);
 
 namespace LAMMPS_NS {
 
+const int NC_MPIIO_FIELD_NAME_MAX = 100;
+const int DUMP_NC_MPIIO_MAX_DIMS = 100;
+
 class DumpNetCDFMPIIO : public DumpCustom {
  public:
   DumpNetCDFMPIIO(class LAMMPS *, int, char **);
-  ~DumpNetCDFMPIIO() override;
-  void write() override;
+  virtual ~DumpNetCDFMPIIO();
+  virtual void write();
 
  private:
-  static constexpr int NC_MPIIO_FIELD_NAME_MAX = 100;
-  static constexpr int DUMP_NC_MPIIO_MAX_DIMS = 100;
-
   // per-atoms quantities (positions, velocities, etc.)
   struct nc_perat_t {
     int dims;                              // number of dimensions
     int field[DUMP_NC_MPIIO_MAX_DIMS];     // field indices corresponding to the dim.
     char name[NC_MPIIO_FIELD_NAME_MAX];    // field name
     int var;                               // NetCDF variable
-    int quantity;                          // type of the quantity
   };
+
+  typedef void (DumpNetCDFMPIIO::*funcptr_t)(void *);
 
   int framei;    // current frame index
   int blocki;    // current block index
@@ -60,8 +61,8 @@ class DumpNetCDFMPIIO : public DumpCustom {
 
   int *thermovar;    // NetCDF variables for thermo output
 
-  int type_nc_real;    // netcdf type to use for real variables: float or double
-  bool thermo;         // write thermo output to netcdf file
+  bool double_precision;    // write everything as double precision
+  bool thermo;              // write thermo output to netcdf file
 
   bigint n_buffer;          // size of buffer
   bigint *int_buffer;       // buffer for passing data to netcdf
@@ -85,13 +86,13 @@ class DumpNetCDFMPIIO : public DumpCustom {
   int cell_lengths_var;
   int cell_angles_var;
 
-  void openfile() override;
+  virtual void openfile();
   void closefile();
   void write_time_and_cell();
-  void write_data(int, double *) override;
+  virtual void write_data(int, double *);
   void write_prmtop();
 
-  int modify_param(int, char **) override;
+  virtual int modify_param(int, char **);
 
   void ncerr(int, const char *, int);
 };

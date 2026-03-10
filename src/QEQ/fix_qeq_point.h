@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class FixQEqPoint : public FixQEq {
  public:
   FixQEqPoint(class LAMMPS *, int, char **);
-
-  void init() override;
-  void pre_force(int) override;
+  ~FixQEqPoint() {}
+  void init();
+  void pre_force(int);
 
  private:
   void init_matvec();

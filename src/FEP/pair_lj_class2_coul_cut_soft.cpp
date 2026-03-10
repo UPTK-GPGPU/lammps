@@ -14,17 +14,17 @@
 
 #include "pair_lj_class2_coul_cut_soft.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "error.h"
-#include "force.h"
-#include "math_const.h"
-#include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-
 #include <cmath>
 #include <cstring>
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "math_const.h"
+#include "memory.h"
+#include "error.h"
+
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -269,7 +269,7 @@ void PairLJClass2CoulCutSoft::init_style()
   if (!atom->q_flag)
     error->all(FLERR,"Pair style lj/class2/coul/cut/soft requires atom attribute q");
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 }
 
 /* ----------------------------------------------------------------------

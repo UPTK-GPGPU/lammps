@@ -345,8 +345,7 @@ class UnorderedMap {
       const impl_value_type tmp = impl_value_type();
       Kokkos::deep_copy(m_values, tmp);
     }
-    Kokkos::deep_copy(m_scalars, 0);
-    m_size = 0;
+    { Kokkos::deep_copy(m_scalars, 0); }
   }
 
   KOKKOS_INLINE_FUNCTION constexpr bool is_allocated() const {
@@ -394,9 +393,9 @@ class UnorderedMap {
   ///
   /// This method has undefined behavior when erasable() is true.
   ///
-  /// Note that this is <i>not</i> a device function; it cannot be called in
+  /// Note that this is not a device function; it cannot be called in
   /// a parallel kernel.  The value is not stored as a variable; it
-  /// must be computed. m_size is a mutable cache of that value.
+  /// must be computed.
   size_type size() const {
     if (capacity() == 0u) return 0u;
     if (modified()) {
@@ -420,13 +419,9 @@ class UnorderedMap {
   bool begin_erase() {
     bool result = !erasable();
     if (is_insertable_map && result) {
-      execution_space().fence(
-          "Kokkos::UnorderedMap::begin_erase: fence before setting erasable "
-          "flag");
+      execution_space().fence();
       set_flag(erasable_idx);
-      execution_space().fence(
-          "Kokkos::UnorderedMap::begin_erase: fence after setting erasable "
-          "flag");
+      execution_space().fence();
     }
     return result;
   }
@@ -434,12 +429,10 @@ class UnorderedMap {
   bool end_erase() {
     bool result = erasable();
     if (is_insertable_map && result) {
-      execution_space().fence(
-          "Kokkos::UnorderedMap::end_erase: fence before erasing");
+      execution_space().fence();
       Impl::UnorderedMapErase<declared_map_type> f(*this);
       f.apply();
-      execution_space().fence(
-          "Kokkos::UnorderedMap::end_erase: fence after erasing");
+      execution_space().fence();
       reset_flag(erasable_idx);
     }
     return result;

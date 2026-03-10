@@ -16,17 +16,15 @@
    Contributing authors: Axel Kohlmeyer (Temple U)
 ------------------------------------------------------------------------- */
 
+#include "omp_compat.h"
 #include "fix_nh_omp.h"
-
+#include <cmath>
 #include "atom.h"
 #include "compute.h"
 #include "domain.h"
 #include "error.h"
 #include "modify.h"
 
-#include <cmath>
-
-#include "omp_compat.h"
 using namespace LAMMPS_NS;
 using namespace FixConst;
 
@@ -233,7 +231,7 @@ void FixNHOMP::nh_v_press()
   const double factor0 = exp(-dt4*(omega_dot[0]+mtk_term2));
   const double factor1 = exp(-dt4*(omega_dot[1]+mtk_term2));
   const double factor2 = exp(-dt4*(omega_dot[2]+mtk_term2));
-  auto * _noalias const v = (dbl3_t *) atom->v[0];
+  dbl3_t * _noalias const v = (dbl3_t *) atom->v[0];
   const int * _noalias const mask = atom->mask;
   const int nlocal = (igroup == atom->firstgroup) ? atom->nfirst : atom->nlocal;
 
@@ -285,8 +283,8 @@ void FixNHOMP::nh_v_press()
 
 void FixNHOMP::nve_v()
 {
-  auto * _noalias const v = (dbl3_t *) atom->v[0];
-  const auto * _noalias const f = (dbl3_t *) atom->f[0];
+  dbl3_t * _noalias const v = (dbl3_t *) atom->v[0];
+  const dbl3_t * _noalias const f = (dbl3_t *) atom->f[0];
   const int * _noalias const mask = atom->mask;
   const int nlocal = (igroup == atom->firstgroup) ? atom->nfirst : atom->nlocal;
 
@@ -326,8 +324,8 @@ void FixNHOMP::nve_v()
 
 void FixNHOMP::nve_x()
 {
-  auto * _noalias const x = (dbl3_t *) atom->x[0];
-  const auto * _noalias const v = (dbl3_t *) atom->v[0];
+  dbl3_t * _noalias const x = (dbl3_t *) atom->x[0];
+  const dbl3_t * _noalias const v = (dbl3_t *) atom->v[0];
   const int * _noalias const mask = atom->mask;
   const int nlocal = (igroup == atom->firstgroup) ? atom->nfirst : atom->nlocal;
 
@@ -350,7 +348,7 @@ void FixNHOMP::nve_x()
 
 void FixNHOMP::nh_v_temp()
 {
-  auto * _noalias const v = (dbl3_t *) atom->v[0];
+  dbl3_t * _noalias const v = (dbl3_t *) atom->v[0];
   const int * _noalias const mask = atom->mask;
   const int nlocal = (igroup == atom->firstgroup) ? atom->nfirst : atom->nlocal;
 

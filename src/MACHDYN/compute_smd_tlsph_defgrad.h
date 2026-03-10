@@ -38,10 +38,10 @@ namespace LAMMPS_NS {
 class ComputeSMDTLSPHDefgrad : public Compute {
  public:
   ComputeSMDTLSPHDefgrad(class LAMMPS *, int, char **);
-  ~ComputeSMDTLSPHDefgrad() override;
-  void init() override;
-  void compute_peratom() override;
-  double memory_usage() override;
+  ~ComputeSMDTLSPHDefgrad();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
  private:
   int nmax;

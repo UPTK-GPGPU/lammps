@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class PairAIREBOMorse : public PairAIREBO {
  public:
   PairAIREBOMorse(class LAMMPS *);
-  void settings(int, char **) override;
+  void settings(int, char **);
 };
 
 }    // namespace LAMMPS_NS

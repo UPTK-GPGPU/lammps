@@ -27,10 +27,10 @@ namespace LAMMPS_NS {
 class PairBrownianPoly : public PairBrownian {
  public:
   PairBrownianPoly(class LAMMPS *);
-
-  void compute(int, int) override;
-  double init_one(int, int) override;
-  void init_style() override;
+  ~PairBrownianPoly() {}
+  void compute(int, int);
+  double init_one(int, int);
+  void init_style();
 };
 
 }    // namespace LAMMPS_NS

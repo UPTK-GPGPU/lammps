@@ -23,15 +23,15 @@ class PythonImpl : protected Pointers, public PythonInterface {
 
  public:
   PythonImpl(class LAMMPS *);
-  ~PythonImpl() override;
-  void command(int, char **) override;
-  void invoke_function(int, char *) override;
-  int find(const char *) override;
-  int variable_match(const char *, const char *, int) override;
-  char *long_string(int) override;
-  int execute_string(char *) override;
-  int execute_file(char *) override;
-  bool has_minimum_version(int major, int minor) override;
+  ~PythonImpl();
+  void command(int, char **);
+  void invoke_function(int, char *);
+  int find(const char *);
+  int variable_match(const char *, const char *, int);
+  char *long_string(int);
+  int execute_string(char *);
+  int execute_file(char *);
+  bool has_minimum_version(int major, int minor);
   static void finalize();
 
  private:

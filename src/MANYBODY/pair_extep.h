@@ -30,12 +30,12 @@ namespace LAMMPS_NS {
 class PairExTeP : public Pair {
  public:
   PairExTeP(class LAMMPS *);
-  ~PairExTeP() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
-  void init_style() override;
-  double init_one(int, int) override;
+  virtual ~PairExTeP();
+  virtual void compute(int, int);
+  void settings(int, char **);
+  void coeff(int, char **);
+  void init_style();
+  double init_one(int, int);
 
  protected:
   struct Param {
@@ -70,7 +70,7 @@ class PairExTeP : public Pair {
   void allocate();
   void spline_init();
   virtual void read_file(char *);
-  void setup() override;
+  virtual void setup();
   virtual void repulsive(Param *, double, double &, int, double &);
   virtual double zeta(Param *, double, double, double *, double *);
   virtual void force_zeta(Param *, double, double, double &, double &, int, double &);

@@ -29,17 +29,19 @@
 
 #include "pair_smd_hertz.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "domain.h"
-#include "error.h"
-#include "force.h"
-#include "memory.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-
 #include <cmath>
+
 #include <cstring>
+#include "atom.h"
+#include "domain.h"
+#include "force.h"
+#include "comm.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "neigh_request.h"
+#include "memory.h"
+#include "error.h"
+
 
 using namespace LAMMPS_NS;
 
@@ -327,7 +329,8 @@ void PairHertz::init_style() {
         if (!atom->contact_radius_flag)
                 error->all(FLERR, "Pair style smd/hertz requires atom style with contact_radius");
 
-        neighbor->add_request(this, NeighConst::REQ_SIZE);
+        int irequest = neighbor->request(this);
+        neighbor->requests[irequest]->size = 1;
 
         // set maxrad_dynamic and maxrad_frozen for each type
         // include future Fix pour particles as dynamic

@@ -94,7 +94,7 @@ void RanPark::reset(int ibase, double *coord)
 {
   int i;
 
-  auto str = (char *) &ibase;
+  char *str = (char *) &ibase;
   int n = sizeof(int);
 
   unsigned int hash = 0;

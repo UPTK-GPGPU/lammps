@@ -31,11 +31,11 @@ class PairEAMIntel : public PairEAM {
   friend class FixSemiGrandCanonicalMC;    // Alex Stukowski option
 
   PairEAMIntel(class LAMMPS *);
-  ~PairEAMIntel() override;
-  void compute(int, int) override;
-  void init_style() override;
-  int pack_forward_comm(int, int *, double *, int, int *) override;
-  void unpack_forward_comm(int, int, double *) override;
+  virtual ~PairEAMIntel();
+  virtual void compute(int, int);
+  void init_style();
+  int pack_forward_comm(int, int *, double *, int, int *);
+  void unpack_forward_comm(int, int, double *);
 
  protected:
   FixIntel *fix;

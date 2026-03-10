@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class VerletSplit : public Verlet {
  public:
   VerletSplit(class LAMMPS *, int, char **);
-  ~VerletSplit() override;
-  void init() override;
-  void setup(int) override;
-  void setup_minimal(int) override;
-  void run(int) override;
-  double memory_usage() override;
+  ~VerletSplit();
+  void init();
+  void setup(int);
+  void setup_minimal(int);
+  void run(int);
+  double memory_usage();
 
  private:
   int master;                            // 1 if an Rspace proc, 0 if Kspace

@@ -34,8 +34,11 @@ class PairPeriLPSOMP : public PairPeriLPS, public ThrOMP {
  public:
   PairPeriLPSOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
+
+ protected:
+  void compute_dilatation_thr(int ifrom, int ito);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_PAIR>

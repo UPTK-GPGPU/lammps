@@ -27,11 +27,11 @@ namespace LAMMPS_NS {
 class PairGayBerneGPU : public PairGayBerne {
  public:
   PairGayBerneGPU(LAMMPS *lmp);
-  ~PairGayBerneGPU() override;
+  ~PairGayBerneGPU();
   void cpu_compute(int, int, int, int, int *, int *, int **);
-  void compute(int, int) override;
-  void init_style() override;
-  double memory_usage() override;
+  void compute(int, int);
+  void init_style();
+  double memory_usage();
 
   enum { GPU_FORCE, GPU_NEIGH, GPU_HYB_NEIGH };
 

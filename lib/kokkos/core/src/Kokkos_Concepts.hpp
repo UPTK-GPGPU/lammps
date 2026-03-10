@@ -180,23 +180,20 @@ KOKKOS_IMPL_IS_CONCEPT(work_item_property)
 
 namespace Impl {
 
-#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_3
 // For backward compatibility:
 
-template <typename T>
-using is_array_layout KOKKOS_DEPRECATED = Kokkos::is_array_layout<T>;
-template <typename T>
-using is_execution_policy KOKKOS_DEPRECATED = Kokkos::is_execution_policy<T>;
-template <typename T>
-using is_execution_space KOKKOS_DEPRECATED = Kokkos::is_execution_space<T>;
-template <typename T>
-using is_memory_space KOKKOS_DEPRECATED = Kokkos::is_memory_space<T>;
-template <typename T>
-using is_memory_traits KOKKOS_DEPRECATED = Kokkos::is_memory_traits<T>;
-#endif
+using Kokkos::is_array_layout;
+using Kokkos::is_execution_policy;
+using Kokkos::is_execution_space;
+using Kokkos::is_memory_space;
+using Kokkos::is_memory_traits;
 
 // Implementation concept:
 
+KOKKOS_IMPL_IS_CONCEPT(iteration_pattern)
+KOKKOS_IMPL_IS_CONCEPT(schedule_type)
+KOKKOS_IMPL_IS_CONCEPT(index_type)
+KOKKOS_IMPL_IS_CONCEPT(launch_bounds)
 KOKKOS_IMPL_IS_CONCEPT(thread_team_member)
 KOKKOS_IMPL_IS_CONCEPT(host_thread_team_member)
 KOKKOS_IMPL_IS_CONCEPT(graph_kernel)
@@ -333,65 +330,42 @@ struct is_space {
   // For backward compatibility, deprecated in favor of
   // Kokkos::Impl::HostMirror<S>::host_mirror_space
 
- private:
-  // The actual definitions for host_memory_space and host_execution_spaces are
-  // in do_not_use_host_memory_space and do_not_use_host_execution_space to be
-  // able to use them within this class without deprecation warnings.
-  using do_not_use_host_memory_space = std::conditional_t<
+  using host_memory_space = typename std::conditional<
       std::is_same<memory_space, Kokkos::HostSpace>::value
 #if defined(KOKKOS_ENABLE_CUDA)
           || std::is_same<memory_space, Kokkos::CudaUVMSpace>::value ||
           std::is_same<memory_space, Kokkos::CudaHostPinnedSpace>::value
-#elif defined(KOKKOS_ENABLE_HIP)
-          || std::is_same<memory_space,
-                          Kokkos::Experimental::HIPHostPinnedSpace>::value
-#elif defined(KOKKOS_ENABLE_SYCL)
-          || std::is_same<memory_space,
-                          Kokkos::Experimental::SYCLSharedUSMSpace>::value ||
-          std::is_same<memory_space,
-                       Kokkos::Experimental::SYCLHostUSMSpace>::value
-#endif
+#endif /* #if defined( KOKKOS_ENABLE_CUDA ) */
       ,
-      memory_space, Kokkos::HostSpace>;
+      memory_space, Kokkos::HostSpace>::type;
 
-  using do_not_use_host_execution_space = std::conditional_t<
 #if defined(KOKKOS_ENABLE_CUDA)
-      std::is_same<execution_space, Kokkos::Cuda>::value ||
-#elif defined(KOKKOS_ENABLE_HIP)
-      std::is_same<execution_space, Kokkos::Experimental::HIP>::value ||
-#elif defined(KOKKOS_ENABLE_SYCL)
-      std::is_same<execution_space, Kokkos::Experimental::SYCL>::value ||
-#elif defined(KOKKOS_ENABLE_OPENMPTARGET)
-      std::is_same<execution_space,
-                   Kokkos::Experimental::OpenMPTarget>::value ||
+  using host_execution_space = typename std::conditional<
+      std::is_same<execution_space, Kokkos::Cuda>::value,
+      Kokkos::DefaultHostExecutionSpace, execution_space>::type;
+#else
+#if defined(KOKKOS_ENABLE_OPENMPTARGET)
+  using host_execution_space = typename std::conditional<
+      std::is_same<execution_space, Kokkos::Experimental::OpenMPTarget>::value,
+      Kokkos::DefaultHostExecutionSpace, execution_space>::type;
+#else
+  using host_execution_space = execution_space;
 #endif
-          false,
-      Kokkos::DefaultHostExecutionSpace, execution_space>;
+#endif
 
- public:
-#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_3
-  using host_memory_space KOKKOS_DEPRECATED = do_not_use_host_memory_space;
-  using host_execution_space KOKKOS_DEPRECATED =
-      do_not_use_host_execution_space;
-  using host_mirror_space KOKKOS_DEPRECATED = std::conditional_t<
-      std::is_same<execution_space, do_not_use_host_execution_space>::value &&
-          std::is_same<memory_space, do_not_use_host_memory_space>::value,
-      T,
-      Kokkos::Device<do_not_use_host_execution_space,
-                     do_not_use_host_memory_space>>;
-#endif
+  using host_mirror_space = typename std::conditional<
+      std::is_same<execution_space, host_execution_space>::value &&
+          std::is_same<memory_space, host_memory_space>::value,
+      T, Kokkos::Device<host_execution_space, host_memory_space>>::type;
 };
 
-#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_3
 // For backward compatibility
 
 namespace Impl {
 
-template <typename T>
-using is_space KOKKOS_DEPRECATED = Kokkos::is_space<T>;
+using Kokkos::is_space;
 
 }
-#endif
 
 }  // namespace Kokkos
 
@@ -511,18 +485,13 @@ struct SpaceAccessibility {
 
 }  // namespace Kokkos
 
-#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_3
 namespace Kokkos {
 namespace Impl {
 
-// For backward compatibility
-template <typename AccessSpace, typename MemorySpace>
-using SpaceAccessibility KOKKOS_DEPRECATED =
-    Kokkos::SpaceAccessibility<AccessSpace, MemorySpace>;
+using Kokkos::SpaceAccessibility;  // For backward compatibility
 
-}  // namespace Impl
+}
 }  // namespace Kokkos
-#endif
 
 //----------------------------------------------------------------------------
 

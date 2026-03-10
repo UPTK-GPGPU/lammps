@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeDihedral : public Compute {
  public:
   ComputeDihedral(class LAMMPS *, int, char **);
-  ~ComputeDihedral() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeDihedral();
+  void init();
+  void compute_vector();
 
  private:
   int nsub;

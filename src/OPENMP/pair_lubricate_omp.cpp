@@ -47,6 +47,11 @@ PairLubricateOMP::PairLubricateOMP(LAMMPS *lmp) :
 
 /* ---------------------------------------------------------------------- */
 
+PairLubricateOMP::~PairLubricateOMP()
+{}
+
+/* ---------------------------------------------------------------------- */
+
 void PairLubricateOMP::compute(int eflag, int vflag)
 {
   ev_init(eflag,vflag);
@@ -219,7 +224,7 @@ void PairLubricateOMP::eval(int iifrom, int iito, ThrData * const thr)
 #if defined(_OPENMP)
 #pragma omp master
 #endif
-    { comm->forward_comm(this); }
+    { comm->forward_comm_pair(this); }
 
     sync_threads();
   }

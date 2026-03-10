@@ -84,7 +84,7 @@ PairSRP::PairSRP(LAMMPS *lmp) : Pair(lmp), fix_id(nullptr)
   //   will be invoked before other fixes that migrate atoms
   //   this is checked for in FixSRP
 
-  f_srp = dynamic_cast<FixSRP *>( modify->add_fix(fmt::format("{:02d}_FIX_SRP all SRP",srp_instance)));
+  f_srp = (FixSRP *) modify->add_fix(fmt::format("{:02d}_FIX_SRP all SRP",srp_instance));
   ++srp_instance;
 }
 
@@ -378,8 +378,12 @@ void PairSRP::settings(int narg, char **arg)
   while (iarg < narg) {
     if (strcmp(arg[iarg],"exclude") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal pair srp command");
-      exclude = utils::logical(FLERR, arg[iarg+1], false, lmp);
-      if (min && !exclude) error->all(FLERR,"Illegal exclude option in pair srp command");
+      if (strcmp(arg[iarg+1],"yes") == 0)
+        exclude = 1;
+      if (strcmp(arg[iarg+1],"no") == 0) {
+        if (min) error->all(FLERR,"Illegal exclude option in pair srp command");
+        exclude = 0;
+      }
       iarg += 2;
     } else if (strcmp(arg[iarg],"bptype") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal pair srp command");
@@ -471,13 +475,16 @@ void PairSRP::init_style()
   // bond particles do not belong to group all
   // but thermo normalization is by nall
   // therefore should turn off normalization
+  int me;
+  MPI_Comm_rank(world,&me);
   char *arg1[2];
   arg1[0] = (char *) "norm";
   arg1[1] = (char *) "no";
   output->thermo->modify_params(2, arg1);
-  if (comm->me == 0) error->message(FLERR,"Thermo normalization turned off by pair srp");
+  if (me == 0)
+    error->message(FLERR,"Thermo normalization turned off by pair srp");
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 }
 
 /* ----------------------------------------------------------------------

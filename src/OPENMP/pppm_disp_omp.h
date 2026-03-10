@@ -28,31 +28,31 @@ namespace LAMMPS_NS {
 class PPPMDispOMP : public PPPMDisp, public ThrOMP {
  public:
   PPPMDispOMP(class LAMMPS *);
-  ~PPPMDispOMP() override;
-  void compute(int, int) override;
+  virtual ~PPPMDispOMP();
+  virtual void compute(int, int);
 
  protected:
-  void allocate() override;
+  virtual void allocate();
 
   virtual void compute_gf();
   virtual void compute_gf_6();
 
-  void particle_map(double, double, double, double, int **, int, int, int, int, int, int,
-                            int, int) override;
+  virtual void particle_map(double, double, double, double, int **, int, int, int, int, int, int,
+                            int, int);
 
-  void fieldforce_c_ik() override;
-  void fieldforce_c_ad() override;
-  void fieldforce_c_peratom() override;
-  void fieldforce_g_ik() override;
-  void fieldforce_g_ad() override;
-  void fieldforce_g_peratom() override;
-  void fieldforce_a_ik() override;
-  void fieldforce_a_ad() override;
-  void fieldforce_a_peratom() override;
+  virtual void fieldforce_c_ik();
+  virtual void fieldforce_c_ad();
+  virtual void fieldforce_c_peratom();
+  virtual void fieldforce_g_ik();
+  virtual void fieldforce_g_ad();
+  virtual void fieldforce_g_peratom();
+  virtual void fieldforce_a_ik();
+  virtual void fieldforce_a_ad();
+  virtual void fieldforce_a_peratom();
 
-  void make_rho_c() override;
-  void make_rho_g() override;
-  void make_rho_a() override;
+  virtual void make_rho_c();
+  virtual void make_rho_g();
+  virtual void make_rho_a();
 
   void compute_rho1d_thr(FFT_SCALAR *const *const, const FFT_SCALAR &, const FFT_SCALAR &,
                          const FFT_SCALAR &, const int, FFT_SCALAR *const *const);

@@ -27,6 +27,7 @@ namespace LAMMPS_NS {
 class FixTGNPTDrude : public FixTGNHDrude {
  public:
   FixTGNPTDrude(class LAMMPS *, int, char **);
+  ~FixTGNPTDrude() {}
 };
 
 }    // namespace LAMMPS_NS

@@ -28,10 +28,10 @@ class PairLJClass2CoulLongCS : public PairLJClass2CoulLong {
 
  public:
   PairLJClass2CoulLongCS(class LAMMPS *);
-  void compute(int, int) override;
-  void compute_inner() override;
-  void compute_middle() override;
-  void compute_outer(int, int) override;
+  virtual void compute(int, int);
+  void compute_inner();
+  void compute_middle();
+  void compute_outer(int, int);
 };
 
 }    // namespace LAMMPS_NS

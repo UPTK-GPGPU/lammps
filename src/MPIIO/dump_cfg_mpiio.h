@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class DumpCFGMPIIO : public DumpCFG {
  public:
   DumpCFGMPIIO(class LAMMPS *, int, char **);
-  ~DumpCFGMPIIO() override;
+  virtual ~DumpCFGMPIIO();
 
  protected:
   bigint
@@ -43,11 +43,11 @@ class DumpCFGMPIIO : public DumpCFG {
   int convert_string_omp(int, double *);    // multithreaded version of convert_string
 #endif
 
-  void openfile() override;
-  void init_style() override;
-  void write_header(bigint) override;
-  void write() override;
-  void write_data(int, double *) override;
+  virtual void openfile();
+  virtual void init_style();
+  virtual void write_header(bigint);
+  virtual void write();
+  virtual void write_data(int, double *);
 
   typedef void (DumpCFGMPIIO::*FnPtrData)(int, double *);
   FnPtrData write_choice;    // ptr to write data functions

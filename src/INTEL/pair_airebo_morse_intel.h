@@ -32,7 +32,7 @@ namespace LAMMPS_NS {
 class PairAIREBOMorseIntel : public PairAIREBOIntel {
  public:
   PairAIREBOMorseIntel(class LAMMPS *);
-  void settings(int, char **) override;
+  virtual void settings(int, char **);
 };
 
 }    // namespace LAMMPS_NS

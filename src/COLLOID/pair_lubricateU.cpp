@@ -18,24 +18,24 @@
 
 #include "pair_lubricateU.h"
 
-#include "atom.h"
-#include "comm.h"
-#include "domain.h"
-#include "error.h"
-#include "fix.h"
-#include "fix_wall.h"
-#include "force.h"
-#include "input.h"
-#include "math_const.h"
-#include "memory.h"
-#include "modify.h"
-#include "neigh_list.h"
-#include "neighbor.h"
-#include "update.h"
-#include "variable.h"
-
 #include <cmath>
 #include <cstring>
+#include "atom.h"
+#include "comm.h"
+#include "force.h"
+#include "neighbor.h"
+#include "neigh_list.h"
+#include "domain.h"
+#include "update.h"
+#include "math_const.h"
+#include "modify.h"
+#include "fix.h"
+#include "fix_wall.h"
+#include "input.h"
+#include "variable.h"
+#include "memory.h"
+#include "error.h"
+
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -249,7 +249,7 @@ void PairLubricateU::stage_one()
 
   // set velocities for ghost particles
 
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 
   // Find initial residual
 
@@ -284,7 +284,7 @@ void PairLubricateU::stage_one()
 
     // set velocities for ghost particles
 
-    comm->forward_comm(this);
+    comm->forward_comm_pair(this);
 
     compute_RU();
 
@@ -343,7 +343,7 @@ void PairLubricateU::stage_one()
 
   // set velocities for ghost particles
 
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 
   // Find actual particle's velocities from relative velocities
   // Only non-zero component of fluid's vel : vx=gdot*y and wz=-gdot/2
@@ -433,7 +433,7 @@ void PairLubricateU::stage_two(double **x)
 
   // set velocities for ghost particles
 
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 
   // Find initial residual
 
@@ -468,7 +468,7 @@ void PairLubricateU::stage_two(double **x)
 
     // set velocities for ghost particles
 
-    comm->forward_comm(this);
+    comm->forward_comm_pair(this);
 
     compute_RU(x);
 
@@ -527,7 +527,7 @@ void PairLubricateU::stage_two(double **x)
 
   // set velocities for ghost particles
 
-  comm->forward_comm(this);
+  comm->forward_comm_pair(this);
 
   // Compute the viscosity/pressure
 
@@ -1769,7 +1769,7 @@ void PairLubricateU::init_style()
   if (comm->ghost_velocity == 0)
     error->all(FLERR,"Pair lubricateU requires ghost atoms store velocity");
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 
   // require that atom radii are identical within each type
   // require monodisperse system with same radii for all types
@@ -1801,7 +1801,7 @@ void PairLubricateU::init_style()
                    "Cannot use multiple fix wall commands with "
                    "pair lubricateU");
       flagwall = 1; // Walls exist
-      wallfix = dynamic_cast<FixWall *>( modify->fix[i]);
+      wallfix = (FixWall *) modify->fix[i];
       if (wallfix->xflag) flagwall = 2; // Moving walls exist
     }
   }

@@ -20,47 +20,47 @@
 
 from __future__ import print_function
 
-import io
 import os
 import re
-import sys
-import tempfile
+import select
 from collections import namedtuple
 
 from .core import lammps
 
-# -------------------------------------------------------------------------
 
 class OutputCapture(object):
   """ Utility class to capture LAMMPS library output """
+
   def __init__(self):
+    self.stdout_pipe_read, self.stdout_pipe_write = os.pipe()
     self.stdout_fd = 1
-    self.captured_output = ""
 
   def __enter__(self):
-    self.tmpfile = tempfile.TemporaryFile(mode='w+b')
-
-    sys.stdout.flush()
-
-    # make copy of original stdout
-    self.stdout_orig = os.dup(self.stdout_fd)
-
-    # replace stdout and redirect to temp file
-    os.dup2(self.tmpfile.fileno(), self.stdout_fd)
+    self.stdout = os.dup(self.stdout_fd)
+    os.dup2(self.stdout_pipe_write, self.stdout_fd)
     return self
 
   def __exit__(self, exc_type, exc_value, traceback):
-    os.dup2(self.stdout_orig, self.stdout_fd)
-    os.close(self.stdout_orig)
-    self.tmpfile.close()
+    os.dup2(self.stdout, self.stdout_fd)
+    os.close(self.stdout)
+    os.close(self.stdout_pipe_read)
+    os.close(self.stdout_pipe_write)
+
+  # check if we have more to read from the pipe
+  def more_data(self, pipe):
+    r, _, _ = select.select([pipe], [], [], 0)
+    return bool(r)
+
+  # read the whole pipe
+  def read_pipe(self, pipe):
+    out = ""
+    while self.more_data(pipe):
+      out += os.read(pipe, 1024).decode()
+    return out
 
   @property
   def output(self):
-    sys.stdout.flush()
-    self.tmpfile.flush()
-    self.tmpfile.seek(0, io.SEEK_SET)
-    self.captured_output = self.tmpfile.read().decode('utf-8')
-    return self.captured_output
+    return self.read_pipe(self.stdout_pipe_read)
 
 # -------------------------------------------------------------------------
 
@@ -109,9 +109,9 @@ class AtomList(object):
     """
     if index not in self._loaded:
         if self.dimensions == 2:
-            atom = Atom2D(self._pylmp, index)
+            atom = Atom2D(self._pylmp, index + 1)
         else:
-            atom = Atom(self._pylmp, index)
+            atom = Atom(self._pylmp, index + 1)
         self._loaded[index] = atom
     return self._loaded[index]
 
@@ -134,12 +134,6 @@ class Atom(object):
   def __dir__(self):
     return [k for k in super().__dir__() if not k.startswith('_')]
 
-  def get(self, name, index):
-    prop = self._pylmp.lmp.numpy.extract_atom(name)
-    if prop is not None:
-      return prop[index]
-    return None
-
   @property
   def id(self):
     """
@@ -147,7 +141,7 @@ class Atom(object):
 
     :type: int
     """
-    return self.get("id", self.index)
+    return int(self._pylmp.eval("id[%d]" % self.index))
 
   @property
   def type(self):
@@ -156,7 +150,7 @@ class Atom(object):
 
     :type: int
     """
-    return self.get("type", self.index)
+    return int(self._pylmp.eval("type[%d]" % self.index))
 
   @property
   def mol(self):
@@ -165,7 +159,7 @@ class Atom(object):
 
     :type: int
     """
-    return self.get("mol", self.index)
+    return self._pylmp.eval("mol[%d]" % self.index)
 
   @property
   def mass(self):
@@ -174,114 +168,52 @@ class Atom(object):
 
     :type: float
     """
-    return self.get("mass", self.index)
-
-  @property
-  def radius(self):
-    """
-    Return the particle radius
-
-    :type: float
-    """
-    return self.get("radius", self.index)
+    return self._pylmp.eval("mass[%d]" % self.index)
 
   @property
   def position(self):
     """
     :getter: Return position of atom
     :setter: Set position of atom
-    :type: numpy.array (float, float, float)
+    :type: tuple (float, float, float)
     """
-    return self.get("x", self.index)
+    return (self._pylmp.eval("x[%d]" % self.index),
+            self._pylmp.eval("y[%d]" % self.index),
+            self._pylmp.eval("z[%d]" % self.index))
 
   @position.setter
   def position(self, value):
-    current = self.position
-    current[:] = value
-
-  @property
-  def velocity(self):
     """
     :getter: Return velocity of atom
     :setter: Set velocity of atom
-    :type: numpy.array (float, float, float)
+    :type: tuple (float, float, float)
     """
-    return self.get("v", self.index)
+    self._pylmp.set("atom", self.index, "x", value[0])
+    self._pylmp.set("atom", self.index, "y", value[1])
+    self._pylmp.set("atom", self.index, "z", value[2])
+
+  @property
+  def velocity(self):
+    return (self._pylmp.eval("vx[%d]" % self.index),
+            self._pylmp.eval("vy[%d]" % self.index),
+            self._pylmp.eval("vz[%d]" % self.index))
 
   @velocity.setter
   def velocity(self, value):
-    current = self.velocity
-    current[:] = value
+     self._pylmp.set("atom", self.index, "vx", value[0])
+     self._pylmp.set("atom", self.index, "vy", value[1])
+     self._pylmp.set("atom", self.index, "vz", value[2])
 
   @property
   def force(self):
     """
     Return the total force acting on the atom
 
-    :type: numpy.array (float, float, float)
+    :type: tuple (float, float, float)
     """
-    return self.get("f", self.index)
-
-  @force.setter
-  def force(self, value):
-    current = self.force
-    current[:] = value
-
-  @property
-  def torque(self):
-    """
-    Return the total torque acting on the atom
-
-    :type: numpy.array (float, float, float)
-    """
-    return self.get("torque", self.index)
-
-  @force.setter
-  def torque(self, value):
-    current = self.torque
-    current[:] = value
-
-  @property
-  def omega(self):
-    """
-    Return the rotational velocity of the particle
-
-    :type: numpy.array (float, float, float)
-    """
-    return self.get("torque", self.index)
-
-  @omega.setter
-  def omega(self, value):
-    current = self.torque
-    current[:] = value
-
-  @property
-  def torque(self):
-    """
-    Return the total torque acting on the particle
-
-    :type: numpy.array (float, float, float)
-    """
-    return self.get("torque", self.index)
-
-  @torque.setter
-  def torque(self, value):
-    current = self.torque
-    current[:] = value
-
-  @property
-  def angular_momentum(self):
-    """
-    Return the angular momentum of the particle
-
-    :type: numpy.array (float, float, float)
-    """
-    return self.get("angmom", self.index)
-
-  @angular_momentum.setter
-  def angular_momentum(self, value):
-    current = self.angular_momentum
-    current[:] = value
+    return (self._pylmp.eval("fx[%d]" % self.index),
+            self._pylmp.eval("fy[%d]" % self.index),
+            self._pylmp.eval("fz[%d]" % self.index))
 
   @property
   def charge(self):
@@ -290,7 +222,7 @@ class Atom(object):
 
     :type: float
     """
-    return self.get("q", self.index)
+    return self._pylmp.eval("q[%d]" % self.index)
 
 # -------------------------------------------------------------------------
 
@@ -312,42 +244,39 @@ class Atom2D(Atom):
 
     :getter: Return position of atom
     :setter: Set position of atom
-    :type: numpy.array (float, float)
+    :type: tuple (float, float)
     """
-    return super(Atom2D, self).position[0:2]
+    return (self._pylmp.eval("x[%d]" % self.index),
+            self._pylmp.eval("y[%d]" % self.index))
 
   @position.setter
   def position(self, value):
-    current = self.position
-    current[:] = value
+     self._pylmp.set("atom", self.index, "x", value[0])
+     self._pylmp.set("atom", self.index, "y", value[1])
 
   @property
   def velocity(self):
     """Access to velocity of an atom
     :getter: Return velocity of atom
     :setter: Set velocity of atom
-    :type: numpy.array (float, float)
+    :type: tuple (float, float)
     """
-    return super(Atom2D, self).velocity[0:2]
+    return (self._pylmp.eval("vx[%d]" % self.index),
+            self._pylmp.eval("vy[%d]" % self.index))
 
   @velocity.setter
   def velocity(self, value):
-    current = self.velocity
-    current[:] = value
+     self._pylmp.set("atom", self.index, "vx", value[0])
+     self._pylmp.set("atom", self.index, "vy", value[1])
 
   @property
   def force(self):
     """Access to force of an atom
-    :getter: Return force of atom
-    :setter: Set force of atom
-    :type: numpy.array (float, float)
-    """
-    return super(Atom2D, self).force[0:2]
 
-  @force.setter
-  def force(self, value):
-    current = self.force
-    current[:] = value
+    :type: tuple (float, float)
+    """
+    return (self._pylmp.eval("fx[%d]" % self.index),
+            self._pylmp.eval("fy[%d]" % self.index))
 
 # -------------------------------------------------------------------------
 
@@ -612,8 +541,7 @@ class PyLammps(object):
     :getter: Returns an object with properties storing the current system state
     :type: namedtuple
     """
-    output = self.lmp_info("system")
-    output = output[output.index("System information:")+1:]
+    output = self.info("system")
     d = self._parse_info_system(output)
     return namedtuple('System', d.keys())(*d.values())
 
@@ -625,8 +553,7 @@ class PyLammps(object):
     :getter: Returns an object with properties storing the current communication state
     :type: namedtuple
     """
-    output = self.lmp_info("communication")
-    output = output[output.index("Communication information:")+1:]
+    output = self.info("communication")
     d = self._parse_info_communication(output)
     return namedtuple('Communication', d.keys())(*d.values())
 
@@ -638,8 +565,7 @@ class PyLammps(object):
     :getter: Returns a list of computes that are currently active in this LAMMPS instance
     :type: list
     """
-    output = self.lmp_info("computes")
-    output = output[output.index("Compute information:")+1:]
+    output = self.info("computes")
     return self._parse_element_list(output)
 
   @property
@@ -650,8 +576,7 @@ class PyLammps(object):
     :getter: Returns a list of dumps that are currently active in this LAMMPS instance
     :type: list
     """
-    output = self.lmp_info("dumps")
-    output = output[output.index("Dump information:")+1:]
+    output = self.info("dumps")
     return self._parse_element_list(output)
 
   @property
@@ -662,8 +587,7 @@ class PyLammps(object):
     :getter: Returns a list of fixes that are currently active in this LAMMPS instance
     :type: list
     """
-    output = self.lmp_info("fixes")
-    output = output[output.index("Fix information:")+1:]
+    output = self.info("fixes")
     return self._parse_element_list(output)
 
   @property
@@ -674,8 +598,7 @@ class PyLammps(object):
     :getter: Returns a list of atom groups that are currently active in this LAMMPS instance
     :type: list
     """
-    output = self.lmp_info("groups")
-    output = output[output.index("Group information:")+1:]
+    output = self.info("groups")
     return self._parse_groups(output)
 
   @property
@@ -686,12 +609,11 @@ class PyLammps(object):
     :getter: Returns a dictionary of all variables that are defined in this LAMMPS instance
     :type: dict
     """
-    output = self.lmp_info("variables")
-    output = output[output.index("Variable information:")+1:]
-    variables = {}
+    output = self.info("variables")
+    vars = {}
     for v in self._parse_element_list(output):
-      variables[v['name']] = Variable(self, v['name'], v['style'], v['def'])
-    return variables
+      vars[v['name']] = Variable(self, v['name'], v['style'], v['def'])
+    return vars
 
   def eval(self, expr):
     """
@@ -716,9 +638,10 @@ class PyLammps(object):
     return [x.strip() for x in value.split('=')]
 
   def _parse_info_system(self, output):
+    lines = output[5:-2]
     system = {}
 
-    for line in output:
+    for line in lines:
       if line.startswith("Units"):
         system['units'] = self._get_pair(line)[1]
       elif line.startswith("Atom style"):
@@ -776,9 +699,10 @@ class PyLammps(object):
     return system
 
   def _parse_info_communication(self, output):
+    lines = output[5:-3]
     comm = {}
 
-    for line in output:
+    for line in lines:
       if line.startswith("MPI library"):
         comm['mpi_version'] = line.split(':')[1].strip()
       elif line.startswith("Comm style"):
@@ -796,10 +720,10 @@ class PyLammps(object):
     return comm
 
   def _parse_element_list(self, output):
+    lines = output[5:-3]
     elements = []
 
-    for line in output:
-      if not line or (":" not in line): continue
+    for line in lines:
       element_info = self._split_values(line.split(':')[1].strip())
       element = {'name': element_info[0]}
       for key, value in [self._get_pair(x) for x in element_info[1:]]:
@@ -808,10 +732,11 @@ class PyLammps(object):
     return elements
 
   def _parse_groups(self, output):
+    lines = output[5:-3]
     groups = []
     group_pattern = re.compile(r"(?P<name>.+) \((?P<type>.+)\)")
 
-    for line in output:
+    for line in lines:
       m = group_pattern.match(line.split(':')[1].strip())
       group = {'name': m.group('name'), 'type': m.group('type')}
       groups.append(group)
@@ -822,7 +747,7 @@ class PyLammps(object):
     return self.__getattr__("print")(s)
 
   def __dir__(self):
-    return sorted(set(['angle_coeff', 'angle_style', 'atom_modify', 'atom_style', 'atom_style',
+    return ['angle_coeff', 'angle_style', 'atom_modify', 'atom_style', 'atom_style',
     'bond_coeff', 'bond_style', 'boundary', 'change_box', 'communicate', 'compute',
     'create_atoms', 'create_box', 'delete_atoms', 'delete_bonds', 'dielectric',
     'dihedral_coeff', 'dihedral_style', 'dimension', 'dump', 'fix', 'fix_modify',
@@ -832,16 +757,7 @@ class PyLammps(object):
     'pair_style', 'processors', 'read', 'read_data', 'read_restart', 'region',
     'replicate', 'reset_timestep', 'restart', 'run', 'run_style', 'thermo',
     'thermo_modify', 'thermo_style', 'timestep', 'undump', 'unfix', 'units',
-    'variable', 'velocity', 'write_restart'] + self.lmp.available_styles("command")))
-
-  def lmp_info(self, s):
-      # skip anything before and after Info-Info-Info
-      # also skip timestamp line
-      output = self.__getattr__("info")(s)
-      indices = [index for index, line in enumerate(output) if line.startswith("Info-Info-Info-Info")]
-      start = indices[0]
-      end = indices[1]
-      return [line for line in output[start+2:end] if line]
+    'variable', 'velocity', 'write_restart']
 
   def __getattr__(self, name):
     """
@@ -857,12 +773,10 @@ class PyLammps(object):
     """
     def handler(*args, **kwargs):
       cmd_args = [name] + [str(x) for x in args]
-      self.lmp.flush_buffers()
 
       with OutputCapture() as capture:
         cmd = ' '.join(cmd_args)
         self.command(cmd)
-        self.lmp.flush_buffers()
         output = capture.output
 
       comm = self.lmp.get_mpi_comm()
@@ -940,30 +854,30 @@ class IPyLammps(PyLammps):
     """
     cmd_args = [group, "image", filename, color, diameter]
 
-    if size is not None:
+    if size:
       width = size[0]
       height = size[1]
       cmd_args += ["size", width, height]
 
-    if view is not None:
+    if view:
       theta = view[0]
       phi = view[1]
       cmd_args += ["view", theta, phi]
 
-    if center is not None:
+    if center:
       flag = center[0]
       Cx = center[1]
       Cy = center[2]
       Cz = center[3]
       cmd_args += ["center", flag, Cx, Cy, Cz]
 
-    if up is not None:
+    if up:
       Ux = up[0]
       Uy = up[1]
       Uz = up[2]
       cmd_args += ["up", Ux, Uy, Uz]
 
-    if zoom is not None:
+    if zoom:
       cmd_args += ["zoom", zoom]
 
     cmd_args.append("modify backcolor " + background_color)

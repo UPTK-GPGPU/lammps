@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class AtomVecTDPD : public AtomVec {
  public:
   AtomVecTDPD(class LAMMPS *);
-  void process_args(int, char **) override;
-  void init() override;
+  void process_args(int, char **);
+  void init();
 
-  void grow_pointers() override;
-  void force_clear(int, size_t) override;
-  void data_atom_post(int) override;
+  void grow_pointers();
+  void force_clear(int, size_t);
+  void data_atom_post(int);
 
  protected:
   double **cc_flux;

@@ -27,33 +27,33 @@ namespace LAMMPS_NS {
 class PPPMDipole : public PPPM {
  public:
   PPPMDipole(class LAMMPS *);
-  ~PPPMDipole() override;
-  void init() override;
-  void setup() override;
-  void setup_grid() override;
-  void compute(int, int) override;
-  int timing_1d(int, double &) override;
-  int timing_3d(int, double &) override;
-  double memory_usage() override;
+  virtual ~PPPMDipole();
+  void init();
+  void setup();
+  void setup_grid();
+  void compute(int, int);
+  int timing_1d(int, double &);
+  int timing_3d(int, double &);
+  double memory_usage();
 
  protected:
-  void set_grid_global() override;
-  double newton_raphson_f() override;
+  void set_grid_global();
+  double newton_raphson_f();
 
-  void allocate() override;
-  void allocate_peratom() override;
-  void deallocate() override;
-  void deallocate_peratom() override;
-  void compute_gf_denom() override;
+  void allocate();
+  void allocate_peratom();
+  void deallocate();
+  void deallocate_peratom();
+  void compute_gf_denom();
 
-  void slabcorr() override;
+  void slabcorr();
 
   // grid communication
 
-  void pack_forward_grid(int, void *, int, int *) override;
-  void unpack_forward_grid(int, void *, int, int *) override;
-  void pack_reverse_grid(int, void *, int, int *) override;
-  void unpack_reverse_grid(int, void *, int, int *) override;
+  void pack_forward_grid(int, void *, int, int *);
+  void unpack_forward_grid(int, void *, int, int *);
+  void pack_reverse_grid(int, void *, int, int *);
+  void unpack_reverse_grid(int, void *, int, int *);
 
   // dipole
 

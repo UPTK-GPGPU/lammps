@@ -33,10 +33,10 @@ class PairHbondDreidingMorseOMP : public PairHbondDreidingMorse, public ThrOMP {
 
  public:
   PairHbondDreidingMorseOMP(class LAMMPS *);
-  ~PairHbondDreidingMorseOMP() override;
+  virtual ~PairHbondDreidingMorseOMP();
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   double *hbcount_thr, *hbeng_thr;

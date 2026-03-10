@@ -25,7 +25,7 @@ class FFT3d : protected Pointers {
 
   FFT3d(class LAMMPS *, MPI_Comm, int, int, int, int, int, int, int, int, int, int, int, int, int,
         int, int, int, int, int *, int);
-  ~FFT3d() override;
+  ~FFT3d();
   void compute(FFT_SCALAR *, FFT_SCALAR *, int);
   void timing1d(FFT_SCALAR *, int, int);
 

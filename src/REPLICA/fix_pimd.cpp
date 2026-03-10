@@ -502,7 +502,7 @@ void FixPIMD::nmpimd_init()
 void FixPIMD::nmpimd_fill(double **ptr)
 {
   comm_ptr = ptr;
-  comm->forward_comm(this);
+  comm->forward_comm_fix(this);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -615,7 +615,7 @@ void FixPIMD::comm_init()
 
   if (buf_beads) {
     for (int i = 0; i < np; i++)
-      delete[] buf_beads[i];
+      if (buf_beads[i]) delete[] buf_beads[i];
     delete[] buf_beads;
   }
 
@@ -676,11 +676,16 @@ void FixPIMD::comm_exec(double **ptr)
       int index = atom->map(tag_send[i]);
 
       if (index < 0) {
-        auto mesg = fmt::format("Atom {} is missing at world [{}] rank [{}] "
-                                "required by rank [{}] ({}, {}, {}).\n",
-                                tag_send[i], universe->iworld, comm->me,
-                                plan_recv[iplan], atom->tag[0], atom->tag[1], atom->tag[2]);
-        error->universe_one(FLERR, mesg);
+        char error_line[256];
+
+        sprintf(error_line,
+                "Atom " TAGINT_FORMAT " is missing at world [%d] "
+                "rank [%d] required by  rank [%d] (" TAGINT_FORMAT ", " TAGINT_FORMAT
+                ", " TAGINT_FORMAT ").\n",
+                tag_send[i], universe->iworld, comm->me, plan_recv[iplan], atom->tag[0],
+                atom->tag[1], atom->tag[2]);
+
+        error->universe_one(FLERR, error_line);
       }
 
       memcpy(wrap_ptr, ptr[index], ncpy);

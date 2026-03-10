@@ -33,7 +33,7 @@ class AngleHarmonicOMP : public AngleHarmonic, public ThrOMP {
 
  public:
   AngleHarmonicOMP(class LAMMPS *lmp);
-  void compute(int, int) override;
+  virtual void compute(int, int);
 
  private:
   template <int EVFLAG, int EFLAG, int NEWTON_BOND>

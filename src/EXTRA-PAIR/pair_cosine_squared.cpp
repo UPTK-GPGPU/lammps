@@ -176,6 +176,17 @@ void PairCosineSquared::coeff(int narg, char **arg)
 }
 
 /* ----------------------------------------------------------------------
+   init specific to this pair style (unnecessary)
+------------------------------------------------------------------------- */
+
+/*
+void PairCosineSquared::init_style()
+{
+  neighbor->request(this,instance_me);
+}
+*/
+
+/* ----------------------------------------------------------------------
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 

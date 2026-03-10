@@ -67,11 +67,11 @@ class AtomKokkos : public Atom {
 
 
   AtomKokkos(class LAMMPS *);
-  ~AtomKokkos() override;
+  virtual ~AtomKokkos();
 
-  void map_init(int check = 1) override;
-  void map_set() override;
-  void map_delete() override;
+  void map_init(int check = 1);
+  void map_set();
+  void map_delete();
 
   DAT::tdual_int_1d k_sametag;
   DAT::tdual_int_1d k_map_array;
@@ -105,18 +105,18 @@ class AtomKokkos : public Atom {
     return local;
   }
 
-  void allocate_type_arrays() override;
+  virtual void allocate_type_arrays();
   void sync(const ExecutionSpace space, unsigned int mask);
   void modified(const ExecutionSpace space, unsigned int mask);
   void sync_overlapping_device(const ExecutionSpace space, unsigned int mask);
-  void sort() override;
+  virtual void sort();
   virtual void grow(unsigned int mask);
-  int add_custom(const char *, int, int) override;
-  void remove_custom(int, int, int) override;
+  int add_custom(const char *, int, int);
+  void remove_custom(int, int, int);
   virtual void deallocate_topology();
-  void sync_modify(ExecutionSpace, unsigned int, unsigned int) override;
+  void sync_modify(ExecutionSpace, unsigned int, unsigned int);
  private:
-  class AtomVec *new_avec(const std::string &, int, int &) override;
+  class AtomVec *new_avec(const std::string &, int, int &);
 };
 
 template<class ViewType, class IndexView>

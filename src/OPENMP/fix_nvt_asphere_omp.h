@@ -27,6 +27,7 @@ namespace LAMMPS_NS {
 class FixNVTAsphereOMP : public FixNHAsphereOMP {
  public:
   FixNVTAsphereOMP(class LAMMPS *, int, char **);
+  virtual ~FixNVTAsphereOMP() {}
 };
 
 }    // namespace LAMMPS_NS

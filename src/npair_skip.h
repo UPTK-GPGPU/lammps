@@ -37,7 +37,8 @@ namespace LAMMPS_NS {
 class NPairSkip : public NPair {
  public:
   NPairSkip(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairSkip() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

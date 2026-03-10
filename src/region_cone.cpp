@@ -31,7 +31,7 @@ using namespace LAMMPS_NS;
 /* ---------------------------------------------------------------------- */
 
 RegCone::RegCone(LAMMPS *lmp, int narg, char **arg) :
-  Region(lmp, narg, arg), lo(0.0), hi(0.0)
+  Region(lmp, narg, arg)
 {
   options(narg-9,&arg[9]);
 

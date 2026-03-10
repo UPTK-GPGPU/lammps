@@ -36,10 +36,10 @@ namespace LAMMPS_NS {
 class PPPMIntel : public PPPM {
  public:
   PPPMIntel(class LAMMPS *);
-  ~PPPMIntel() override;
-  void init() override;
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual ~PPPMIntel();
+  virtual void init();
+  virtual void compute(int, int);
+  virtual double memory_usage();
   void compute_first(int, int);
   void compute_second(int, int);
   void pack_buffers();
@@ -67,7 +67,7 @@ class PPPMIntel : public PPPM {
   int _use_base;
 #endif
 
-  void allocate() override;
+  virtual void allocate();
 
   template <class flt_t, class acc_t> void test_function(IntelBuffers<flt_t, acc_t> *buffers);
 

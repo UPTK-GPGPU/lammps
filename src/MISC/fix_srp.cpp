@@ -607,7 +607,7 @@ void FixSRP::write_restart(FILE *fp)
 void FixSRP::restart(char *buf)
 {
   int n = 0;
-  auto list = (double *) buf;
+  double *list = (double *) buf;
 
   comm->cutghostuser = static_cast<double> (list[n++]);
   btype = static_cast<int> (list[n++]);

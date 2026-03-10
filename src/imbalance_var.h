@@ -21,17 +21,17 @@ namespace LAMMPS_NS {
 class ImbalanceVar : public Imbalance {
  public:
   ImbalanceVar(class LAMMPS *);
-  ~ImbalanceVar() override;
+  virtual ~ImbalanceVar();
 
  public:
   // parse options. return number of arguments consumed.
-  int options(int, char **) override;
+  virtual int options(int, char **) override;
   // re-initialize internal data, e.g. variable ID
-  void init(int) override;
+  virtual void init(int) override;
   // compute per-atom imbalance and apply to weight array
-  void compute(double *) override;
+  virtual void compute(double *) override;
   // print information about the state of this imbalance compute (required)
-  std::string info() override;
+  virtual std::string info() override;
 
  private:
   char *name;    // variable name

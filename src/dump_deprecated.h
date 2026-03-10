@@ -28,11 +28,11 @@ namespace LAMMPS_NS {
 class DumpDeprecated : public Dump {
  public:
   DumpDeprecated(class LAMMPS *, int, char **);
-
-  void init_style() override {}
-  void write_header(bigint) override {}
-  void pack(tagint *) override {}
-  void write_data(int, double *) override {}
+  ~DumpDeprecated() {}
+  virtual void init_style() {}
+  virtual void write_header(bigint) {}
+  virtual void pack(tagint *) {}
+  virtual void write_data(int, double *) {}
 };
 
 }    // namespace LAMMPS_NS

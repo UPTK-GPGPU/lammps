@@ -30,17 +30,17 @@ namespace LAMMPS_NS {
 class PairHybridScaled : public PairHybrid {
  public:
   PairHybridScaled(class LAMMPS *);
-  ~PairHybridScaled() override;
-  void compute(int, int) override;
-  void settings(int, char **) override;
-  void coeff(int, char **) override;
+  virtual ~PairHybridScaled();
+  virtual void compute(int, int);
+  virtual void settings(int, char **);
+  virtual void coeff(int, char **);
 
-  void write_restart(FILE *) override;
-  void read_restart(FILE *) override;
-  double single(int, int, int, int, double, double, double, double &) override;
+  virtual void write_restart(FILE *);
+  virtual void read_restart(FILE *);
+  virtual double single(int, int, int, int, double, double, double, double &);
 
-  void init_svector() override;
-  void copy_svector(int, int) override;
+  void init_svector();
+  void copy_svector(int, int);
 
  protected:
   double **fsum, **tsum;

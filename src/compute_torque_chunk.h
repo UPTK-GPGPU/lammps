@@ -27,17 +27,17 @@ namespace LAMMPS_NS {
 class ComputeTorqueChunk : public Compute {
  public:
   ComputeTorqueChunk(class LAMMPS *, int, char **);
-  ~ComputeTorqueChunk() override;
-  void init() override;
-  void compute_array() override;
+  ~ComputeTorqueChunk();
+  void init();
+  void compute_array();
 
-  void lock_enable() override;
-  void lock_disable() override;
-  int lock_length() override;
-  void lock(class Fix *, bigint, bigint) override;
-  void unlock(class Fix *) override;
+  void lock_enable();
+  void lock_disable();
+  int lock_length();
+  void lock(class Fix *, bigint, bigint);
+  void unlock(class Fix *);
 
-  double memory_usage() override;
+  double memory_usage();
 
  private:
   int nchunk, maxchunk;

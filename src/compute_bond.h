@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class ComputeBond : public Compute {
  public:
   ComputeBond(class LAMMPS *, int, char **);
-  ~ComputeBond() override;
-  void init() override;
-  void compute_vector() override;
+  ~ComputeBond();
+  void init();
+  void compute_vector();
 
  private:
   int nsub;

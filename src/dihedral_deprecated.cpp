@@ -37,7 +37,7 @@ void DihedralDeprecated::settings(int, char **)
   // of the list of substyles
 
   if (utils::strmatch(my_style,"^hybrid")) {
-    auto hybrid = dynamic_cast<DihedralHybrid *>(force->dihedral);
+    DihedralHybrid *hybrid = (DihedralHybrid *)force->dihedral;
     my_style = hybrid->keywords[hybrid->nstyles];
   }
 

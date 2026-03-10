@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class ResetMolIDs : public Command {
  public:
   ResetMolIDs(class LAMMPS *);
-  ~ResetMolIDs() override;
-  void command(int, char **) override;
+  ~ResetMolIDs();
+  void command(int, char **);
   void create_computes(char *, char *);
   void reset();
 

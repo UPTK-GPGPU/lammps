@@ -29,8 +29,8 @@ class PairAIREBOOMP : public PairAIREBO, public ThrOMP {
  public:
   PairAIREBOOMP(class LAMMPS *);
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  protected:
   double bondorder_thr(int i, int j, double rij[3], double rijmag, double VA, ThrData *const thr);

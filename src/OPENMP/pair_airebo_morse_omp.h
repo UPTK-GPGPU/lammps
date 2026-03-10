@@ -27,7 +27,7 @@ namespace LAMMPS_NS {
 class PairAIREBOMorseOMP : public PairAIREBOOMP {
  public:
   PairAIREBOMorseOMP(class LAMMPS *);
-  void settings(int, char **) override;
+  virtual void settings(int, char **);
 };
 
 }    // namespace LAMMPS_NS

@@ -29,14 +29,14 @@ class ComputeGyrationShapeChunk : public Compute {
   char *id_gyration_chunk;    // fields accessed by other classes
 
   ComputeGyrationShapeChunk(class LAMMPS *, int, char **);
-  ~ComputeGyrationShapeChunk() override;
-  void init() override;
-  void setup() override;
-  void compute_array() override;
+  ~ComputeGyrationShapeChunk();
+  void init();
+  void setup();
+  void compute_array();
 
-  int lock_length() override;
+  int lock_length();
 
-  double memory_usage() override;
+  double memory_usage();
 
  private:
   int current_nchunks, former_nchunks;

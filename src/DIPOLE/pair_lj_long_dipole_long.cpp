@@ -235,7 +235,7 @@ void PairLJLongDipoleLong::init_style()
   if (!atom->mu_flag || !atom->torque_flag)
     error->all(FLERR,"Pair lj/long/dipole/long requires atom attributes mu, torque");
 
-  neighbor->add_request(this);
+  neighbor->request(this,instance_me);
 
   cut_coulsq = cut_coul * cut_coul;
 

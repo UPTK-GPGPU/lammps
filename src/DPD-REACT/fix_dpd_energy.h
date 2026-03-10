@@ -27,9 +27,10 @@ namespace LAMMPS_NS {
 class FixDPDenergy : public Fix {
  public:
   FixDPDenergy(class LAMMPS *, int, char **);
-  int setmask() override;
-  void initial_integrate(int) override;
-  void final_integrate() override;
+  virtual ~FixDPDenergy() {}
+  int setmask();
+  virtual void initial_integrate(int);
+  virtual void final_integrate();
 
  protected:
   class PairDPDfdtEnergy *pairDPDE;

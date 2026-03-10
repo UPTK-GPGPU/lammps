@@ -29,7 +29,8 @@ namespace LAMMPS_NS {
 class NPairHalfSizeBinNewtonTri : public NPair {
  public:
   NPairHalfSizeBinNewtonTri(class LAMMPS *);
-  void build(class NeighList *) override;
+  ~NPairHalfSizeBinNewtonTri() {}
+  void build(class NeighList *);
 };
 
 }    // namespace LAMMPS_NS

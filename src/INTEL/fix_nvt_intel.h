@@ -32,6 +32,7 @@ namespace LAMMPS_NS {
 class FixNVTIntel : public FixNHIntel {
  public:
   FixNVTIntel(class LAMMPS *, int, char **);
+  ~FixNVTIntel() {}
 };
 
 }    // namespace LAMMPS_NS

@@ -39,14 +39,14 @@ namespace RANN {
   class Fingerprint_bondscreenedspin : public Fingerprint {
    public:
     Fingerprint_bondscreenedspin(PairRANN *);
-    ~Fingerprint_bondscreenedspin() override;
-    bool parse_values(std::string, std::vector<std::string>) override;
-    void write_values(FILE *) override;
-    void init(int *, int) override;
-    void allocate() override;
+    ~Fingerprint_bondscreenedspin();
+    bool parse_values(std::string, std::vector<std::string>);
+    void write_values(FILE *);
+    void init(int *, int);
+    void allocate();
     void compute_fingerprint(double *, double *, double *, double *, double *, double *, double *,
                              double *, double *, double *, double *, double *, double *, double *,
-                             bool *, int, int, double *, double *, double *, int *, int, int *) override;
+                             bool *, int, int, double *, double *, double *, int *, int, int *);
     void do3bodyfeatureset_doubleneighborloop(double *, double *, double *, double *, double *,
                                               double *, double *, double *, double *, double *,
                                               double *, double *, double *, double *, bool *, int,
@@ -57,7 +57,7 @@ namespace RANN {
                                               int, double *, double *, double *, int *, int, int *);
     void generate_exp_cut_table();
     void generate_coefficients();
-    int get_length() override;
+    int get_length();
 
     double *expcuttable;
     double *dfctable;

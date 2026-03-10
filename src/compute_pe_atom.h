@@ -27,12 +27,12 @@ namespace LAMMPS_NS {
 class ComputePEAtom : public Compute {
  public:
   ComputePEAtom(class LAMMPS *, int, char **);
-  ~ComputePEAtom() override;
-  void init() override {}
-  void compute_peratom() override;
-  int pack_reverse_comm(int, int, double *) override;
-  void unpack_reverse_comm(int, int *, double *) override;
-  double memory_usage() override;
+  ~ComputePEAtom();
+  void init() {}
+  void compute_peratom();
+  int pack_reverse_comm(int, int, double *);
+  void unpack_reverse_comm(int, int *, double *);
+  double memory_usage();
 
  private:
   int pairflag, bondflag, angleflag, dihedralflag, improperflag;

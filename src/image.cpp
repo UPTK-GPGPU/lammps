@@ -40,9 +40,7 @@
 #endif
 
 using namespace LAMMPS_NS;
-using MathConst::DEG2RAD;
-using MathConst::MY_PI;
-using MathConst::MY_PI4;
+using namespace MathConst;
 
 #define NCOLORS 140
 #define NELEMENTS 109
@@ -63,8 +61,8 @@ Image::Image(LAMMPS *lmp, int nmap_caller) : Pointers(lmp)
   // defaults for 3d viz
 
   width = height = 512;
-  theta = 60.0 * DEG2RAD;
-  phi = 30.0 * DEG2RAD;
+  theta = 60.0 * MY_PI/180.0;
+  phi = 30.0 * MY_PI/180.0;
   zoom = 1.0;
   persp = 0.0;
   shiny = 1.0;
@@ -1105,7 +1103,7 @@ void Image::write_PNG(FILE *fp)
   png_set_text(png_ptr,info_ptr,text_ptr,1);
   png_write_info(png_ptr,info_ptr);
 
-  auto row_pointers = new png_bytep[height];
+  png_bytep *row_pointers = new png_bytep[height];
   for (int i=0; i < height; ++i)
     row_pointers[i] = (png_bytep) &writeBuffer[(height-i-1)*3*width];
 

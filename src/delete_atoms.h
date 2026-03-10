@@ -28,7 +28,7 @@ namespace LAMMPS_NS {
 class DeleteAtoms : public Command {
  public:
   DeleteAtoms(class LAMMPS *);
-  void command(int, char **) override;
+  void command(int, char **);
 
  private:
   int *dlist;

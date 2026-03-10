@@ -27,8 +27,8 @@ namespace LAMMPS_NS {
 class PPPMDielectric : public PPPM {
  public:
   PPPMDielectric(class LAMMPS *);
-  ~PPPMDielectric() override;
-  void compute(int, int) override;
+  virtual ~PPPMDielectric();
+  virtual void compute(int, int);
 
   double **efield;
   double *phi;
@@ -37,10 +37,10 @@ class PPPMDielectric : public PPPM {
   void qsum_qsq();
 
  protected:
-  void slabcorr() override;
+  void slabcorr();
 
-  void fieldforce_ik() override;
-  void fieldforce_ad() override;
+  void fieldforce_ik();
+  void fieldforce_ad();
 
   class AtomVecDielectric *avec;
 };

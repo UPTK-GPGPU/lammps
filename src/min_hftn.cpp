@@ -95,7 +95,7 @@ MinHFTN::MinHFTN(LAMMPS *lmp) : Min(lmp)
    Destructor
 ------------------------------------------------------------------------- */
 
-MinHFTN::~MinHFTN()
+MinHFTN::~MinHFTN (void)
 {
   for (int  i = 1; i < NUM_HFTN_ATOM_BASED_VECTORS; i++)
     if (_daExtraGlobal[i] != nullptr)

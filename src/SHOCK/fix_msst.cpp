@@ -129,7 +129,9 @@ FixMSST::FixMSST(LAMMPS *lmp, int narg, char **arg) :
       iarg += 2;
     } else if (strcmp(arg[iarg],"dftb") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix msst command");
-      dftb = utils::logical(FLERR,arg[iarg+1],false,lmp);
+      if (strcmp(arg[iarg+1],"yes") == 0) dftb = 1;
+      else if (strcmp(arg[iarg+1],"yes") == 0) dftb = 0;
+      else error->all(FLERR,"Illegal fix msst command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"beta") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix msst command");
@@ -150,7 +152,8 @@ FixMSST::FixMSST(LAMMPS *lmp, int narg, char **arg) :
     mesg += fmt::format("  Cell mass-like parameter qmass "
                         "(units of mass^2/length^4) = {:.8g}\n", qmass);
     mesg += fmt::format("  Shock velocity = {:.8g}\n", velocity);
-    mesg += fmt::format("  Artificial viscosity (units of mass/length/time) = {:.8g}\n", mu);
+    mesg += fmt::format("  Artificial viscosity "
+                        "(units of mass/length/time) = {:.8g}\n", mu);
 
     if (p0_set)
       mesg += fmt::format("  Initial pressure specified to be {:.8g}\n", p0);
@@ -302,7 +305,7 @@ void FixMSST::init()
   if (dftb) {
     for (int i = 0; i < modify->nfix; i++)
       if (utils::strmatch(modify->fix[i]->style,"^external$"))
-        fix_external = dynamic_cast<FixExternal *>( modify->fix[i]);
+        fix_external = (FixExternal *) modify->fix[i];
     if (fix_external == nullptr)
       error->all(FLERR,"Fix msst dftb cannot be used w/out fix external");
   }
@@ -815,7 +818,7 @@ void FixMSST::write_restart(FILE *fp)
 void FixMSST::restart(char *buf)
 {
   int n = 0;
-  auto list = (double *) buf;
+  double *list = (double *) buf;
   omega[direction] = list[n++];
   e0 = list[n++];
   v0 = list[n++];

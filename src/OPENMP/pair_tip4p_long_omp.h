@@ -33,10 +33,10 @@ class PairTIP4PLongOMP : public PairTIP4PLong, public ThrOMP {
 
  public:
   PairTIP4PLongOMP(class LAMMPS *);
-  ~PairTIP4PLongOMP() override;
+  virtual ~PairTIP4PLongOMP();
 
-  void compute(int, int) override;
-  double memory_usage() override;
+  virtual void compute(int, int);
+  virtual double memory_usage();
 
  private:
   dbl3_t *newsite_thr;

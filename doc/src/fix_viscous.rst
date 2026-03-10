@@ -106,15 +106,12 @@ for details.
 
 Restrictions
 """"""""""""
-
-none
+ none
 
 Related commands
 """"""""""""""""
 
-:doc:`fix langevin <fix_langevin>`,
-:doc:`fix viscous/sphere <fix_viscous_sphere>`,
-:doc:`fix damping/cundall <fix_damping_cundall>`
+:doc:`fix langevin <fix_langevin>`
 
 Default
 """""""

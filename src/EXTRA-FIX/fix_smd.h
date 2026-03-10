@@ -27,15 +27,15 @@ namespace LAMMPS_NS {
 class FixSMD : public Fix {
  public:
   FixSMD(class LAMMPS *, int, char **);
-  int setmask() override;
-  void init() override;
-  void setup(int) override;
-  void post_force(int) override;
-  void post_force_respa(int, int, int) override;
-  double compute_vector(int) override;
+  int setmask();
+  void init();
+  void setup(int);
+  void post_force(int);
+  void post_force_respa(int, int, int);
+  double compute_vector(int);
 
-  void write_restart(FILE *) override;
-  void restart(char *) override;
+  void write_restart(FILE *);
+  void restart(char *);
 
  private:
   double xc, yc, zc, xn, yn, zn, r0;

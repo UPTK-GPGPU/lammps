@@ -35,8 +35,8 @@ class PairLJCutIntel : public PairLJCut {
  public:
   PairLJCutIntel(class LAMMPS *);
 
-  void compute(int, int) override;
-  void init_style() override;
+  virtual void compute(int, int);
+  void init_style();
 
  private:
   FixIntel *fix;

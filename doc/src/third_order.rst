@@ -1,10 +1,7 @@
 .. index:: third_order
-.. index:: third_order/kk
 
 third_order command
 ===================
-
-Accelerator Variants: third_order/kk
 
 Syntax
 """"""
@@ -51,12 +48,6 @@ The initial five numbers are i, alpha, j, beta, and k respectively.
 If the style eskm is selected, the tensor will be using energy units of 10 J/mol.
 These units conform to eskm style from the dynamical_matrix command, which
 will simplify operations using dynamical matrices with third order tensors.
-
-----------
-
-.. include:: accel_styles.rst
-
-----------
 
 Restrictions
 """"""""""""

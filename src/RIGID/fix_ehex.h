@@ -29,17 +29,17 @@ class FixEHEX : public Fix {
 
  public:
   FixEHEX(class LAMMPS *, int, char **);
-  ~FixEHEX() override;
-  int setmask() override;
-  void init() override;
-  void end_of_step() override;
+  ~FixEHEX();
+  int setmask();
+  void init();
+  void end_of_step();
   void rescale();
-  double compute_scalar() override;
-  double memory_usage() override;
+  double compute_scalar();
+  double memory_usage();
   void update_scalingmask();
   void com_properties(double *, double *, double *, double *, double *, double *);
   bool rescale_atom(int i, class Region *region);
-  void grow_arrays(int nmax) override;
+  virtual void grow_arrays(int nmax);
   bool check_cluster(tagint *shake_atom, int n, class Region *region);
 
  private:

@@ -27,9 +27,9 @@ namespace LAMMPS_NS {
 class PPPMDispDielectric : public PPPMDisp {
  public:
   PPPMDispDielectric(class LAMMPS *);
-  ~PPPMDispDielectric() override;
-  double memory_usage() override;
-  void compute(int, int) override;
+  virtual ~PPPMDispDielectric();
+  virtual double memory_usage();
+  virtual void compute(int, int);
   void qsum_qsq();
   void slabcorr(int);
 
@@ -38,9 +38,9 @@ class PPPMDispDielectric : public PPPMDisp {
   int potflag;    // 1/0 if per-atom electrostatic potential phi is needed
 
  protected:
-  void fieldforce_c_ik() override;
-  void fieldforce_c_ad() override;
-  void fieldforce_c_peratom() override;
+  virtual void fieldforce_c_ik();
+  virtual void fieldforce_c_ad();
+  virtual void fieldforce_c_peratom();
 
   class AtomVecDielectric *avec;
   int mu_flag;

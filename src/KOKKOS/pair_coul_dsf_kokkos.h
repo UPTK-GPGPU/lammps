@@ -41,10 +41,10 @@ class PairCoulDSFKokkos : public PairCoulDSF {
   typedef ArrayTypes<DeviceType> AT;
   typedef EV_FLOAT value_type;
   PairCoulDSFKokkos(class LAMMPS *);
-  ~PairCoulDSFKokkos() override;
+  ~PairCoulDSFKokkos();
 
-  void compute(int, int) override;
-  void init_style() override;
+  void compute(int, int);
+  void init_style();
 
   template<int NEIGHFLAG, int NEWTON_PAIR, int EVFLAG>
   KOKKOS_INLINE_FUNCTION

@@ -2751,18 +2751,9 @@ struct TestMDRange_6D {
                            const int N3, const int N4, const int N5) {
 #if defined(KOKKOS_ENABLE_CXX11_DISPATCH_LAMBDA)
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<128, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -2781,18 +2772,9 @@ struct TestMDRange_6D {
 #endif
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -2825,18 +2807,9 @@ struct TestMDRange_6D {
 
     // Test with reducers - scalar
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
 #ifdef KOKKOS_ENABLE_SYCL
       range_type range({{0, 0, 0, 0, 0, 0}}, {{N0, N1, N2, N3, N4, N5}},
                        {{3, 3, 3, 2, 2, 2}});
@@ -2859,18 +2832,9 @@ struct TestMDRange_6D {
 
     // Test with reducers - scalar + label
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
 
 #ifdef KOKKOS_ENABLE_SYCL
       range_type range({{0, 0, 0, 0, 0, 0}}, {{N0, N1, N2, N3, N4, N5}},
@@ -2894,19 +2858,9 @@ struct TestMDRange_6D {
 
     // Test with reducers - scalar view
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type =
-          typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
-                                         Kokkos::IndexType<int>,
-                                         Kokkos::LaunchBounds<512, 1>>;
-#endif
 #ifdef KOKKOS_ENABLE_SYCL
       range_type range({{0, 0, 0, 0, 0, 0}}, {{N0, N1, N2, N3, N4, N5}},
                        {{3, 3, 3, 2, 2, 2}});
@@ -2934,18 +2888,9 @@ struct TestMDRange_6D {
     // Test Min reducer with lambda
 #if defined(KOKKOS_ENABLE_CXX11_DISPATCH_LAMBDA)
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<128, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       range_type range({{1, 1, 1, 1, 1, 1}}, {{N0, N1, N2, N3, N4, N5}},
                        {{3, 3, 3, 2, 2, 1}});
 
@@ -2978,19 +2923,9 @@ struct TestMDRange_6D {
 
     // Tagged operator test
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Default, Iterate::Default>,
           Kokkos::IndexType<int>, InitTag>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Default, Iterate::Default>,
-          Kokkos::IndexType<int>, InitTag>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3042,18 +2977,9 @@ struct TestMDRange_6D {
                         const int N4, const int N5) {
 #if defined(KOKKOS_ENABLE_CXX11_DISPATCH_LAMBDA)
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<128, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3102,16 +3028,8 @@ struct TestMDRange_6D {
 #endif
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>>;
-#endif
       using point_type = typename range_type::point_type;
 
       range_type range(point_type{{0, 0, 0, 0, 0, 0}},
@@ -3144,18 +3062,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>, InitTag>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>, InitTag>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3206,18 +3115,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3258,19 +3158,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Default, Iterate::Default>,
           Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Default, Iterate::Default>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3311,19 +3201,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Left, Iterate::Left>,
           Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Left, Iterate::Left>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3364,19 +3244,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Left, Iterate::Right>,
           Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Left, Iterate::Right>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3417,19 +3287,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Right, Iterate::Left>,
           Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Right, Iterate::Left>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3470,19 +3330,9 @@ struct TestMDRange_6D {
     }
 
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type = typename Kokkos::MDRangePolicy<
           ExecSpace, Kokkos::Rank<6, Iterate::Right, Iterate::Right>,
           Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<512, 1>,
-          Kokkos::Rank<6, Iterate::Right, Iterate::Right>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
@@ -3833,18 +3683,9 @@ struct TestMDRange_6D_NegIdx {
   static void test_6D_negidx(const int N0, const int N1, const int N2,
                              const int N3, const int N4, const int N5) {
     {
-#if defined(KOKKOS_COMPILER_INTEL)
-      // Launchbounds causes hang with intel compilers
       using range_type =
           typename Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<6>,
                                          Kokkos::IndexType<int>>;
-#else
-      // Launchbounds to ensure the tile fits into a CUDA block under register
-      // constraints
-      using range_type = typename Kokkos::MDRangePolicy<
-          ExecSpace, Kokkos::LaunchBounds<256, 1>, Kokkos::Rank<6>,
-          Kokkos::IndexType<int>>;
-#endif
       using tile_type  = typename range_type::tile_type;
       using point_type = typename range_type::point_type;
 
