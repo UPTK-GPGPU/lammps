@@ -44,8 +44,8 @@ class UCL_Timer {
     if (_initialized) {
       //CU_DESTRUCT_CALL(cuEventDestroy(start_event));
       //CU_DESTRUCT_CALL(cuEventDestroy(stop_event));
-      UPTKEventDestroyD(start_event);
-      UPTKEventDestroyD(stop_event);
+      UPEventDestroy(start_event);
+      UPEventDestroy(stop_event);
       _initialized=false;
       _total_time=0.0;
     }
@@ -62,32 +62,32 @@ class UCL_Timer {
     //CU_SAFE_CALL( cuEventCreate(&start_event,0) );
     //CU_SAFE_CALL( cuEventCreate(&stop_event,0) );
 
-    UPTKEventCreateD(&start_event,0);
-    UPTKEventCreateD(&stop_event,0);
+    UPEventCreate(&start_event,0);
+    UPEventCreate(&stop_event,0);
   }
 
   /// Start timing on command queue
   //inline void start() { CU_SAFE_CALL(cuEventRecord(start_event,_cq)); }
-  inline void start() { UPTKEventRecordD(start_event,_cq); }
+  inline void start() { UPEventRecord(start_event,_cq); }
 
   /// Stop timing on command queue
   //inline void stop() { CU_SAFE_CALL(cuEventRecord(stop_event,_cq)); }
-  inline void stop() { UPTKEventRecordD(stop_event,_cq); }
+  inline void stop() { UPEventRecord(stop_event,_cq); }
 
   /// Block until the start event has been reached on device
-  inline void sync_start() {UPTKEventSynchronizeD(start_event);}
+  inline void sync_start() {UPEventSynchronize(start_event);}
   //  { CU_SAFE_CALL(cuEventSynchronize(start_event)); }
 
   /// Block until the stop event has been reached on device
-  inline void sync_stop() { UPTKEventSynchronizeD(stop_event); }
+  inline void sync_stop() { UPEventSynchronize(stop_event); }
     //{ CU_SAFE_CALL(cuEventSynchronize(stop_event)); }
 
   /// Set the time elapsed to zero (not the total_time)
   inline void zero() {
     //CU_SAFE_CALL(cuEventRecord(start_event,_cq));
     //CU_SAFE_CALL(cuEventRecord(stop_event,_cq));
-    UPTKEventRecordD(start_event,_cq);
-    UPTKEventRecordD(stop_event,_cq);
+    UPEventRecord(start_event,_cq);
+    UPEventRecord(stop_event,_cq);
   }
 
   /// Set the total time to zero
@@ -107,8 +107,8 @@ class UCL_Timer {
     //CU_SAFE_CALL(cuEventSynchronize(stop_event));
     //CU_SAFE_CALL( cuEventElapsedTime(&timer,start_event,stop_event) );
     //CU_SAFE_CALL(UPTKEventElapsedTimeD(&timer,(UPTKEvent_t)start_event,(UPTKEvent_t)stop_event));
-    UPTKEventSynchronizeD(stop_event);
-    UPTKEventElapsedTimeD(&timer,start_event,stop_event);
+    UPEventSynchronize(stop_event);
+    UPEventElapsedTime(&timer,start_event,stop_event);
     //UPTKEventElapsedTime(&timer,start_event,stop_event);
     return timer;
   }

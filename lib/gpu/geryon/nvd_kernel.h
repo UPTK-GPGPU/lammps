@@ -94,7 +94,7 @@ class UCL_Program {
     values[1] = clog;
 
     //CUresult err=cuModuleLoadDataEx(&_module,program,num_opts, options,(void **)values);
-    UPTKError err=UPTKModuleLoadDataExD(&_module,program,num_opts, options,(void **)values);
+    UPTKError err=UPModuleLoadDataEx(&_module,program,num_opts, options,(void **)values);
 
     if (log!=nullptr)
       *log=std::string(clog);
@@ -126,7 +126,7 @@ class UCL_Program {
   /// Load a precompiled program from a file
   inline int load_binary(const char *filename) {
     UPTKmodule _module; 
-    UPTKError err = UPTKModuleLoadD(&_module,filename);
+    UPTKError err = UPModuleLoad(&_module,filename);
     if (err==301) {
       #ifndef UCL_NO_EXIT
       std::cerr << "UCL Error: Could not open binary kernel file: "
@@ -186,7 +186,7 @@ class UCL_Kernel {
   /** \ret UCL_ERROR_FLAG (UCL_SUCCESS, UCL_FILE_NOT_FOUND, UCL_ERROR) **/
   inline int set_function(UCL_Program &program, const char *function) {
     //CUresult err=cuModuleGetFunction(&_kernel,program._module,function);
-    UPTKError err=UPTKModuleGetFunctionD(&_kernel,program._module,function);
+    UPTKError err=UPModuleGetFunction(&_kernel,program._module,function);
     if (err!=UPTKSuccess) {
       #ifndef UCL_NO_EXIT
       std::cerr << "UCL Error: Could not find function: " << function
@@ -341,7 +341,7 @@ class UCL_Kernel {
     /*CU_SAFE_CALL(cuLaunchKernel(_kernel,_num_blocks[0],_num_blocks[1],
                                 _num_blocks[2],_block_size[0],_block_size[1],
                                 _block_size[2],0,_cq,_kernel_args,nullptr));*/
-    UPTKLaunchKernelD(_kernel,_num_blocks[0],_num_blocks[1],
+    UPLaunchKernel(_kernel,_num_blocks[0],_num_blocks[1],
                                 _num_blocks[2],_block_size[0],_block_size[1],
                                 _block_size[2],0,_cq,_kernel_args,nullptr);
   }

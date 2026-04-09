@@ -113,13 +113,13 @@ class UCL_Const {
   inline void get_global(UCL_Program &prog, const char *global_name) {
     _cq=prog.cq();
     //CU_SAFE_CALL(cuModuleGetGlobal(&_global, &_global_bytes, prog._module, global_name));
-    UPTKModuleGetGlobalD(&_global, &_global_bytes, prog._module, global_name);
+    UPModuleGetGlobal(&_global, &_global_bytes, prog._module, global_name);
   }
   /// Copy from array on host to const memory
   template <class numtyp>
   inline void update_device(UCL_H_Vec<numtyp> &src, const int numel) {
     //CU_SAFE_CALL(cuMemcpyHtoDAsync(_global, src.begin(), numel*sizeof(numtyp), _cq));
-    UPTKMemcpyHtoDAsync_v2D(_global, src.begin(), numel*sizeof(numtyp), _cq);
+    UPMemcpyHtoDAsync_v2(_global, src.begin(), numel*sizeof(numtyp), _cq);
   }
   /// Get device ptr associated with object
   inline const UPTKdeviceptr * begin() const { return &_global; }
