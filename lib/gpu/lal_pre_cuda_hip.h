@@ -121,8 +121,7 @@
 #define _texture_2d(name, type) texture<type,1> name
 #endif
 
-#if 0 
-//#if (__CUDACC_VER_MAJOR__ < 11)
+#if ((__CUDACC_VER_MAJOR__ < 11) && defined(GPGPU_ARCH_DTK))
   #ifdef _DOUBLE_DOUBLE
   #define fetch4(ans,i,pos_tex) {                        \
     int4 xy = tex1Dfetch(pos_tex,i*2);                   \
@@ -156,6 +155,8 @@
   #define vel_tex v_
   #define mu_tex mu_
 #endif
+
+
 
 #if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__) || defined(__HIP_PLATFORM_SPIRV__)
 

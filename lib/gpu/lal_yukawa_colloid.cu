@@ -23,9 +23,13 @@ _texture( rad_tex,float);
 _texture_2d( pos_tex,int4);
 _texture( rad_tex,int2);
 #endif
-#if 1 
-//#if (__CUDACC_VER_MAJOR__ >= 11)
+
+#if defined(GPGPU_ARCH_COREX)
 #define rad_tex rad_
+#else
+  #if (__CUDACC_VER_MAJOR__ >= 11)
+    #define rad_tex rad_
+  #endif
 #endif
 
 #else

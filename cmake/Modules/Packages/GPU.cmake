@@ -74,7 +74,7 @@ if(GPU_API STREQUAL "CUDA")
   option(CUDA_BUILD_MULTIARCH "Enable building CUDA kernels for all supported GPU architectures" ON)
   mark_as_advanced(GPU_BUILD_MULTIARCH)
 
-  set(GPU_ARCH "sm_75" CACHE STRING "LAMMPS GPU CUDA SM primary architecture (e.g. sm_80)")
+  set(GPU_ARCH "sm_50" CACHE STRING "LAMMPS GPU CUDA SM primary architecture (e.g. sm_60)")
 
   # ensure that no *cubin.h files exist from a compile in the lib/gpu folder
   file(GLOB GPU_LIB_OLD_CUBIN_HEADERS CONFIGURE_DEPENDS ${LAMMPS_LIB_SOURCE_DIR}/gpu/*_cubin.h)
@@ -150,16 +150,41 @@ if(GPU_API STREQUAL "CUDA")
       if(CUDA_VERSION VERSION_GREATER_EQUAL "11.8")
         string(APPEND GPU_CUDA_GENCODE " -gencode arch=compute_90,code=[sm_90,compute_90]")
       endif()
-      # newer GPU Arch versions require CUDA 12.0 or later which is handled above
+      # Hopper (GPU Arch 9.0) is supported by CUDA 12.0 and later
+      if(CUDA_VERSION VERSION_GREATER_EQUAL "12.0")
+        string(APPEND GPU_CUDA_GENCODE " -gencode arch=compute_90,code=[sm_90,compute_90]")
+      endif()
     endif()
   endif()
 
-  set(NVCC_FLAGS -DUNIX -O3 -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+
+if (GPGPU_ARCH_DTK)
+  set(NVCC_FLAGS -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
   if(CUDPP_OPT)
     string(APPEND NVCC_FLAGS " -DUSE_CUDPP")
   endif()
+  cuda_compile_fatbin(GPU_GEN_OBJS ${GPU_LIB_CU} OPTIONS ${CUDA_REQUEST_PIC} ${NVCC_FLAGS})
 
-  # Process GPU library .cu files using add_custom_command instead of cuda_compile_fatbin
+  cuda_compile(GPU_OBJS ${GPU_LIB_CUDPP_CU} OPTIONS ${CUDA_REQUEST_PIC}
+          -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+
+  foreach(CU_OBJ ${GPU_GEN_OBJS})
+    get_filename_component(CU_NAME ${CU_OBJ} NAME_WE)
+    string(REGEX REPLACE "^.*_lal_" "" CU_NAME "${CU_NAME}")
+    add_custom_command(OUTPUT ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h
+      COMMAND ${BIN2C} -c -n ${CU_NAME} ${CU_OBJ} > ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h
+      DEPENDS ${CU_OBJ}
+      COMMENT "Generating ${CU_NAME}_cubin.h")
+    list(APPEND GPU_LIB_SOURCES ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h)
+  endforeach()
+endif()
+
+if(GPGPU_ARCH_COREX)
+  set(NVCC_FLAGS -DUNIX -O3 -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+
+  if(CUDPP_OPT)
+    string(APPEND NVCC_FLAGS " -DUSE_CUDPP")
+  endif()
   set(GPU_LIB_CU_CUDA "")
   foreach(CU_FILE ${GPU_LIB_CU})
     get_filename_component(CU_NAME ${CU_FILE} NAME_WE)
@@ -168,33 +193,23 @@ if(GPU_API STREQUAL "CUDA")
     set(CUBIN_FILE   "${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cubin")
     set(CUBIN_H_FILE "${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h")
 
-    # add_custom_command(OUTPUT ${CUBIN_FILE}
-    #   VERBATIM COMMAND ${CUDA_NVCC_EXECUTABLE} --fatbin --use_fast_math -DUSE_CUDA -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES} ${GPU_CUDA_GENCODE} -I${LAMMPS_LIB_SOURCE_DIR}/gpu -o ${CUBIN_FILE} ${CU_FILE}
-    #   DEPENDS ${CU_FILE}
-    #   COMMENT "Generating ${CU_NAME}.cubin")
-    message("---------------------------------test")
-# Integrated compile and link: clang++ -> llc -> lld in one command
     string(REPLACE ";" " " NVCC_FLAGS_STR "${NVCC_FLAGS}")
     add_custom_command(OUTPUT ${CUBIN_FILE}
     VERBATIM COMMAND bash -c "clang++ -S -emit-llvm --cuda-device-only  -Wall -DUSE_CUDA -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES} -I${LAMMPS_LIB_SOURCE_DIR}/gpu ${CU_FILE} -o ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.ll ${NVCC_FLAGS_STR} && llc -march=bi -filetype=obj ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.ll -o ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cuda.o && lld -flavor ld.lld --no-warn-missing-entry --no-undefined ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cuda.o -o ${CUBIN_FILE}"
-    # VERBATIM COMMAND clang++ --cuda-device-only -Wall -DUSE_CUDA -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES} -I${LAMMPS_LIB_SOURCE_DIR}/gpu ${CU_FILE} -o ${CUBIN_FILE} ${NVCC_FLAGS} 
     DEPENDS ${CU_FILE}
     COMMENT "Generating ${CU_NAME}.cubin (clang++ -> llc -> lld)")
-
 
     add_custom_command(OUTPUT ${CUBIN_H_FILE}
       COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D VARNAME=${CU_NAME} -D HEADER_FILE=${CUBIN_H_FILE} -D SOURCE_FILE=${CUBIN_FILE} -P ${CMAKE_CURRENT_SOURCE_DIR}/Modules/GenerateBinaryHeader.cmake
       DEPENDS ${CUBIN_FILE}
       COMMENT "Generating ${CU_NAME}_cubin.h")
-
     list(APPEND GPU_LIB_SOURCES ${CUBIN_H_FILE})
   endforeach()
-
-  # Process CUDPP .cu files separately if enabled
   if(CUDPP_OPT)
     cuda_compile(GPU_OBJS ${GPU_LIB_CUDPP_CU} OPTIONS ${CUDA_REQUEST_PIC}
             -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
   endif()
+endif()
 
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${LAMMPS_LIB_BINARY_DIR}/gpu/*_cubin.h")
 
@@ -311,7 +326,7 @@ elseif(GPU_API STREQUAL "HIP")
     set(HIP_ARCH "spirv" CACHE STRING "HIP target architecture")
   elseif(HIP_PLATFORM STREQUAL "nvcc")
     find_package(CUDA REQUIRED)
-    set(HIP_ARCH "sm_75" CACHE STRING "HIP primary CUDA architecture (e.g. sm_75)")
+    set(HIP_ARCH "sm_50" CACHE STRING "HIP primary CUDA architecture (e.g. sm_60)")
 
     if(CUDA_VERSION VERSION_LESS 8.0)
       message(FATAL_ERROR "CUDA Toolkit version 8.0 or later is required")
@@ -359,7 +374,10 @@ elseif(GPU_API STREQUAL "HIP")
       if(CUDA_VERSION VERSION_GREATER_EQUAL "11.8")
         string(APPEND HIP_CUDA_GENCODE " -gencode arch=compute_90,code=[sm_90,compute_90]")
       endif()
-      # newer GPU Arch versions require CUDA 12.0 or later which is handled above
+      # Hopper (GPU Arch 9.0) is supported by CUDA 12.0 and later
+      if(CUDA_VERSION VERSION_GREATER_EQUAL "12.0")
+        string(APPEND HIP_CUDA_GENCODE " -gencode arch=compute_90,code=[sm_90,compute_90]")
+      endif()
     endif()
   endif()
 

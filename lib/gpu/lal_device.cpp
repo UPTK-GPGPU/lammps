@@ -627,7 +627,8 @@ int DeviceT::init_nbor(Neighbor *nbor, const int nlocal,
   if (_ocl_config_name == "AMD_GPU" && gpu->shared_memory(_first_device) && gpu_nbor > 0)
     return -17;
   #endif
-PRINT_LOG("@@@@@@@@@_simd_size=%d\n",_simd_size);
+
+  printf("=============_simd_size = %d\n", _simd_size);
 
   if (!nbor->init(&_neighbor_shared,ef_nlocal,host_nlocal,max_nbors,maxspecial,
                   *gpu,gpu_nbor,gpu_host,pre_cut,_block_cell_2d,
@@ -1078,11 +1079,13 @@ int DeviceT::compile_kernels() {
 
   _ptx_arch=static_cast<double>(gpu_lib_data[0])/100.0;
   #if !(defined(USE_OPENCL) || defined(USE_HIP))
+  #if defined(GPGPU_ARCH_DTK)
   if (_ptx_arch>gpu->arch() || floor(_ptx_arch)<floor(gpu->arch()))
-  { 
-    PRINT_LOG("a1=%lf, a2=%lf, a3=%lf, a4=%lf\n", _ptx_arch, gpu->arch(), floor(_ptx_arch), floor(gpu->arch()));
-    //return -4;
+  {
+    printf("aaa\n");
   }
+    //return -4;
+  #endif
   #endif
 
   _config_id=gpu_lib_data[1];
@@ -1091,7 +1094,6 @@ int DeviceT::compile_kernels() {
     _simd_size=std::max(gpu_lib_data[2],gpu->preferred_fp32_width());
   else
     _simd_size=std::max(gpu_lib_data[2],gpu->preferred_fp64_width());
-PRINT_LOG(">>>> _simd_size=%d,gpu_lib_data[2]=%d,f32=%d,f64=%d\n",_simd_size,gpu_lib_data[2],gpu->preferred_fp32_width(),gpu->preferred_fp64_width());
 
   _num_mem_threads=gpu_lib_data[3];
   _shuffle_avail=gpu_lib_data[4];

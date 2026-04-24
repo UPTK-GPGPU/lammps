@@ -32,13 +32,20 @@ _texture( param4_tex,int4);
 _texture( param5_tex,int4);
 #endif
 
-#if 1 
-//#if (__CUDACC_VER_MAJOR__ >= 11)
-#define param1_tex param1
-#define param2_tex param2
-#define param3_tex param3
-#define param4_tex param4
-#define param5_tex param5
+#if defined(GPGPU_ARCH_COREX)
+  #define param1_tex param1
+  #define param2_tex param2
+  #define param3_tex param3
+  #define param4_tex param4
+  #define param5_tex param5
+#else
+  #if (__CUDACC_VER_MAJOR__ >= 11)
+  #define param1_tex param1
+  #define param2_tex param2
+  #define param3_tex param3
+  #define param4_tex param4
+  #define param5_tex param5
+  #endif
 #endif
 
 #else

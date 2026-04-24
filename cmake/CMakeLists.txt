@@ -3,7 +3,6 @@
 # CMake build system
 # This file is part of LAMMPS
 cmake_minimum_required(VERSION 3.16)
-########################################
 # initialize version variables with project command
 if(POLICY CMP0048)
   cmake_policy(SET CMP0048 NEW)
@@ -1123,3 +1122,9 @@ if(ENABLE_TESTING)
 endif()
 
 #target_link_libraries(MyDemo cudart UPTKdrt)
+
+if(GPGPU_ARCH_COREX)
+    add_definitions(-DGPGPU_ARCH_COREX)
+else()
+    add_definitions(-DGPGPU_ARCH_DTK)
+endif()

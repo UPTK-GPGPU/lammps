@@ -36,16 +36,24 @@ _texture( z2r_sp1_tex,int4);
 _texture( z2r_sp2_tex,int4);
 #endif
 
-
-#if 1
-//#if (__CUDACC_VER_MAJOR__ >= 11)
-#define fp_tex fp_
-#define rhor_sp1_tex rhor_spline1
-#define rhor_sp2_tex rhor_spline2
-#define frho_sp1_tex frho_spline1
-#define frho_sp2_tex frho_spline2
-#define z2r_sp1_tex z2r_spline1
-#define z2r_sp2_tex z2r_spline2
+#if defined(GPGPU_ARCH_COREX)
+  #define fp_tex fp_
+  #define rhor_sp1_tex rhor_spline1
+  #define rhor_sp2_tex rhor_spline2
+  #define frho_sp1_tex frho_spline1
+  #define frho_sp2_tex frho_spline2
+  #define z2r_sp1_tex z2r_spline1
+  #define z2r_sp2_tex z2r_spline2
+#else
+  #if (__CUDACC_VER_MAJOR__ >= 11)
+    #define fp_tex fp_
+    #define rhor_sp1_tex rhor_spline1
+    #define rhor_sp2_tex rhor_spline2
+    #define frho_sp1_tex frho_spline1
+    #define frho_sp2_tex frho_spline2
+    #define z2r_sp1_tex z2r_spline1
+    #define z2r_sp2_tex z2r_spline2
+  #endif
 #endif
 
 #else

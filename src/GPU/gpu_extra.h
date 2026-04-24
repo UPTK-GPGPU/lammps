@@ -44,16 +44,12 @@
 #endif
 #endif
 
-#define PRINT_LOG(fmt, ...) \
-    do { \
-        printf("[%s:%s:%d] " fmt, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-    } while (0)
-
 namespace GPU_EXTRA {
 
 using Error = LAMMPS_NS::Error;
-#define USE_PRINT_LOG
-#ifdef USE_PRINT_LOG
+
+//inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
+#ifdef GPGPU_ARCH_COREX
 inline void check_flag(int error_flag, Error *error, MPI_Comm &world,const char *file, const char *fun, const int line)
 #else
 inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
@@ -66,9 +62,6 @@ inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
   // from init_device() in lib/gpu/lal_device.h
 
   if (all_success != 0) {
-#ifdef USE_PRINT_LOG
-    printf("all_success=[%d], file=[%s], fun=[%s], line=[%d]\n", all_success, file, fun, line);
-#endif
     if (all_success == -1)
       error->all(FLERR, Error::NOLASTLINE, "The package gpu command is required for gpu styles");
     else if (all_success == -2)
@@ -115,7 +108,8 @@ inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
       error->all(FLERR, Error::NOLASTLINE, "Unknown error {} in GPU library", all_success);
   }
 }
-#ifdef USE_PRINT_LOG
+
+#ifdef GPGPU_ARCH_COREX
 #define check_flag(error_flag, error, world) check_flag(error_flag, error, world, __FILE__, __FUNCTION__, __LINE__)
 #endif
 
@@ -128,4 +122,3 @@ inline void gpu_ready(LAMMPS_NS::Modify *modify, LAMMPS_NS::Error *error)
 }    // namespace GPU_EXTRA
 
 #endif
-
