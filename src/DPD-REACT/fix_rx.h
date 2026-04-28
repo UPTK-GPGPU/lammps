@@ -22,6 +22,7 @@ FixStyle(rx,FixRX);
 
 #include "fix.h"
 
+typedef int (*fnptr)(double, const double *, double *, void *);
 namespace LAMMPS_NS {
 
 enum { ODE_LAMMPS_RK4, ODE_LAMMPS_RKF45 };

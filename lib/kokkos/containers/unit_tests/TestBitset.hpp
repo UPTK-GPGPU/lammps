@@ -1,19 +1,26 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_TEST_BITSET_HPP
 #define KOKKOS_TEST_BITSET_HPP
 
 #include <gtest/gtest.h>
 #include <iostream>
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.bitset;
-import kokkos.core;
-#else
-#include <Kokkos_Bitset.hpp>
 #include <Kokkos_Core.hpp>
-#endif
+#include <Kokkos_Bitset.hpp>
 #include <array>
 
 #include <../../core/unit_test/tools/include/ToolTestingUtilities.hpp>

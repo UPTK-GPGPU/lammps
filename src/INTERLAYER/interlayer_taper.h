@@ -16,8 +16,8 @@
 #ifndef LMP_INTERLAYER_TAPER_H
 #define LMP_INTERLAYER_TAPER_H
 
-
-namespace LAMMPS_NS::InterLayer {
+namespace LAMMPS_NS {
+namespace InterLayer {
 
   static constexpr double Tap_coeff[8] = {1.0, 0.0, 0.0, 0.0, -35.0, 84.0, -70.0, 20.0};
 
@@ -62,6 +62,6 @@ namespace LAMMPS_NS::InterLayer {
 
     return (dTap);
   }
-} // namespace LAMMPS_NS::InterLayer
-
+}    // namespace InterLayer
+}    // namespace LAMMPS_NS
 #endif

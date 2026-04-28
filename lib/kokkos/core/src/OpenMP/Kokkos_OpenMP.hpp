@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_PUBLIC_INCLUDE
 #include <Kokkos_Macros.hpp>
@@ -98,6 +111,10 @@ class OpenMP {
 
   static void impl_initialize(InitializationSettings const&);
 
+  /// \brief is the default execution space initialized for current 'master'
+  /// thread
+  static bool impl_is_initialized() noexcept;
+
   /// \brief Free any resources being consumed by the default execution space
   static void impl_finalize();
 
@@ -185,6 +202,9 @@ struct MemorySpaceAccess<Kokkos::OpenMP::memory_space,
 
 #include <OpenMP/Kokkos_OpenMP_Instance.hpp>
 #include <OpenMP/Kokkos_OpenMP_Team.hpp>
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_4
+#include <OpenMP/Kokkos_OpenMP_Task.hpp>
+#endif
 
 #include <KokkosExp_MDRangePolicy.hpp>
 /*--------------------------------------------------------------------------*/

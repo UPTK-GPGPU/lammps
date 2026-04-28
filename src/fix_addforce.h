@@ -39,9 +39,7 @@ class FixAddForce : public Fix {
   double compute_vector(int) override;
   double memory_usage() override;
 
-  enum { NONE, CONSTANT, EQUAL, ATOM };
-
- protected:
+ private:
   double xvalue, yvalue, zvalue;
   int varflag;
   char *xstr, *ystr, *zstr, *estr;

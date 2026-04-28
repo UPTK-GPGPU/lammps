@@ -250,7 +250,7 @@ CVSCRIPT(cv_resetatomappliedforces,
          0, 0,
          "",
             size_t i;
-            auto *f = script->proxy()->modify_atom_applied_forces();
+            std::vector<cvm::rvector> *f = script->proxy()->modify_atom_applied_forces();
             for (i = 0; i < f->size(); i++) {
               (*f)[i].reset();
             }

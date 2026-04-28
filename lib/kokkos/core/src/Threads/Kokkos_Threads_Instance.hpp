@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_THREADS_INSTANCE_HPP
 #define KOKKOS_THREADS_INSTANCE_HPP
@@ -538,6 +551,10 @@ KOKKOS_DEPRECATED inline int Threads::in_parallel() {
   return Impl::ThreadsInternal::in_parallel();
 }
 #endif
+
+inline int Threads::impl_is_initialized() {
+  return Impl::ThreadsInternal::is_initialized();
+}
 
 inline void Threads::impl_initialize(InitializationSettings const &settings) {
   Impl::ThreadsInternal::initialize(

@@ -357,7 +357,6 @@ class NPairHalffullKokkos : public NPair {
   NPairHalffullKokkos(class LAMMPS *);
   void build(class NeighList *) override;
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(TagNPairHalffullCompute, const int&) const;
 
@@ -365,7 +364,7 @@ class NPairHalffullKokkos : public NPair {
   int nlocal,triclinic;
   double cutsq_custom,delta;
 
-  typename AT::t_kkfloat_1d_3_lr_randomread x;
+  typename AT::t_x_array_randomread x;
 
   typename AT::t_neighbors_2d_const d_neighbors_full;
   typename AT::t_int_1d_const d_ilist_full;

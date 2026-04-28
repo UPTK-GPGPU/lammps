@@ -13,7 +13,10 @@
 #include "colvardeps.h"
 
 
-colvardeps::colvardeps() {}
+colvardeps::colvardeps()
+{
+  time_step_factor = 1;
+}
 
 
 colvardeps::~colvardeps() {

@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_SYCL_PARALLEL_REDUCE_TEAM_HPP
 #define KOKKOS_SYCL_PARALLEL_REDUCE_TEAM_HPP
@@ -40,8 +53,8 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
   const Policy m_policy;
   const pointer_type m_result_ptr;
   const bool m_result_ptr_device_accessible;
-  int m_shmem_begin;
-  int m_shmem_size;
+  size_type m_shmem_begin;
+  size_type m_shmem_size;
   size_t m_scratch_size[2];
   const size_type m_league_size;
   int m_team_size;
@@ -112,8 +125,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
               reference_type update = reducer.init(results_ptr);
               if (size == 1) {
                 const member_type team_member(
-                    team_scratch_memory_L0
-                        .get_multi_ptr<sycl::access::decorated::yes>(),
+                    KOKKOS_IMPL_SYCL_GET_MULTI_PTR(team_scratch_memory_L0),
                     shmem_begin, scratch_size[0], global_scratch_ptr,
                     scratch_size[1], item, item.get_group_linear_id(),
                     item.get_group_range(1));
@@ -127,7 +139,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                 reducer.copy(device_accessible_result_ptr, &results_ptr[0]);
             });
       };
-#ifdef KOKKOS_IMPL_SYCL_GRAPH_SUPPORT
+#ifdef SYCL_EXT_ONEAPI_GRAPH
       if constexpr (Policy::is_graph_kernel::value) {
         sycl_attach_kernel_to_node(*this, cgh_lambda);
       } else
@@ -144,9 +156,10 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
       // reduction on the values in all workgroups separately, write the
       // workgroup results back to global memory and recurse until only one
       // workgroup does the reduction and thus gets the final value.
-      auto scratch_flags = static_cast<sycl_device_ptr<unsigned int>>(
-          instance.scratch_flags(sizeof(unsigned int)));
       auto cgh_lambda = [&](sycl::handler& cgh) {
+        auto scratch_flags = static_cast<sycl_device_ptr<unsigned int>>(
+            instance.scratch_flags(sizeof(unsigned int)));
+
         // FIXME_SYCL accessors seem to need a size greater than zero at least
         // for host queues
         sycl::local_accessor<char, 1> team_scratch_memory_L0(
@@ -185,11 +198,10 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                                   ReducerType>) {
                   reference_type update =
                       reducer.init(&local_mem[local_id * value_count]);
-                  for (size_type league_rank = group_id;
-                       league_rank < league_size; league_rank += n_wgroups) {
+                  for (int league_rank = group_id; league_rank < league_size;
+                       league_rank += n_wgroups) {
                     const member_type team_member(
-                        team_scratch_memory_L0
-                            .get_multi_ptr<sycl::access::decorated::yes>(),
+                        KOKKOS_IMPL_SYCL_GET_MULTI_PTR(team_scratch_memory_L0),
                         shmem_begin, scratch_size[0],
                         global_scratch_ptr +
                             item.get_group(1) * scratch_size[1],
@@ -199,7 +211,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                     else
                       functor(WorkTag(), team_member, update);
                   }
-                  sycl::group_barrier(item.get_group());
+                  item.barrier(sycl::access::fence_space::local_space);
 
                   SYCLReduction::workgroup_reduction<>(
                       item, local_mem, results_ptr,
@@ -243,8 +255,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                   for (int league_rank = group_id; league_rank < league_size;
                        league_rank += n_wgroups) {
                     const member_type team_member(
-                        team_scratch_memory_L0
-                            .get_multi_ptr<sycl::access::decorated::yes>(),
+                        KOKKOS_IMPL_SYCL_GET_MULTI_PTR(team_scratch_memory_L0),
                         shmem_begin, scratch_size[0],
                         global_scratch_ptr +
                             item.get_group(1) * scratch_size[1],
@@ -269,7 +280,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                         scratch_flags_ref(*scratch_flags);
                     num_teams_done[0] = ++scratch_flags_ref;
                   }
-                  sycl::group_barrier(item.get_group());
+                  item.barrier(sycl::access::fence_space::local_space);
                   if (num_teams_done[0] == n_wgroups) {
                     if (local_id == 0) *scratch_flags = 0;
                     if (local_id >= n_wgroups)
@@ -349,7 +360,7 @@ class Kokkos::Impl::ParallelReduce<CombinedFunctorReducerType,
                 sycl::range<2>(m_team_size, m_vector_size)),
             reduction_lambda);
       };
-#ifdef KOKKOS_IMPL_SYCL_GRAPH_SUPPORT
+#ifdef SYCL_EXT_ONEAPI_GRAPH
       if constexpr (Policy::is_graph_kernel::value) {
         sycl_attach_kernel_to_node(*this, cgh_lambda);
       } else

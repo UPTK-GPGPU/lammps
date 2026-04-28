@@ -44,7 +44,7 @@ class FixBondHistory : public Fix {
 
   void update_atom_value(int, int, int, double);
   double get_atom_value(int, int, int);
-  [[nodiscard]] int get_ndata() const { return ndata; }
+  int get_ndata() const { return ndata; }
 
   // methods to reorder/delete elements of atom->bond_atom
   void delete_history(int, int);

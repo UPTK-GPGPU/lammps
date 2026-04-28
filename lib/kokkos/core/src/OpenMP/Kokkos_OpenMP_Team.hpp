@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_OPENMP_TEAM_HPP
 #define KOKKOS_OPENMP_TEAM_HPP
@@ -8,7 +21,6 @@
 #if defined(KOKKOS_ENABLE_OPENMP)
 
 #include <OpenMP/Kokkos_OpenMP_Instance.hpp>
-#include <Kokkos_BitManipulation.hpp>
 
 namespace Kokkos {
 namespace Impl {
@@ -251,12 +263,6 @@ class TeamPolicyInternal<Kokkos::OpenMP, Properties...>
     init(league_size_request, team_size_request);
   }
 
-  TeamPolicyInternal(const PolicyUpdate, const TeamPolicyInternal& other,
-                     typename traits::execution_space space)
-      : TeamPolicyInternal(other) {
-    this->m_space = std::move(space);
-  }
-
   inline int team_alloc() const { return m_team_alloc; }
   inline int team_iter() const { return m_team_iter; }
 
@@ -301,9 +307,9 @@ class TeamPolicyInternal<Kokkos::OpenMP, Properties...>
     int concurrency = m_space.impl_thread_pool_size(0) / m_team_alloc;
     if (concurrency == 0) concurrency = 1;
 
-    if (m_chunk_size > 0 &&
-        !Kokkos::has_single_bit(static_cast<unsigned>(m_chunk_size))) {
-      Kokkos::abort("TeamPolicy blocking granularity must be power of two");
+    if (m_chunk_size > 0) {
+      if (!Impl::is_integral_power_of_two(m_chunk_size))
+        Kokkos::abort("TeamPolicy blocking granularity must be power of two");
     }
 
     int new_chunk_size = 1;

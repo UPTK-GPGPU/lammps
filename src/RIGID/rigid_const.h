@@ -15,8 +15,8 @@
 #ifndef LMP_RIGID_CONST_H
 #define LMP_RIGID_CONST_H
 
-
-  namespace LAMMPS_NS::RigidConst {
+namespace LAMMPS_NS {
+  namespace RigidConst {
 
     enum{SINGLE, MOLECULE, GROUP};
     enum{NONE, XYZ, XY, YZ, XZ};
@@ -50,6 +50,6 @@
     static constexpr int DELTA_BODY = 10000;
     static constexpr int ATTRIBUTE_PERBODY = 20;
   }
-
+}
 
 #endif

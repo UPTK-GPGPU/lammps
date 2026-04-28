@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_SHAREDALLOC_TIMPL_HPP
 #define KOKKOS_IMPL_SHAREDALLOC_TIMPL_HPP
@@ -18,7 +31,6 @@
 namespace Kokkos {
 namespace Impl {
 
-// NOLINTBEGIN(bugprone-exception-escape)
 template <class MemorySpace>
 SharedAllocationRecordCommon<MemorySpace>::~SharedAllocationRecordCommon() {
   auto alloc_ptr  = SharedAllocationRecord<void, void>::m_alloc_ptr;
@@ -36,7 +48,6 @@ HostInaccessibleSharedAllocationRecordCommon<
   m_space.deallocate(label.c_str(), alloc_ptr, alloc_size,
                      alloc_size - sizeof(SharedAllocationHeader));
 }
-// NOLINTEND(bugprone-exception-escape)
 
 template <class MemorySpace>
 SharedAllocationRecordCommon<MemorySpace>::SharedAllocationRecordCommon(

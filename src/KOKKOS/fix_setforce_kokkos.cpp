@@ -28,6 +28,8 @@
 using namespace LAMMPS_NS;
 using namespace FixConst;
 
+enum{NONE,CONSTANT,EQUAL,ATOM};
+
 /* ---------------------------------------------------------------------- */
 
 template<class DeviceType>
@@ -131,7 +133,7 @@ void FixSetForceKokkos<DeviceType>::post_force(int /*vflag*/)
     modify->addstep_compute(update->ntimestep + 1);
 
     if (varflag == ATOM) {  // this can be removed when variable class is ported to Kokkos
-      k_sforce.modify_host();
+      k_sforce.modify<LMPHostType>();
       k_sforce.sync<DeviceType>();
     }
 
@@ -148,7 +150,6 @@ void FixSetForceKokkos<DeviceType>::post_force(int /*vflag*/)
 }
 
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void FixSetForceKokkos<DeviceType>::operator()(TagFixSetForceConstant, const int &i, double_3& foriginal_kk) const {
   if (mask[i] & groupbit) {
@@ -163,7 +164,6 @@ void FixSetForceKokkos<DeviceType>::operator()(TagFixSetForceConstant, const int
 }
 
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void FixSetForceKokkos<DeviceType>::operator()(TagFixSetForceNonConstant, const int &i, double_3& foriginal_kk) const {
   if (mask[i] & groupbit) {
@@ -186,3 +186,4 @@ template class FixSetForceKokkos<LMPDeviceType>;
 template class FixSetForceKokkos<LMPHostType>;
 #endif
 }
+

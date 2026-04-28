@@ -44,6 +44,5 @@ void DihedralDeprecated::settings(int, char **)
       utils::logmesg(lmp, "\nDihedral style 'DEPRECATED' is a dummy style\n\n");
     return;
   }
-  error->all(FLERR, Error::ARGZERO, "Dihedral style {} is no longer available. {}",
-             my_style, utils::errorurl(38));
+  error->all(FLERR, "This dihedral style is no longer available");
 }

@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_TEST_DYNAMICVIEW_HPP
 #define KOKKOS_TEST_DYNAMICVIEW_HPP
@@ -8,14 +21,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-import kokkos.dynamic_view;
-#else
 #include <Kokkos_Core.hpp>
+
 #include <Kokkos_DynamicView.hpp>
-#endif
 #include <Kokkos_Timer.hpp>
 
 namespace Test {
@@ -75,9 +83,7 @@ struct TestDynamicView {
           },
           result_sum);
 
-      ASSERT_EQ(result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_size) *
-                                        (da_size - 1) / 2));
+      ASSERT_EQ(result_sum, (value_type)(da_size * (da_size - 1) / 2));
 
       // add 3x more entries i.e. 4x larger than previous size
       // the first 1/4 should remain the same
@@ -98,9 +104,7 @@ struct TestDynamicView {
           new_result_sum);
 
       ASSERT_EQ(new_result_sum + result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_resize) *
-                                        (da_resize - 1)) /
-                    2);
+                (value_type)(da_resize * (da_resize - 1) / 2));
     }  // end scope
 
     // Test: Create DynamicView, initialize size (via resize), run through
@@ -127,9 +131,7 @@ struct TestDynamicView {
           },
           result_sum);
 
-      ASSERT_EQ(result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_size) *
-                                        (da_size - 1) / 2));
+      ASSERT_EQ(result_sum, (value_type)(da_size * (da_size - 1) / 2));
 
       // add 3x more entries i.e. 4x larger than previous size
       // the first 1/4 should remain the same
@@ -150,9 +152,7 @@ struct TestDynamicView {
           new_result_sum);
 
       ASSERT_EQ(new_result_sum + result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_resize) *
-                                        (da_resize - 1)) /
-                    2);
+                (value_type)(da_resize * (da_resize - 1) / 2));
     }  // end scope
 
     // Test: Create DynamicView, initialize size (via resize), run through
@@ -179,10 +179,7 @@ struct TestDynamicView {
           },
           result_sum);
 
-      ASSERT_EQ(result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_size) *
-                                        (da_size - 1)) /
-                    2);
+      ASSERT_EQ(result_sum, (value_type)(da_size * (da_size - 1) / 2));
 
       // remove the final 3/4 entries i.e. first 1/4 remain
       unsigned da_resize = arg_total_size / 8;
@@ -201,10 +198,7 @@ struct TestDynamicView {
           },
           new_result_sum);
 
-      ASSERT_EQ(new_result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_resize) *
-                                        (da_resize - 1)) /
-                    2);
+      ASSERT_EQ(new_result_sum, (value_type)(da_resize * (da_resize - 1) / 2));
     }  // end scope
 
     // Test: Reproducer to demonstrate compile-time error of deep_copy
@@ -212,8 +206,7 @@ struct TestDynamicView {
     //   Case 4:
     {
       using device_view_type = Kokkos::View<Scalar*, Space>;
-      using host_view_type =
-          typename Kokkos::View<Scalar*, Space>::host_mirror_type;
+      using host_view_type = typename Kokkos::View<Scalar*, Space>::HostMirror;
 
       view_type device_dynamic_view("on-device DynamicView", 1024,
                                     arg_total_size);
@@ -236,10 +229,7 @@ struct TestDynamicView {
           },
           result_sum);
 
-      ASSERT_EQ(result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_size) *
-                                        (da_size - 1)) /
-                    2);
+      ASSERT_EQ(result_sum, (value_type)(da_size * (da_size - 1) / 2));
 
       // Use an on-device View as intermediate to deep_copy the
       // device_dynamic_view to host, zero out the device_dynamic_view,
@@ -260,10 +250,7 @@ struct TestDynamicView {
           },
           new_result_sum);
 
-      ASSERT_EQ(new_result_sum,
-                static_cast<value_type>(static_cast<value_type>(da_size) *
-                                        (da_size - 1)) /
-                    2);
+      ASSERT_EQ(new_result_sum, (value_type)(da_size * (da_size - 1) / 2));
     }
   }
 };

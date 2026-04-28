@@ -44,7 +44,7 @@ class DerivativeException : public std::exception {
   {
     message = fmt::format("Order {} derivative of function {} in {} is not supported", deg, fn, vn);
   }
-  [[nodiscard]] const char *what() const noexcept override { return message.c_str(); }
+  const char *what() const noexcept override { return message.c_str(); }
 };
 }    // namespace Lepton
 
@@ -98,7 +98,7 @@ class VariableException : public std::exception {
   {
     message = fmt::format("Variable {} in expression {} does not exist", var, expr);
   }
-  [[nodiscard]] const char *what() const noexcept override { return message.c_str(); }
+  const char *what() const noexcept override { return message.c_str(); }
 };
 }    // namespace LeptonUtils
 

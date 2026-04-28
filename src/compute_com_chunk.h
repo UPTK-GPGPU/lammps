@@ -37,7 +37,6 @@ class ComputeCOMChunk : public ComputeChunk {
  private:
   double *massproc;
   double **com, **comall;
-  bool wrapflag;
 
   void allocate() override;
 };

@@ -33,11 +33,10 @@ using namespace MathSpecialKokkos;
 // -5 => G = +-sqrt(abs(1+gamma))
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT MEAMKokkos<DeviceType>::G_gam(const KK_FLOAT gamma, const int ibar, int &errorflag) const
+double MEAMKokkos<DeviceType>::G_gam(const double gamma, const int ibar, int &errorflag) const
 {
-  KK_FLOAT gsmooth_switchpoint;
+  double gsmooth_switchpoint;
 
   switch (ibar) {
     case 0:
@@ -47,7 +46,7 @@ KK_FLOAT MEAMKokkos<DeviceType>::G_gam(const KK_FLOAT gamma, const int ibar, int
         // e.g. gsmooth_factor is 99, {:
         // gsmooth_switchpoint = -0.99
         // G = 0.01*(-0.99/gamma)**99
-        KK_FLOAT G = 1 / (gsmooth_factor + 1) * pow((gsmooth_switchpoint / gamma), gsmooth_factor);
+        double G = 1 / (gsmooth_factor + 1) * pow((gsmooth_switchpoint / gamma), gsmooth_factor);
         return sqrt(G);
       } else {
         return sqrt(1.0 + gamma);
@@ -77,12 +76,11 @@ KK_FLOAT MEAMKokkos<DeviceType>::G_gam(const KK_FLOAT gamma, const int ibar, int
 // -5 => G = +-sqrt(abs(1+gamma))
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT MEAMKokkos<DeviceType>::dG_gam(const KK_FLOAT gamma, const int ibar, KK_FLOAT& dG) const
+double MEAMKokkos<DeviceType>::dG_gam(const double gamma, const int ibar, double& dG) const
 {
-  KK_FLOAT gsmooth_switchpoint;
-  KK_FLOAT G;
+  double gsmooth_switchpoint;
+  double G;
 
   switch (ibar) {
     case 0:
@@ -128,19 +126,18 @@ KK_FLOAT MEAMKokkos<DeviceType>::dG_gam(const KK_FLOAT gamma, const int ibar, KK
 // Compute ZBL potential
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT MEAMKokkos<DeviceType>::zbl(const KK_FLOAT r, const int z1, const int z2) const
+double MEAMKokkos<DeviceType>::zbl(const double r, const int z1, const int z2) const
 {
   int i;
-  const KK_FLOAT c[] = { 0.028171, 0.28022, 0.50986, 0.18175 };
-  const KK_FLOAT d[] = { 0.20162, 0.40290, 0.94229, 3.1998 };
-  const KK_FLOAT azero = 0.4685;
-  const KK_FLOAT cc = 14.3997;
-  KK_FLOAT a, x;
+  const double c[] = { 0.028171, 0.28022, 0.50986, 0.18175 };
+  const double d[] = { 0.20162, 0.40290, 0.94229, 3.1998 };
+  const double azero = 0.4685;
+  const double cc = 14.3997;
+  double a, x;
   // azero = (9pi^2/128)^1/3 (0.529) Angstroms
   a = azero / (pow(z1, 0.23) + pow(z2, 0.23));
-  KK_FLOAT result = 0.0;
+  double result = 0.0;
   x = r / a;
   for (i = 0; i <= 3; i++) {
     result = result + c[i] * MathSpecialKokkos::fm_exp(-d[i] * x);
@@ -154,14 +151,13 @@ KK_FLOAT MEAMKokkos<DeviceType>::zbl(const KK_FLOAT r, const int z1, const int z
 // Compute embedding function F(rhobar) and derivative F'(rhobar), eqn I.5
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT MEAMKokkos<DeviceType>::embedding(const KK_FLOAT A, const KK_FLOAT Ec, const KK_FLOAT rhobar, KK_FLOAT& dF) const
+double MEAMKokkos<DeviceType>::embedding(const double A, const double Ec, const double rhobar, double& dF) const
 {
-  const KK_FLOAT AEc = A * Ec;
+  const double AEc = A * Ec;
 
   if (rhobar > 0.0) {
-      const KK_FLOAT lrb = log(rhobar);
+      const double lrb = log(rhobar);
       dF = AEc * (1.0 + lrb);
       return AEc * rhobar * lrb;
   } else {
@@ -179,13 +175,12 @@ KK_FLOAT MEAMKokkos<DeviceType>::embedding(const KK_FLOAT A, const KK_FLOAT Ec, 
 // Compute Rose energy function, I.16
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT MEAMKokkos<DeviceType>::erose(const KK_FLOAT r, const KK_FLOAT re, const KK_FLOAT alpha, const KK_FLOAT Ec, const KK_FLOAT repuls,
-            const KK_FLOAT attrac, const int form) const
+double MEAMKokkos<DeviceType>::erose(const double r, const double re, const double alpha, const double Ec, const double repuls,
+            const double attrac, const int form) const
 {
-  KK_FLOAT astar, a3;
-  KK_FLOAT result = 0.0;
+  double astar, a3;
+  double result = 0.0;
 
   if (r > 0.0) {
     astar = alpha * (r / re - 1.0);
@@ -209,9 +204,8 @@ KK_FLOAT MEAMKokkos<DeviceType>::erose(const KK_FLOAT r, const KK_FLOAT re, cons
 // Shape factors for various configurations
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-void MEAMKokkos<DeviceType>::get_shpfcn(const lattice_t latt, const KK_FLOAT sthe, const KK_FLOAT cthe, KK_FLOAT (&s)[3]) const
+void MEAMKokkos<DeviceType>::get_shpfcn(const lattice_t latt, const double sthe, const double cthe, double (&s)[3]) const
 {
   switch (latt) {
     case FCC:
@@ -263,7 +257,6 @@ void MEAMKokkos<DeviceType>::get_shpfcn(const lattice_t latt, const KK_FLOAT sth
 // Number of neighbors for the reference structure
 //
 template<class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 int MEAMKokkos<DeviceType>::get_Zij(const lattice_t latt) const
 {

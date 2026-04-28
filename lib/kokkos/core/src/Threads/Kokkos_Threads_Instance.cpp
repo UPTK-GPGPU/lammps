@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_PUBLIC_INCLUDE
 #define KOKKOS_IMPL_PUBLIC_INCLUDE
@@ -13,12 +26,7 @@
 #include <sstream>
 #include <thread>
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 
 #include <impl/Kokkos_Error.hpp>
 #include <impl/Kokkos_CPUDiscovery.hpp>
@@ -364,9 +372,8 @@ void ThreadsInternal::first_touch_allocate_thread_private_scratch(
 
     unsigned *ptr = reinterpret_cast<unsigned *>(exec.m_scratch);
 
-    auto const shift =
-        s_threads_process.m_scratch_thread_end / sizeof(unsigned);
-    unsigned *const end = ptr + shift;
+    unsigned *const end =
+        ptr + s_threads_process.m_scratch_thread_end / sizeof(unsigned);
 
     // touch on this thread
     while (ptr < end) *ptr++ = 0;
@@ -674,6 +681,11 @@ int Threads::concurrency() const { return impl_thread_pool_size(0); }
 
 void Threads::fence(const std::string &name) const {
   Impl::ThreadsInternal::fence(name);
+}
+
+Threads &Threads::impl_instance(int) {
+  static Threads t;
+  return t;
 }
 
 int Threads::impl_thread_pool_rank_host() {

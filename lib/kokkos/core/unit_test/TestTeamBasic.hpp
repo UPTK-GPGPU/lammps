@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_TEST_TEAM_BASIC_HPP
 #define KOKKOS_TEST_TEAM_BASIC_HPP
@@ -173,14 +186,13 @@ TEST(TEST_CATEGORY, large_team_scratch_size) {
   const int level   = 1;
   const int n_teams = 1;
 
-#if defined(KOKKOS_ENABLE_LARGE_MEM_TESTS) || defined(KOKKOS_ENABLE_CUDA) || \
-    defined(KOKKOS_ENABLE_HIP) || defined(KOKKOS_ENABLE_SYCL)
-  //  The GPU backends use unsigned as size_type and we need to check that we
-  //  didn't screw the scratch space calculation up, CPU backends anyway use
-  //  size_t so less likely to screw up
-  const size_t per_team_extent = 502795560;
-#else
+#ifdef KOKKOS_ENABLE_OPENMPTARGET
+  // Allocate slightly more than (2^31-1) bytes. The other value resulted in
+  // problems allocating too much memory.
   const size_t per_team_extent = 268435460;
+#else
+  // Value originally chosen in the reproducer.
+  const size_t per_team_extent = 502795560;
 #endif
 
   const size_t per_team_bytes = per_team_extent * sizeof(double);

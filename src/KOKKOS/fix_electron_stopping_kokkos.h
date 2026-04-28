@@ -35,7 +35,6 @@ struct FixElectronStoppingErrorValue {
   double energy;
 };
 
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION bool
 operator<(const FixElectronStoppingErrorValue &lhs, const FixElectronStoppingErrorValue &rhs) {
   return lhs.i < rhs.i;
@@ -52,19 +51,18 @@ class FixElectronStoppingKokkos : public FixElectronStopping {
   void init() override;
   void post_force(int) override;
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(TagFixElectronStopping, const int&, double&, FixElectronStoppingErrorValue&) const;
 
  protected:
-  typename AT::t_kkfloat_1d_3_lr_const x;
-  typename AT::t_kkacc_1d_3 f;
-  typename AT::t_kkfloat_1d_3 v;
+  typename AT::t_x_array_const x;
+  typename AT::t_f_array f;
+  typename AT::t_v_array_const v;
   typename AT::t_int_1d_randomread type;
-  typename AT::t_tagint_1d_const tag;
+  typename AT::t_int_1d_randomread tag;
   typename AT::t_int_1d_const d_mask;
-  typename AT::t_kkfloat_1d_randomread d_mass;
-  typename AT::t_kkfloat_1d_const d_rmass;
+  typename AT::t_float_1d_randomread d_mass;
+  typename AT::t_float_1d_const d_rmass;
 
   typename AT::t_int_1d_const d_numneigh;
 
@@ -80,7 +78,6 @@ class FixElectronStoppingKokkos : public FixElectronStopping {
 namespace Kokkos { //reduction identity must be defined in Kokkos namespace
    template<>
    struct reduction_identity<LAMMPS_NS::FixElectronStoppingErrorValue> {
-// NOLINTNEXTLINE
       KOKKOS_FORCEINLINE_FUNCTION static LAMMPS_NS::FixElectronStoppingErrorValue min() {
          return {INT_MAX, 0};
       }

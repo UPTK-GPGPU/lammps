@@ -43,8 +43,6 @@ ImproperCvff::ImproperCvff(LAMMPS *_lmp) : Improper(_lmp)
 
 ImproperCvff::~ImproperCvff()
 {
-  if (copymode) return;
-
   if (allocated) {
     memory->destroy(setflag);
     memory->destroy(k);

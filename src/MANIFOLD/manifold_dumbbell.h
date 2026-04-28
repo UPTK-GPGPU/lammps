@@ -16,9 +16,9 @@
 
 #include "manifold.h"
 
+namespace LAMMPS_NS {
 
-
-namespace LAMMPS_NS::user_manifold {
+namespace user_manifold {
 
   // A dendritic dumbbell approximation:
   class manifold_dumbbell : public manifold {
@@ -34,8 +34,8 @@ namespace LAMMPS_NS::user_manifold {
     static int expected_argc() { return NPARAMS; }
     int nparams() override { return NPARAMS; }
   };
-} // namespace LAMMPS_NS::user_manifold
+}    // namespace user_manifold
 
-
+}    // namespace LAMMPS_NS
 
 #endif    // LMP_MANIFOLD_DUMBBELL_H

@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOSTRAITS_HPP
 #define KOKKOSTRAITS_HPP
@@ -7,6 +20,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <Kokkos_Macros.hpp>
+#include <impl/Kokkos_BitOps.hpp>
 #include <string>
 #include <type_traits>
 
@@ -102,6 +116,16 @@ struct are_integral<T, Args...> {
 
 namespace Kokkos {
 namespace Impl {
+
+//----------------------------------------------------------------------------
+// These 'constexpr'functions can be used as
+// both regular functions and meta-function.
+
+/**\brief  There exists integral 'k' such that N = 2^k */
+KOKKOS_INLINE_FUNCTION
+constexpr bool is_integral_power_of_two(const size_t N) {
+  return (0 < N) && (0 == (N & (N - 1)));
+}
 
 //----------------------------------------------------------------------------
 

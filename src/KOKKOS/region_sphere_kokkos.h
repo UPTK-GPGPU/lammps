@@ -45,11 +45,9 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
 
   void match_all_kokkos(int, DAT::tdual_int_1d) override;
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(TagRegSphereMatchAll, const int&) const;
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   int match_kokkos(double x, double y, double z) const
   {
@@ -58,7 +56,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     return !(k_inside(x,y,z) ^ interior);
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   int surface_kokkos(double x, double y, double z, double cutoff)
   {
@@ -102,10 +99,9 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
  private:
   int groupbit;
   typename AT::t_int_1d d_match;
-  typename AT::t_kkfloat_1d_3_lr_randomread d_x;
+  typename AT::t_x_array_randomread d_x;
   typename AT::t_int_1d_randomread d_mask;
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   int surface_interior_kokkos(double *x, double cutoff)
   {
@@ -129,7 +125,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     return 0;
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   int surface_exterior_kokkos(double *x, double cutoff)
   {
@@ -153,7 +148,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     return 0;
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void add_contact(int n, double *x, double xp, double yp, double zp)
   {
@@ -167,7 +161,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     d_contact[n].delz = delz;
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   int k_inside(double x, double y, double z) const
   {
@@ -180,7 +173,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     return 0;
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void forward_transform(double &x, double &y, double &z) const
   {
@@ -192,7 +184,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     }
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void inverse_transform(double &x, double &y, double &z) const
   {
@@ -204,7 +195,6 @@ class RegSphereKokkos : public RegSphere, public KokkosBase  {
     if (rotateflag) rotate(x,y,z,-theta);
   }
 
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void rotate(double &x, double &y, double &z, double angle) const
   {

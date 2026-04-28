@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_HIP_UNIQUE_TOKEN_HPP
 #define KOKKOS_HIP_UNIQUE_TOKEN_HPP
@@ -116,7 +129,7 @@ class UniqueToken<HIP, UniqueTokenScope::Instance>
   UniqueToken()
       : UniqueToken<HIP, UniqueTokenScope::Global>(HIP().concurrency()) {}
   explicit UniqueToken(execution_space const& arg)
-      : UniqueToken<HIP, UniqueTokenScope::Global>(arg.concurrency(), arg) {}
+      : UniqueToken<HIP, UniqueTokenScope::Global>(HIP().concurrency(), arg) {}
   explicit UniqueToken(size_type max_size)
       : UniqueToken<HIP, UniqueTokenScope::Global>(max_size) {}
   UniqueToken(size_type max_size, execution_space const& arg)

@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_BITSET_HPP
 #define KOKKOS_BITSET_HPP
@@ -8,14 +21,9 @@
 #define KOKKOS_IMPL_PUBLIC_INCLUDE_NOTDEFINED_BITSET
 #endif
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-import kokkos.core_impl;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 #include <Kokkos_BitManipulation.hpp>
+#include <Kokkos_Functional.hpp>
 
 #include <impl/Kokkos_Bitset_impl.hpp>
 
@@ -262,10 +270,10 @@ class Bitset {
     offset = !(scan_direction & BIT_SCAN_REVERSE)
                  ? offset
                  : (offset + block_mask) & block_mask;
-    block  = Experimental::rotr_builtin(block, offset);
+    block  = Impl::rotate_right(block, offset);
     return (((!(scan_direction & BIT_SCAN_REVERSE)
-                  ? Experimental::countr_zero_builtin(block)
-                  : Experimental::bit_width_builtin(block) - 1) +
+                  ? Impl::bit_scan_forward(block)
+                  : Impl::int_log2(block)) +
              offset) &
             block_mask) +
            block_start;

@@ -125,13 +125,12 @@ class KSpace : protected Pointers {
   // KOKKOS host/device flag and data masks
 
   ExecutionSpace execution_space;
-  uint64_t datamask_read, datamask_modify;
+  unsigned int datamask_read, datamask_modify;
   int copymode;
 
   int compute_flag;       // 0 if skip compute()
   int fftbench;           // 0 if skip FFT timing
   int collective_flag;    // 1 if use MPI collectives for FFT/remap
-  int nonblocking_flag;   // 1 if use MPI_Isend for FFT/remap
   int stagger_flag;       // 1 if using staggered PPPM grids
 
   double splittol;    // tolerance for when to truncate splitting
@@ -180,7 +179,7 @@ class KSpace : protected Pointers {
    see Eq 4 from Parallel Computing 35 (2009) 164-177
 ------------------------------------------------------------------------- */
 
-  [[nodiscard]] double gamma(const double &rho) const
+  double gamma(const double &rho) const
   {
     if (rho <= 1.0) {
       const int split_order = order / 2;
@@ -201,7 +200,7 @@ class KSpace : protected Pointers {
    see Eq 4 from Parallel Computing 35 (2009) 164-177
 ------------------------------------------------------------------------- */
 
-  [[nodiscard]] double dgamma(const double &rho) const
+  double dgamma(const double &rho) const
   {
     if (rho <= 1.0) {
       const int split_order = order / 2;

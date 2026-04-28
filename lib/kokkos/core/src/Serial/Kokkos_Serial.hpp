@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 /// \file Kokkos_Serial.hpp
 /// \brief Declaration and definition of Kokkos::Serial device.
@@ -190,6 +203,8 @@ class Serial {
 
   static void impl_initialize(InitializationSettings const&);
 
+  static bool impl_is_initialized();
+
   //! Free any resources being consumed by the device.
   static void impl_finalize();
 
@@ -255,24 +270,44 @@ struct MemorySpaceAccess<Kokkos::Serial::memory_space,
 }  // namespace Impl
 }  // namespace Kokkos
 
-namespace Kokkos::Experimental::Impl {
-// Create new instance of Serial execution space for each partition, ignoring
-// weights
+namespace Kokkos::Experimental {
+
+template <class... Args>
+std::vector<Serial> partition_space(const Serial&, Args...) {
+  static_assert(
+      (... && std::is_arithmetic_v<Args>),
+      "Kokkos Error: partitioning arguments must be integers or floats");
+  std::vector<Serial> instances;
+  instances.reserve(sizeof...(Args));
+  std::generate_n(std::back_inserter(instances), sizeof...(Args),
+                  []() { return Serial{NewInstance{}}; });
+  return instances;
+}
+
 template <class T>
-std::vector<Serial> impl_partition_space(const Serial&,
-                                         const std::vector<T>& weights) {
+std::vector<Serial> partition_space(const Serial&,
+                                    std::vector<T> const& weights) {
+  static_assert(
+      std::is_arithmetic_v<T>,
+      "Kokkos Error: partitioning arguments must be integers or floats");
+
+  // We only care about the number of instances to create and ignore weights
+  // otherwise.
   std::vector<Serial> instances;
   instances.reserve(weights.size());
   std::generate_n(std::back_inserter(instances), weights.size(),
-                  []() { return Serial(NewInstance{}); });
-
+                  []() { return Serial{NewInstance{}}; });
   return instances;
 }
-}  // namespace Kokkos::Experimental::Impl
+
+}  // namespace Kokkos::Experimental
 
 #include <Serial/Kokkos_Serial_Parallel_Range.hpp>
 #include <Serial/Kokkos_Serial_Parallel_MDRange.hpp>
 #include <Serial/Kokkos_Serial_Parallel_Team.hpp>
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_4
+#include <Serial/Kokkos_Serial_Task.hpp>
+#endif
 #include <Serial/Kokkos_Serial_UniqueToken.hpp>
 
 #endif  // defined( KOKKOS_ENABLE_SERIAL )

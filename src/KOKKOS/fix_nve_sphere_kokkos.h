@@ -31,8 +31,6 @@ namespace LAMMPS_NS {
 template<class DeviceType>
 class FixNVESphereKokkos : public FixNVESphere {
   public:
-    typedef ArrayTypes<DeviceType> AT;
-
     FixNVESphereKokkos(class LAMMPS *, int, char **);
 
     void cleanup_copy();
@@ -41,35 +39,30 @@ class FixNVESphereKokkos : public FixNVESphere {
     void final_integrate() override;
     void fused_integrate(int) override;
 
-// NOLINTNEXTLINE
     KOKKOS_INLINE_FUNCTION
     void initial_integrate_item(const int i) const;
-// NOLINTNEXTLINE
     KOKKOS_INLINE_FUNCTION
     void final_integrate_item(const int i) const;
-// NOLINTNEXTLINE
     KOKKOS_INLINE_FUNCTION
     void fused_integrate_item(int) const;
 
   private:
-    typename AT::t_kkfloat_1d_3_lr x;
-    typename AT::t_kkfloat_1d_3 v;
-    typename AT::t_kkfloat_1d_3 omega;
-    typename AT::t_kkfloat_1d_4 mu;
-    typename AT::t_kkacc_1d_3 f;
-    typename AT::t_kkacc_1d_3 torque;
-    typename AT::t_kkfloat_1d rmass;
-    typename AT::t_kkfloat_1d radius;
-    typename AT::t_int_1d mask;
+    typename ArrayTypes<DeviceType>::t_x_array x;
+    typename ArrayTypes<DeviceType>::t_v_array v;
+    typename ArrayTypes<DeviceType>::t_v_array omega;
+    typename ArrayTypes<DeviceType>::t_mu_array mu;
+    typename ArrayTypes<DeviceType>::t_f_array f;
+    typename ArrayTypes<DeviceType>::t_f_array torque;
+    typename ArrayTypes<DeviceType>::t_float_1d rmass;
+    typename ArrayTypes<DeviceType>::t_float_1d radius;
+    typename ArrayTypes<DeviceType>::t_int_1d mask;
 };
 
 template <class DeviceType>
 struct FixNVESphereKokkosInitialIntegrateFunctor {
   typedef DeviceType device_type;
-  typedef ArrayTypes<DeviceType> AT;
   FixNVESphereKokkos<DeviceType> c;
   FixNVESphereKokkosInitialIntegrateFunctor(FixNVESphereKokkos<DeviceType> *c_ptr): c(*c_ptr) { c.cleanup_copy(); }
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(const int i) const {
     c.initial_integrate_item(i);
@@ -79,10 +72,8 @@ struct FixNVESphereKokkosInitialIntegrateFunctor {
 template <class DeviceType>
 struct FixNVESphereKokkosFinalIntegrateFunctor {
   typedef DeviceType device_type;
-  typedef ArrayTypes<DeviceType> AT;
   FixNVESphereKokkos<DeviceType> c;
   FixNVESphereKokkosFinalIntegrateFunctor(FixNVESphereKokkos<DeviceType> *c_ptr): c(*c_ptr) { c.cleanup_copy(); }
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(const int i) const {
     c.final_integrate_item(i);
@@ -92,10 +83,8 @@ struct FixNVESphereKokkosFinalIntegrateFunctor {
 template <class DeviceType>
 struct FixNVESphereKokkosFusedIntegrateFunctor {
   typedef DeviceType device_type;
-  typedef ArrayTypes<DeviceType> AT;
   FixNVESphereKokkos<DeviceType> c;
   FixNVESphereKokkosFusedIntegrateFunctor(FixNVESphereKokkos<DeviceType> *c_ptr): c(*c_ptr) { c.cleanup_copy(); }
-// NOLINTNEXTLINE
   KOKKOS_INLINE_FUNCTION
   void operator()(const int i) const {
     c.fused_integrate_item(i);

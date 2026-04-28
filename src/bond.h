@@ -48,7 +48,7 @@ class Bond : protected Pointers {
   // KOKKOS host/device flag and data masks
 
   ExecutionSpace execution_space;
-  uint64_t datamask_read, datamask_modify;
+  unsigned int datamask_read, datamask_modify;
   int copymode, kokkosable;
 
   Bond(class LAMMPS *);

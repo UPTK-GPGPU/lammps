@@ -27,25 +27,25 @@ class uf3_bspline_basis3 {
   double constants[16];
 
   // Evaluate outer-left part of spline
-  [[nodiscard]] double eval0(double rth, double rsq, double r) const
+  double eval0(double rth, double rsq, double r) const
   {
     return rth * constants[3] + rsq * constants[2] + r * constants[1] + constants[0];
   }
 
   // Evaluate center-left part of spline
-  [[nodiscard]] double eval1(double rth, double rsq, double r) const
+  double eval1(double rth, double rsq, double r) const
   {
     return rth * constants[7] + rsq * constants[6] + r * constants[5] + constants[4];
   }
 
   // Evaluate center-right part of spline
-  [[nodiscard]] double eval2(double rth, double rsq, double r) const
+  double eval2(double rth, double rsq, double r) const
   {
     return rth * constants[11] + rsq * constants[10] + r * constants[9] + constants[8];
   }
 
   // Evaluate outer-right part of spline
-  [[nodiscard]] double eval3(double rth, double rsq, double r) const
+  double eval3(double rth, double rsq, double r) const
   {
     return rth * constants[15] + rsq * constants[14] + r * constants[13] + constants[12];
   }

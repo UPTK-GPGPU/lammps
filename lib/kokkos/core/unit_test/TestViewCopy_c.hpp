@@ -1,15 +1,22 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #include <gtest/gtest.h>
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
-#include <Kokkos_Assert.hpp>
 
 namespace {
 // Do not rely on deep_copy(0) as we want to test it!
@@ -17,7 +24,7 @@ template <class ViewType, class ExecSpace>
 void reset_view(const ExecSpace& space, ViewType& a, int magic) {
   auto policy = Kokkos::RangePolicy<ExecSpace>(space, 0, a.span());
 
-  KOKKOS_ASSERT(a.span_is_contiguous());
+  assert(a.span_is_contiguous());
 
   Kokkos::parallel_for(
       "TestViewCopy::ResetView", policy,
@@ -28,7 +35,7 @@ template <class ViewType, class ExecSpace>
 size_t compute_overall_sum(const ExecSpace& space, ViewType& a) {
   auto policy = Kokkos::RangePolicy<ExecSpace>(space, 0, a.span());
 
-  KOKKOS_ASSERT(a.span_is_contiguous());
+  assert(a.span_is_contiguous());
 
   typename ViewType::value_type sum = 0;
   Kokkos::parallel_reduce(

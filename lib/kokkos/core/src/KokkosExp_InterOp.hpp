@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_CORE_EXP_INTEROP_HPP
 #define KOKKOS_CORE_EXP_INTEROP_HPP
@@ -62,6 +75,23 @@ using python_view_type_impl_t = typename python_view_type_impl<T...>::type;
 }  // namespace Kokkos
 
 namespace Kokkos {
+
+template <typename DataType, class... Properties>
+class DynRankView;
+
+namespace Impl {
+
+// Duplicate from the header file for DynRankView to avoid core depending on
+// containers.
+template <class>
+struct is_dyn_rank_view_dup : public std::false_type {};
+
+template <class D, class... P>
+struct is_dyn_rank_view_dup<Kokkos::DynRankView<D, P...>>
+    : public std::true_type {};
+
+}  // namespace Impl
+
 namespace Experimental {
 
 // ------------------------------------------------------------------ //
@@ -69,9 +99,14 @@ namespace Experimental {
 //
 template <typename ViewT>
 struct python_view_type {
-  static_assert(Kokkos::is_view<std::decay_t<ViewT>>::value);
+  static_assert(
+      Kokkos::is_view<std::decay_t<ViewT>>::value ||
+          Kokkos::Impl::is_dyn_rank_view_dup<std::decay_t<ViewT>>::value,
+      "Error! python_view_type only supports Kokkos::View and "
+      "Kokkos::DynRankView");
 
-  using type = Kokkos::Impl::python_view_type_impl_t<typename ViewT::type>;
+  using type =
+      Kokkos::Impl::python_view_type_impl_t<typename ViewT::array_type>;
 };
 
 template <typename ViewT>

@@ -123,12 +123,12 @@ void PairLJSPICAKokkos<DeviceType>::compute(int eflag_in, int vflag_in)
 
   if (eflag_atom) {
     k_eatom.template modify<DeviceType>();
-    k_eatom.sync_host();
+    k_eatom.template sync<LMPHostType>();
   }
 
   if (vflag_atom) {
     k_vatom.template modify<DeviceType>();
-    k_vatom.sync_host();
+    k_vatom.template sync<LMPHostType>();
   }
 
   if (vflag_fdotr) pair_virial_fdotr_compute(this);
@@ -142,20 +142,19 @@ void PairLJSPICAKokkos<DeviceType>::compute(int eflag_in, int vflag_in)
 
 template<class DeviceType>
 template<bool STACKPARAMS, class Specialisation>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT PairLJSPICAKokkos<DeviceType>::
-compute_fpair(const KK_FLOAT &rsq, const int &, const int &, const int &itype, const int &jtype) const {
-  const KK_FLOAT r2inv = 1.0/rsq;
+F_FLOAT PairLJSPICAKokkos<DeviceType>::
+compute_fpair(const F_FLOAT &rsq, const int &, const int &, const int &itype, const int &jtype) const {
+  const F_FLOAT r2inv = 1.0/rsq;
   const int ljt = (STACKPARAMS?m_params[itype][jtype].lj_type:params(itype,jtype).lj_type);
 
-  const KK_FLOAT lj_1 =  (STACKPARAMS?m_params[itype][jtype].lj1:params(itype,jtype).lj1);
-  const KK_FLOAT lj_2 =  (STACKPARAMS?m_params[itype][jtype].lj2:params(itype,jtype).lj2);
+  const F_FLOAT lj_1 =  (STACKPARAMS?m_params[itype][jtype].lj1:params(itype,jtype).lj1);
+  const F_FLOAT lj_2 =  (STACKPARAMS?m_params[itype][jtype].lj2:params(itype,jtype).lj2);
 
-  const KK_FLOAT r4inv=r2inv*r2inv;
-  const KK_FLOAT r6inv=r2inv*r4inv;
-  const KK_FLOAT a = ljt==LJ12_4?r4inv:(ljt==LJ12_5?r4inv*sqrt(r2inv):r6inv);
-  const KK_FLOAT b = ljt==LJ12_4?r4inv:(ljt==LJ9_6?1.0/sqrt(r2inv):(ljt==LJ12_5?r2inv*sqrt(r2inv):r2inv));
+  const F_FLOAT r4inv=r2inv*r2inv;
+  const F_FLOAT r6inv=r2inv*r4inv;
+  const F_FLOAT a = ljt==LJ12_4?r4inv:(ljt==LJ12_5?r4inv*sqrt(r2inv):r6inv);
+  const F_FLOAT b = ljt==LJ12_4?r4inv:(ljt==LJ9_6?1.0/sqrt(r2inv):(ljt==LJ12_5?r2inv*sqrt(r2inv):r2inv));
   return a* ( lj_1*r6inv*b - lj_2 * r2inv);
 }
 
@@ -165,30 +164,29 @@ compute_fpair(const KK_FLOAT &rsq, const int &, const int &, const int &itype, c
 
 template<class DeviceType>
 template<bool STACKPARAMS, class Specialisation>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
-KK_FLOAT PairLJSPICAKokkos<DeviceType>::
-compute_evdwl(const KK_FLOAT &rsq, const int &, const int &, const int &itype, const int &jtype) const {
-  const KK_FLOAT r2inv = 1.0/rsq;
+F_FLOAT PairLJSPICAKokkos<DeviceType>::
+compute_evdwl(const F_FLOAT &rsq, const int &, const int &, const int &itype, const int &jtype) const {
+  const F_FLOAT r2inv = 1.0/rsq;
   const int ljt = (STACKPARAMS?m_params[itype][jtype].lj_type:params(itype,jtype).lj_type);
 
-  const KK_FLOAT lj_3 =  (STACKPARAMS?m_params[itype][jtype].lj3:params(itype,jtype).lj3);
-  const KK_FLOAT lj_4 =  (STACKPARAMS?m_params[itype][jtype].lj4:params(itype,jtype).lj4);
-  const KK_FLOAT offset =  (STACKPARAMS?m_params[itype][jtype].offset:params(itype,jtype).offset);
+  const F_FLOAT lj_3 =  (STACKPARAMS?m_params[itype][jtype].lj3:params(itype,jtype).lj3);
+  const F_FLOAT lj_4 =  (STACKPARAMS?m_params[itype][jtype].lj4:params(itype,jtype).lj4);
+  const F_FLOAT offset =  (STACKPARAMS?m_params[itype][jtype].offset:params(itype,jtype).offset);
 
   if (ljt == LJ12_4) {
-    const KK_FLOAT r4inv=r2inv*r2inv;
+    const F_FLOAT r4inv=r2inv*r2inv;
     return r4inv*(lj_3*r4inv*r4inv - lj_4) - offset;
   } else if (ljt == LJ9_6) {
-    const KK_FLOAT r3inv = r2inv*sqrt(r2inv);
-    const KK_FLOAT r6inv = r3inv*r3inv;
+    const F_FLOAT r3inv = r2inv*sqrt(r2inv);
+    const F_FLOAT r6inv = r3inv*r3inv;
     return r6inv*(lj_3*r3inv - lj_4) - offset;
   } else if (ljt == LJ12_6) {
-    const KK_FLOAT r6inv = r2inv*r2inv*r2inv;
+    const double r6inv = r2inv*r2inv*r2inv;
     return r6inv*(lj_3*r6inv - lj_4) - offset;
   } else if (ljt == LJ12_5) {
-    const KK_FLOAT r5inv = r2inv*r2inv*sqrt(r2inv);
-    const KK_FLOAT r7inv = r5inv*r2inv;
+    const F_FLOAT r5inv = r2inv*r2inv*sqrt(r2inv);
+    const F_FLOAT r7inv = r5inv*r2inv;
     return r5inv*(lj_3*r7inv - lj_4) - offset;
   } else
     return 0.0;
@@ -249,22 +247,22 @@ double PairLJSPICAKokkos<DeviceType>::init_one(int i, int j)
 {
   double cutone = PairLJSPICA::init_one(i,j);
 
-  k_params.view_host()(i,j).lj1 = lj1[i][j];
-  k_params.view_host()(i,j).lj2 = lj2[i][j];
-  k_params.view_host()(i,j).lj3 = lj3[i][j];
-  k_params.view_host()(i,j).lj4 = lj4[i][j];
-  k_params.view_host()(i,j).offset = offset[i][j];
-  k_params.view_host()(i,j).cutsq = cutone*cutone;
-  k_params.view_host()(i,j).lj_type = lj_type[i][j];
-  k_params.view_host()(j,i) = k_params.view_host()(i,j);
+  k_params.h_view(i,j).lj1 = lj1[i][j];
+  k_params.h_view(i,j).lj2 = lj2[i][j];
+  k_params.h_view(i,j).lj3 = lj3[i][j];
+  k_params.h_view(i,j).lj4 = lj4[i][j];
+  k_params.h_view(i,j).offset = offset[i][j];
+  k_params.h_view(i,j).cutsq = cutone*cutone;
+  k_params.h_view(i,j).lj_type = lj_type[i][j];
+  k_params.h_view(j,i) = k_params.h_view(i,j);
   if (i<MAX_TYPES_STACKPARAMS+1 && j<MAX_TYPES_STACKPARAMS+1) {
-    m_params[i][j] = m_params[j][i] = k_params.view_host()(i,j);
+    m_params[i][j] = m_params[j][i] = k_params.h_view(i,j);
     m_cutsq[j][i] = m_cutsq[i][j] = cutone*cutone;
   }
 
-  k_cutsq.view_host()(i,j) = k_cutsq.view_host()(j,i) = cutone*cutone;
-  k_cutsq.modify_host();
-  k_params.modify_host();
+  k_cutsq.h_view(i,j) = k_cutsq.h_view(j,i) = cutone*cutone;
+  k_cutsq.template modify<LMPHostType>();
+  k_params.template modify<LMPHostType>();
 
   return cutone;
 }

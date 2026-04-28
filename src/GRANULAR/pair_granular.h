@@ -44,7 +44,7 @@ class PairGranular : public Pair {
   int pack_forward_comm(int, int *, double *, int, int *) override;
   void unpack_forward_comm(int, int, double *) override;
   double memory_usage() override;
-  [[nodiscard]] int get_size_history() const { return size_history; }
+  int get_size_history() const { return size_history; }
 
   // granular models
   class Granular_NS::GranularModel** models_list;

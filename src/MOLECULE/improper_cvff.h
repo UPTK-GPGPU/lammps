@@ -39,7 +39,7 @@ class ImproperCvff : public Improper {
   double *k;
   int *sign, *multiplicity;
 
-  virtual void allocate();
+  void allocate();
 };
 
 }    // namespace LAMMPS_NS

@@ -16,9 +16,9 @@
 
 #include "manifold.h"
 
+namespace LAMMPS_NS {
 
-
-namespace LAMMPS_NS::user_manifold {
+namespace user_manifold {
 
   class manifold_torus : public manifold {
    public:
@@ -33,8 +33,8 @@ namespace LAMMPS_NS::user_manifold {
     int nparams() override { return NPARAMS; }
   };
 
-} // namespace LAMMPS_NS::user_manifold
+}    // namespace user_manifold
 
-
+}    // namespace LAMMPS_NS
 
 #endif    // LMP_MANIFOLD_TORUS_H

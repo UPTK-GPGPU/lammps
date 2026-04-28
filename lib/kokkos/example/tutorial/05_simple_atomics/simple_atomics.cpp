@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #include <Kokkos_Core.hpp>
 #include <cstdio>
@@ -8,7 +21,7 @@
 
 // Type of a one-dimensional length-N array of int.
 using view_type      = Kokkos::View<int*>;
-using host_view_type = view_type::host_mirror_type;
+using host_view_type = view_type::HostMirror;
 // This is a "zero-dimensional" View, that is, a View of a single
 // value (an int, in this case).  Access the value using operator()
 // with no arguments: e.g., 'count()'.
@@ -17,7 +30,7 @@ using host_view_type = view_type::host_mirror_type;
 // resident in device memory, as well as for irregularly updated
 // shared state.  We use it for the latter in this example.
 using count_type      = Kokkos::View<int>;
-using host_count_type = count_type::host_mirror_type;
+using host_count_type = count_type::HostMirror;
 
 // Functor for finding a list of primes in a given set of numbers.  If
 // run in parallel, the order of results is nondeterministic, because

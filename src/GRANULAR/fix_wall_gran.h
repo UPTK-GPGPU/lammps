@@ -50,8 +50,6 @@ class FixWallGran : public Fix {
   int maxsize_restart() override;
   void reset_dt() override;
 
-  int image(int *&, double **&) override;
-
   // for granular model choices
   class Granular_NS::GranularModel *model;
 
@@ -60,7 +58,7 @@ class FixWallGran : public Fix {
   int nlevels_respa;
   bigint time_origin;
 
-  double lo, hi;
+  double lo, hi, cylradius;
   double amplitude, period, omega, vshear;
   double dt;
   double Twall;
@@ -83,12 +81,6 @@ class FixWallGran : public Fix {
   class Fix *fix_rigid;    // ptr to rigid body fix, null pointer if none
   double *mass_rigid;      // rigid mass for owned+ghost atoms
   int nmax;                // allocated size of mass_rigid
-
-  // dump image data
-
-  int numwalls;
-  int *imgobjs;
-  double **imgparms;
 
   // store particle interactions
 

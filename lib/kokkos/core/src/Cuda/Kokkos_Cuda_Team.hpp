@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_CUDA_TEAM_HPP
 #define KOKKOS_CUDA_TEAM_HPP
@@ -38,7 +51,7 @@ struct CudaJoinFunctor {
   }
 };
 
-/**\brief  Team member_type passed to the TeamPolicy closure.
+/**\brief  Team member_type passed to TeamPolicy or TeamTask closures.
  *
  *  Cuda thread blocks for team closures are dimensioned as:
  *    blockDim.x == number of "vector lanes" per "thread"
@@ -360,14 +373,13 @@ struct TeamThreadRangeBoundariesStruct<iType, CudaTeamMember> {
   const iType end;
 
   KOKKOS_INLINE_FUNCTION
-  TeamThreadRangeBoundariesStruct(const CudaTeamMember& arg_thread,
-                                  iType arg_count)
-      : member(arg_thread), start(0), end(arg_count) {}
+  TeamThreadRangeBoundariesStruct(const CudaTeamMember& thread_, iType count)
+      : member(thread_), start(0), end(count) {}
 
   KOKKOS_INLINE_FUNCTION
-  TeamThreadRangeBoundariesStruct(const CudaTeamMember& arg_thread,
-                                  iType arg_begin, iType arg_end)
-      : member(arg_thread), start(arg_begin), end(arg_end) {}
+  TeamThreadRangeBoundariesStruct(const CudaTeamMember& thread_, iType begin_,
+                                  iType end_)
+      : member(thread_), start(begin_), end(end_) {}
 };
 
 template <typename iType>
@@ -378,14 +390,14 @@ struct TeamVectorRangeBoundariesStruct<iType, CudaTeamMember> {
   const iType end;
 
   KOKKOS_INLINE_FUNCTION
-  TeamVectorRangeBoundariesStruct(const CudaTeamMember& arg_thread,
-                                  const iType& arg_count)
-      : member(arg_thread), start(0), end(arg_count) {}
+  TeamVectorRangeBoundariesStruct(const CudaTeamMember& thread_,
+                                  const iType& count)
+      : member(thread_), start(0), end(count) {}
 
   KOKKOS_INLINE_FUNCTION
-  TeamVectorRangeBoundariesStruct(const CudaTeamMember& arg_thread,
-                                  const iType& arg_begin, const iType& arg_end)
-      : member(arg_thread), start(arg_begin), end(arg_end) {}
+  TeamVectorRangeBoundariesStruct(const CudaTeamMember& thread_,
+                                  const iType& begin_, const iType& end_)
+      : member(thread_), start(begin_), end(end_) {}
 };
 
 template <typename iType>
@@ -395,8 +407,8 @@ struct ThreadVectorRangeBoundariesStruct<iType, CudaTeamMember> {
   const index_type end;
 
   KOKKOS_INLINE_FUNCTION
-  ThreadVectorRangeBoundariesStruct(const CudaTeamMember, index_type arg_count)
-      : start(static_cast<index_type>(0)), end(arg_count) {}
+  ThreadVectorRangeBoundariesStruct(const CudaTeamMember, index_type count)
+      : start(static_cast<index_type>(0)), end(count) {}
 
   KOKKOS_INLINE_FUNCTION
   ThreadVectorRangeBoundariesStruct(const CudaTeamMember, index_type arg_begin,

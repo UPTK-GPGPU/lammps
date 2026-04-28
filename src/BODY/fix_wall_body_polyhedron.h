@@ -34,8 +34,6 @@ class FixWallBodyPolyhedron : public Fix {
   void post_force(int) override;
   void reset_dt() override;
 
-  int image(int *&, double **&) override;
-
   struct Contact {
     int ibody, jbody;     // body (i.e. atom) indices (not tags)
     int vertex;           // vertex of the first polygon
@@ -46,9 +44,9 @@ class FixWallBodyPolyhedron : public Fix {
   };
 
  protected:
-  int wallstyle, wiggle, axis;
+  int wallstyle, pairstyle, wiggle, axis;
   double kn, c_n, c_t;
-  double lo, hi;
+  double lo, hi, cylradius;
   double amplitude, period, omega;
   double dt;
   int time_origin;
@@ -80,26 +78,19 @@ class FixWallBodyPolyhedron : public Fix {
   double *enclosing_radius;    // enclosing radii for all bodies
   double *rounded_radius;      // rounded radii for all bodies
 
-  // dump image data
-
-  int numwalls;
-  int *imgobjs;
-  double **imgparms;
-
-  // store particle interactions
-
   void body2space(int);
 
-  int edge_against_wall(int ibody, double wall_pos, double *vwall, double **x);
-  int sphere_against_wall(int i, double wall_pos, double *vwall, double **x, double **v, double **f,
-                          double **angmom, double **torque);
+  int edge_against_wall(int ibody, double wall_pos, int side, double *vwall, double **x, double **f,
+                        double **torque, Contact *contact_list, int &num_contacts, double *facc);
+  int sphere_against_wall(int i, double wall_pos, int side, double *vwall, double **x, double **v,
+                          double **f, double **angmom, double **torque);
 
   int compute_distance_to_wall(int ibody, int edge_index, double *xmi, double rounded_radius_i,
-                               double wall_pos, double *vwall, int &contact);
+                               double wall_pos, int side, double *vwall, int &contact);
   double contact_separation(const Contact &c1, const Contact &c2);
-  void contact_forces(int ibody, double j_a, double *xi, double delx, double dely, double delz,
-                      double fx, double fy, double fz, double **x, double **v, double **angmom,
-                      double **f, double **torque, double *vwall);
+  void contact_forces(int ibody, double j_a, double *xi, double *xj, double delx, double dely,
+                      double delz, double fx, double fy, double fz, double **x, double **v,
+                      double **angmom, double **f, double **torque, double *vwall);
 
   void contact_forces(Contact &contact, double j_a, double **x, double **v, double **angmom,
                       double **f, double **torque, double *vwall, double *facc);

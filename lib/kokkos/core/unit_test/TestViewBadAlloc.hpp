@@ -1,27 +1,33 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 
 #include <gtest/gtest.h>
-
-#include <tools/include/ToolTestingUtilities.hpp>
 
 namespace {
 
 template <class MemorySpace>
 void test_view_bad_alloc() {
+  bool did_throw    = false;
   auto too_large    = std::numeric_limits<size_t>::max() - 42;
   std::string label = "my_label";
   try {
     auto should_always_fail =
         Kokkos::View<double *, MemorySpace>(label, too_large);
-    FAIL() << "It should have thrown.";
   } catch (std::runtime_error const &error) {
     std::string msg = error.what();
     ASSERT_PRED_FORMAT2(
@@ -32,7 +38,9 @@ void test_view_bad_alloc() {
     ASSERT_PRED_FORMAT2(::testing::IsSubstring,
                         std::string("(label=\"") + label + "\")", msg)
         << "label is missing";
+    did_throw = true;
   }
+  ASSERT_TRUE(did_throw);
 }
 
 TEST(TEST_CATEGORY, view_bad_alloc) {
@@ -46,6 +54,12 @@ TEST(TEST_CATEGORY, view_bad_alloc) {
   }
 #endif
 #endif
+#if ((HIP_VERSION_MAJOR == 5) && (HIP_VERSION_MINOR < 7))
+  if (std::is_same_v<ExecutionSpace, Kokkos::HIP>) {
+    GTEST_SKIP() << "ROCm 5.6 and earlier segfaults when trying to allocate "
+                    "too much memory";
+  }
+#endif
 #if defined(KOKKOS_ENABLE_OPENACC)  // FIXME_OPENACC
   if (std::is_same_v<ExecutionSpace, Kokkos::Experimental::OpenACC>) {
     GTEST_SKIP() << "acc_malloc() not properly returning nullptr";
@@ -58,14 +72,7 @@ TEST(TEST_CATEGORY, view_bad_alloc) {
   }
 #endif
 
-  using namespace Kokkos::Test::Tools;
-  listen_tool_events(Config::DisableAll(), Config::EnableAllocs());
-
-  ASSERT_TRUE(validate_absence(
-      [] { test_view_bad_alloc<MemorySpace>(); },
-      [](AllocateDataEvent) { return MatchDiagnostic{true}; }));
-
-  listen_tool_events(Config::DisableAll());
+  test_view_bad_alloc<MemorySpace>();
 
   constexpr bool execution_space_is_device =
       std::is_same_v<ExecutionSpace, Kokkos::DefaultExecutionSpace> &&

@@ -34,6 +34,5 @@ ComputeDeprecated::ComputeDeprecated(LAMMPS *lmp, int narg, char **arg) : Comput
                      "\nCompute style 'mesont' and the associated pair style have been "
                      "removed. Please use pair style 'mesocnt' instead.\n\n");
   }
-  error->all(FLERR, Error::ARGZERO, "Compute style {} is no longer available. {}", my_style,
-             utils::errorurl(38));
+  error->all(FLERR, "This compute style is no longer available");
 }

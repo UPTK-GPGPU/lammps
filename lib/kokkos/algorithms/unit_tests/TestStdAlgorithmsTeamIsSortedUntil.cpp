@@ -1,8 +1,20 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #include <TestStdAlgorithmsCommon.hpp>
-#include <Kokkos_Assert.hpp>
 
 namespace Test {
 namespace stdalgos {
@@ -146,7 +158,7 @@ void test_A(std::size_t numTeams, std::size_t numCols, int apiId,
        this allows us to exercise that the algorithm returns
        the larest sorted interval starting from 0
     */
-    KOKKOS_ASSERT(numCols > 10);
+    assert(numCols > 10);
     const std::size_t midPoint = numCols / 2;
 
     UnifDist<int> randPoolA(0, midPoint, 3432779);
@@ -243,10 +255,6 @@ TEST(std_algorithms_is_sorted_until_team_test, test_trivialB) {
 }
 
 TEST(std_algorithms_is_sorted_until_team_test, test_nontrivialA) {
-#ifdef KOKKOS_ENABLE_OPENMPTARGET  // FIXME_OPENMPTARGET Failing with clang 17
-  GTEST_SKIP() << "Known to fail with OpenMPTarget and clang 17";
-#endif
-
   const std::string name      = "nontrivialUntilLast";
   const std::vector<int> cols = {13, 101, 1444, 5153};
   run_all_scenarios<DynamicTag, double>(name, cols);
@@ -255,10 +263,6 @@ TEST(std_algorithms_is_sorted_until_team_test, test_nontrivialA) {
 }
 
 TEST(std_algorithms_is_sorted_until_team_test, test_nontrivialB) {
-#ifdef KOKKOS_ENABLE_OPENMPTARGET  // FIXME_OPENMPTARGET Failing with clang 17
-  GTEST_SKIP() << "Known to fail with OpenMPTarget and clang 17";
-#endif
-
   const std::string name      = "nontrivialRandom";
   const std::vector<int> cols = {13, 101, 1444, 5153};
   run_all_scenarios<DynamicTag, double>(name, cols);

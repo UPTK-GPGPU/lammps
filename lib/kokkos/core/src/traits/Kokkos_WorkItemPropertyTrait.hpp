@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_KOKKOS_WORKITEMPROPERTYTRAIT_HPP
 #define KOKKOS_KOKKOS_WORKITEMPROPERTYTRAIT_HPP
@@ -15,21 +28,17 @@ namespace Impl {
 //==============================================================================
 // <editor-fold desc="trait specification"> {{{1
 
-template <class WorkItemProp, class AnalyzeNextTrait>
-struct WorkItemPropMixin : AnalyzeNextTrait {
-  using base_t = AnalyzeNextTrait;
-  using base_t::base_t;
-  using work_item_property = WorkItemProp;
-};
-
 struct WorkItemPropertyTrait : TraitSpecificationBase<WorkItemPropertyTrait> {
   struct base_traits {
     using work_item_property = Kokkos::Experimental::WorkItemProperty::None_t;
     KOKKOS_IMPL_MSVC_NVCC_EBO_WORKAROUND
   };
   template <class WorkItemProp, class AnalyzeNextTrait>
-  using mixin_matching_trait =
-      WorkItemPropMixin<WorkItemProp, AnalyzeNextTrait>;
+  struct mixin_matching_trait : AnalyzeNextTrait {
+    using base_t = AnalyzeNextTrait;
+    using base_t::base_t;
+    using work_item_property = WorkItemProp;
+  };
   template <class T>
   using trait_matches_specification =
       Kokkos::Experimental::is_work_item_property<T>;

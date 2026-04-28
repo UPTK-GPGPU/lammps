@@ -143,13 +143,9 @@ LAMMPS::LAMMPS(int narg, char **arg, MPI_Comm communicator) :
   num_ver = utils::date2num(version);
   restart_ver = -1;
 
-  std::string update_string = UPDATE_STRING; // NOLINT
-
-  // increment the version number for development branch
-  // so that it is larger than that of the release version
-  if (update_string == " - Development") ++num_ver;
-
   // append git descriptor info to update string when compiling development or maintenance version
+
+  std::string update_string = UPDATE_STRING;
   if (has_git_info() && ((update_string == " - Development") || (update_string == " - Maintenance")))
     update_string += fmt::format(" - {}", git_descriptor());
 
@@ -649,7 +645,7 @@ LAMMPS::LAMMPS(int narg, char **arg, MPI_Comm communicator) :
     }
 
     // screen and logfile messages for universe and world
-    std::string update_string = UPDATE_STRING; // NOLINT
+    std::string update_string = UPDATE_STRING;
     if (has_git_info() && ((update_string == " - Development")
                            || (update_string == " - Maintenance")))
       update_string += fmt::format(" - {}", git_descriptor());

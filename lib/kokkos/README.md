@@ -1,7 +1,5 @@
 [![Kokkos](https://avatars2.githubusercontent.com/u/10199860?s=200&v=4)](https://kokkos.org)
 
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9344/badge)](https://www.bestpractices.dev/projects/9344)
-
 # Kokkos: Core Libraries
 
 Kokkos Core implements a programming model in C++ for writing performance portable
@@ -12,7 +10,7 @@ hierarchies and multiple types of execution resources. It currently can use
 CUDA, HIP, SYCL, HPX, OpenMP and C++ threads as backend programming models with several other
 backends in development.
 
-**Kokkos Core is part of the [Kokkos C++ Performance Portability Programming Ecosystem](https://kokkos.org).**
+**Kokkos Core is part of the [Kokkos C++ Performance Portability Programming Ecosystem](https://kokkos.org/about/abstract/).**
 
 Kokkos is a [Linux Foundation](https://linuxfoundation.org) project.
 
@@ -32,28 +30,26 @@ To start learning about Kokkos:
 
 The latest release of Kokkos can be obtained from the [GitHub releases page](https://github.com/kokkos/kokkos/releases/latest).
 
-The current release is [5.0.0](https://github.com/kokkos/kokkos/releases/tag/5.0.0).
+The current release is [4.6.02](https://github.com/kokkos/kokkos/releases/tag/4.6.02).
 
 ```bash
-curl -OJ -L https://github.com/kokkos/kokkos/releases/download/5.0.0/kokkos-5.0.0.tar.gz
+curl -OJ -L https://github.com/kokkos/kokkos/releases/download/4.6.02/kokkos-4.6.02.tar.gz
 # Or with wget
-wget https://github.com/kokkos/kokkos/releases/download/5.0.0/kokkos-5.0.0.tar.gz
-# Or with git
-git clone --depth=2 --branch 5.0.0 https://github.com/kokkos/kokkos.git
+wget https://github.com/kokkos/kokkos/releases/download/4.6.02/kokkos-4.6.02.tar.gz
 ```
 
 To clone the latest development version of Kokkos from GitHub:
 
 ```bash
-git clone --branch develop  https://github.com/kokkos/kokkos.git
+git clone -b develop  https://github.com/kokkos/kokkos.git
 ```
 
 ### Building Kokkos
 
-To build Kokkos, you will need to have a C++ compiler that supports C++20 or later.
+To build Kokkos, you will need to have a C++ compiler that supports C++17 or later.
 All requirements including minimum and primary tested compiler versions can be found [here](https://kokkos.org/kokkos-core-wiki/get-started/requirements.html).
 
-Building and installation instructions are described [here](https://kokkos.org/kokkos-core-wiki/get-started/building-from-source.html#configuring-and-building-kokkos).
+Building and installation instructions are described [here](https://kokkos.org/kokkos-core-wiki/building.html).
 
 You can also install Kokkos using [Spack](https://spack.io/): `spack install kokkos`. [Available configuration options](https://packages.spack.io/package.html?name=kokkos) can be displayed using `spack info kokkos`.
 
@@ -76,6 +72,9 @@ Please see the [following page](https://kokkos.org/kokkos-core-wiki/citation.htm
 ## License
 
 [![License](https://img.shields.io/badge/License-Apache--2.0_WITH_LLVM--exception-blue)](https://spdx.org/licenses/LLVM-exception.html)
+
+Under the terms of Contract DE-NA0003525 with NTESS,
+the U.S. Government retains certain rights in this software.
 
 The full license statement used in all headers is available [here](https://kokkos.org/kokkos-core-wiki/license.html) or
 [here](https://github.com/kokkos/kokkos/blob/develop/LICENSE).

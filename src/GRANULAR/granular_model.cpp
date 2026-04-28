@@ -525,7 +525,7 @@ void GranularModel::calculate_forces()
     // omega_T (eq 29 of Marshall)
     magtwist = dot3(relrot, nx);
 
-    magtortwist = twisting_model->calculate_forces();
+    twisting_model->calculate_forces();
 
     double tortwist[3];
     scale3(magtortwist, nx, tortwist);

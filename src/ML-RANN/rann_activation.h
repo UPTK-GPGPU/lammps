@@ -31,8 +31,8 @@ DISTRIBUTION A. Approved for public release; distribution unlimited. OPSEC#4918
 #ifndef LMP_RANN_ACTIVATION_H
 #define LMP_RANN_ACTIVATION_H
 
-
-namespace LAMMPS_NS::RANN {
+namespace LAMMPS_NS {
+namespace RANN {
   class Activation {
    public:
     Activation(class PairRANN *)
@@ -48,6 +48,6 @@ namespace LAMMPS_NS::RANN {
     bool empty;
     const char *style;
   };
-} // namespace LAMMPS_NS::RANN
-
+}    // namespace RANN
+}    // namespace LAMMPS_NS
 #endif /* RANN_ACTIVATION_H */

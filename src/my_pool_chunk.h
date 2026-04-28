@@ -45,13 +45,13 @@ template <class T> class MyPoolChunk {
 
   // total memory used in bytes
 
-  [[nodiscard]] double size() const;
+  double size() const;
 
   /** Return error status
    *
    * \return 0 if no error, 1 if invalid input, 2 if malloc() failed, 3 if chunk > maxchunk */
 
-  [[nodiscard]] int status() const { return errorflag; }
+  int status() const { return errorflag; }
 
  private:
   int minchunk;        // min # of datums per chunk

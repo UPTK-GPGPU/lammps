@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_HOST_GRAPH_IMPL_HPP
 #define KOKKOS_HOST_GRAPH_IMPL_HPP
@@ -14,6 +27,7 @@
 #include <OpenMP/Kokkos_OpenMP.hpp>
 // FIXME @graph other backends?
 
+#include <impl/Kokkos_OptionalRef.hpp>
 #include <impl/Kokkos_EBO.hpp>
 
 #include <set>
@@ -25,7 +39,7 @@ namespace Impl {
 // <editor-fold desc="GraphImpl default implementation"> {{{1
 
 template <class ExecutionSpace>
-struct GraphImpl : private InstanceStorage<ExecutionSpace> {
+struct GraphImpl : private ExecutionSpaceInstanceStorage<ExecutionSpace> {
  public:
   using root_node_impl_t =
       GraphNodeImpl<ExecutionSpace, Kokkos::Experimental::TypeErasedTag,
@@ -35,7 +49,7 @@ struct GraphImpl : private InstanceStorage<ExecutionSpace> {
 
  private:
   using execution_space_instance_storage_base_t =
-      InstanceStorage<ExecutionSpace>;
+      ExecutionSpaceInstanceStorage<ExecutionSpace>;
 
   using node_details_t = GraphNodeBackendSpecificDetails<ExecutionSpace>;
   std::set<std::shared_ptr<node_details_t>> m_sinks;
@@ -60,14 +74,15 @@ struct GraphImpl : private InstanceStorage<ExecutionSpace> {
   //----------------------------------------------------------------------------
 
   ExecutionSpace const& get_execution_space() const {
-    return this->execution_space_instance_storage_base_t::instance();
+    return this
+        ->execution_space_instance_storage_base_t::execution_space_instance();
   }
 
   //----------------------------------------------------------------------------
   // <editor-fold desc="required customizations"> {{{2
 
   template <class NodeImpl>
-  void add_node(std::shared_ptr<NodeImpl> arg_node_ptr) {
+  void add_node(std::shared_ptr<NodeImpl> const& arg_node_ptr) {
     static_assert(
         Kokkos::Impl::is_specialization_of_v<NodeImpl, GraphNodeImpl>);
     // Since this is always called before any calls to add_predecessor involving
@@ -110,7 +125,7 @@ struct GraphImpl : private InstanceStorage<ExecutionSpace> {
         GraphNodeImpl<ExecutionSpace, aggregate_impl_t,
                       Kokkos::Experimental::TypeErasedTag>;
     return GraphAccess::make_node_shared_ptr<aggregate_node_impl_t>(
-        this->get_execution_space(), _graph_node_kernel_ctor_tag{},
+        this->execution_space_instance(), _graph_node_kernel_ctor_tag{},
         aggregate_impl_t{});
   }
 

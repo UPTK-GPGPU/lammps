@@ -77,19 +77,16 @@ void GranSubModTangentialLinearNoHistory::calculate_forces()
   // classic pair gran/hooke (no history)
   damp = xt * gm->damping_model->get_damp_prefactor();
 
-  double vrel = gm->vrel;
-  double *vtr = gm->vtr;
-  double *fs = gm->fs;
   double Fscrit = mu * gm->normal_model->get_fncrit();
-  double fsmag = damp * vrel;
+  double fsmag = damp * gm->vrel;
 
   double Ft;
-  if (vrel != 0.0)
-    Ft = MIN(Fscrit, fsmag) / vrel;
+  if (gm->vrel != 0.0)
+    Ft = MIN(Fscrit, fsmag) / gm->vrel;
   else
     Ft = 0.0;
 
-  scale3(-Ft, vtr, fs);
+  scale3(-Ft, gm->vtr, gm->fs);
 }
 
 /* ----------------------------------------------------------------------
@@ -124,63 +121,57 @@ void GranSubModTangentialLinearHistory::calculate_forces()
   double magfs, magfs_inv, rsht, shrmag, temp_array[3], vtr2[3];
   int frame_update = 0;
 
-  double *nx = gm->nx;
-  double *nx_unrotated = gm->nx_unrotated;
-  double *vtr = gm->vtr;
-  double *fs = gm->fs;
-  double dt = gm->dt;
-  double *history = &gm->history[history_index];
-  int history_update = gm->history_update;
-
   damp = xt * gm->damping_model->get_damp_prefactor();
+
   double Fscrit = gm->normal_model->get_fncrit() * mu;
+  double *history = &gm->history[history_index];
 
   // rotate and update displacements / force.
   // see e.g. eq. 17 of Luding, Gran. Matter 2008, v10,p235
-  if (history_update) {
-    rsht = dot3(history, nx);
+  if (gm->history_update) {
+    rsht = dot3(history, gm->nx);
     frame_update = (fabs(rsht) * k) > (EPSILON * Fscrit);
 
-    if (frame_update) rotate_rescale_vec(history, nx);
+    if (frame_update) rotate_rescale_vec(history, gm->nx);
 
     // update history, tangential force using velocities at half step
     // see e.g. eq. 18 of Thornton et al, Pow. Tech. 2013, v223,p30-46
-    scale3(dt, vtr, temp_array);
+    scale3(gm->dt, gm->vtr, temp_array);
     add3(history, temp_array, history);
 
     if(gm->synchronized_verlet == 1) {
-      rsht = dot3(history, nx_unrotated);
+      rsht = dot3(history, gm->nx_unrotated);
       frame_update = (fabs(rsht) * k) > (EPSILON * Fscrit);
       //Second projection to nx (t+\Delta t)
-      if (frame_update) rotate_rescale_vec(history, nx_unrotated);
+      if (frame_update) rotate_rescale_vec(history, gm->nx_unrotated);
     }
   }
 
   // tangential forces = history + tangential velocity damping
-  scale3(-k, history, fs);
+  scale3(-k, history, gm->fs);
   //Rotating vtr for damping term in nx direction
   if (frame_update && gm->synchronized_verlet == 1) {
-    copy3(vtr, vtr2);
-    rotate_rescale_vec(vtr2, nx_unrotated);
+    copy3(gm->vtr, vtr2);
+    rotate_rescale_vec(vtr2, gm->nx_unrotated);
   } else {
-    copy3(vtr, vtr2);
+    copy3(gm->vtr, vtr2);
   }
-  scale3(damp, vtr2, temp_array);
-  sub3(fs, temp_array, fs);
+  scale3(damp,vtr2, temp_array);
+  sub3(gm->fs, temp_array, gm->fs);
 
   // rescale frictional displacements and forces if needed
-  magfs = len3(fs);
+  magfs = len3(gm->fs);
   if (magfs > Fscrit) {
     shrmag = len3(history);
     if (shrmag != 0.0) {
       magfs_inv = 1.0 / magfs;
-      scale3(Fscrit * magfs_inv, fs, history);
-      scale3(damp, vtr, temp_array);
+      scale3(Fscrit * magfs_inv, gm->fs, history);
+      scale3(damp, gm->vtr, temp_array);
       add3(history, temp_array, history);
       scale3(-1.0 / k, history);
-      scale3(Fscrit * magfs_inv, fs);
+      scale3(Fscrit * magfs_inv, gm->fs);
     } else {
-      zero3(fs);
+      zero3(gm->fs);
     }
   }
 }
@@ -203,52 +194,46 @@ void GranSubModTangentialLinearHistoryClassic::calculate_forces()
   double magfs, magfs_inv, rsht, shrmag;
   double temp_array[3];
 
-  double *nx = gm->nx;
-  double *vtr = gm->vtr;
-  double *fs = gm->fs;
-  double dt = gm->dt;
-  double contact_radius = gm->contact_radius;
-  double *history = &gm->history[history_index];
-  int history_update = gm->history_update;
-
   damp = xt * gm->damping_model->get_damp_prefactor();
+
   double Fscrit = gm->normal_model->get_fncrit() * mu;
+  double *history = &gm->history[history_index];
 
   // update history
-  if (history_update) {
-    scale3(dt, vtr, temp_array);
+  if (gm->history_update) {
+    scale3(gm->dt, gm->vtr, temp_array);
     add3(history, temp_array, history);
   }
 
   shrmag = len3(history);
 
   // rotate shear displacements
-  if (history_update) {
-    rsht = dot3(history, nx);
-    scale3(rsht, nx, temp_array);
+  if (gm->history_update) {
+    rsht = dot3(history, gm->nx);
+    scale3(rsht, gm->nx, temp_array);
     sub3(history, temp_array, history);
   }
 
   // tangential forces = history + tangential velocity damping
   if (contact_radius_flag)
-    scale3(-k * contact_radius, history, fs);
+    scale3(-k * gm->contact_radius, history, gm->fs);
   else
-    scale3(-k, history, fs);
-  scale3(damp, vtr, temp_array);
-  sub3(fs, temp_array, fs);
+    scale3(-k, history, gm->fs);
+  scale3(damp, gm->vtr, temp_array);
+  sub3(gm->fs, temp_array, gm->fs);
 
   // rescale frictional displacements and forces if needed
-  magfs = len3(fs);
+  magfs = len3(gm->fs);
   if (magfs > Fscrit) {
     if (shrmag != 0.0) {
       magfs_inv = 1.0 / magfs;
-      scale3(Fscrit * magfs_inv, fs, history);
-      scale3(damp, vtr, temp_array);
+      scale3(Fscrit * magfs_inv, gm->fs, history);
+      scale3(damp, gm->vtr, temp_array);
       add3(history, temp_array, history);
       scale3(-1.0 / k, history);
-      scale3(Fscrit * magfs_inv, fs);
+      scale3(Fscrit * magfs_inv, gm->fs);
     } else {
-      zero3(fs);
+      zero3(gm->fs);
     }
   }
 }
@@ -327,92 +312,85 @@ void GranSubModTangentialMindlin::calculate_forces()
   double temp_array[3], vtr2[3];
   int frame_update = 0;
 
-  double *nx = gm->nx;
-  double *nx_unrotated = gm->nx_unrotated;
-  double *vtr = gm->vtr;
-  double *fs = gm->fs;
-  double dt = gm->dt;
-  double contact_radius = gm->contact_radius;
-  double *history = &gm->history[history_index];
-  int history_update = gm->history_update;
-
   damp = xt * gm->damping_model->get_damp_prefactor();
+
+  double *history = &gm->history[history_index];
   double Fscrit = gm->normal_model->get_fncrit() * mu;
 
   k_scaled = k * gm->contact_radius;
 
   // on unloading, rescale the shear displacements/force
   if (mindlin_rescale)
-    if (contact_radius < history[3]) scale3(contact_radius / history[3], history);
+    if (gm->contact_radius < history[3]) scale3(gm->contact_radius / history[3], history);
 
   // rotate and update displacements / force.
   // see e.g. eq. 17 of Luding, Gran. Matter 2008, v10,p235
-  if (history_update) {
-    rsht = dot3(history, nx);
+  if (gm->history_update) {
+    rsht = dot3(history, gm->nx);
     if (mindlin_force) {
       frame_update = fabs(rsht) > (EPSILON * Fscrit);
     } else {
       frame_update = (fabs(rsht) * k_scaled) > (EPSILON * Fscrit);
     }
 
-    if (frame_update) rotate_rescale_vec(history, nx);
+    if (frame_update) rotate_rescale_vec(history, gm->nx);
 
     // update history
     if (mindlin_force) {
       // tangential force
       // see e.g. eq. 18 of Thornton et al, Pow. Tech. 2013, v223,p30-46
-      scale3(-k_scaled * dt, vtr, temp_array);
+      scale3(-k_scaled * gm->dt, gm->vtr, temp_array);
     } else {
-      scale3(dt, vtr, temp_array);
+      scale3(gm->dt, gm->vtr, temp_array);
     }
     add3(history, temp_array, history);
 
-    if (mindlin_rescale) history[3] = contact_radius;
+    if (mindlin_rescale) history[3] = gm->contact_radius;
 
     if (gm->synchronized_verlet == 1) {
       // second projection to full step normal
-      rsht = dot3(history, nx_unrotated);
+      rsht = dot3(history, gm->nx_unrotated);
       if (mindlin_force) {
         frame_update = fabs(rsht) > (EPSILON * Fscrit);
       } else {
         frame_update = (fabs(rsht) * k_scaled) > (EPSILON * Fscrit);
       }
-      if (frame_update) rotate_rescale_vec(history, nx_unrotated);
+      if (frame_update) rotate_rescale_vec(history, gm->nx_unrotated);
     }
   }
 
   // tangential forces = history + tangential velocity damping
   // Rotating vtr for damping term in nx direction
   if (frame_update && gm->synchronized_verlet) {
-    copy3(vtr, vtr2);
-    rotate_rescale_vec(vtr2, nx_unrotated);
+    copy3(gm->vtr, vtr2);
+    rotate_rescale_vec(vtr2, gm->nx_unrotated);
   } else {
-    copy3(vtr, vtr2);
+    copy3(gm->vtr, vtr2);
   }
-  scale3(-damp, vtr2, fs);
+  scale3(-damp, vtr2, gm->fs);
 
   if (!mindlin_force) {
     scale3(k_scaled, history, temp_array);
-    sub3(fs, temp_array, fs);
+    sub3(gm->fs, temp_array, gm->fs);
   } else {
-    add3(fs, history, fs);
+    add3(gm->fs, history, gm->fs);
   }
 
   // rescale frictional displacements and forces if needed
-  magfs = len3(fs);
+  magfs = len3(gm->fs);
   if (magfs > Fscrit) {
     shrmag = len3(history);
     if (shrmag != 0.0) {
       magfs_inv = 1.0 / magfs;
-      scale3(Fscrit * magfs_inv, fs, history);
-      scale3(damp, vtr, temp_array);
+      scale3(Fscrit * magfs_inv, gm->fs, history);
+      scale3(damp, gm->vtr, temp_array);
       add3(history, temp_array, history);
 
       if (!mindlin_force) scale3(-1.0 / k_scaled, history);
 
-      scale3(Fscrit * magfs_inv, fs);
+      scale3(Fscrit * magfs_inv, gm->fs);
     } else {
-      zero3(fs);
+      zero3(gm->fs);
     }
   }
 }

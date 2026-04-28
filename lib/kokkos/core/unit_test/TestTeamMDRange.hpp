@@ -1,12 +1,20 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 
 namespace Test {
 
@@ -147,7 +155,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_3D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType***, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -186,7 +194,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_4D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -226,7 +234,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_5D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -268,7 +276,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_6D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -312,7 +320,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_7D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -357,7 +365,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_8D_TeamThreadMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType********, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -404,7 +412,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_single_direction_test(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType***, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int n0 = dims[0];
     int n1 = dims[1];
@@ -439,7 +447,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_4D_ThreadVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -482,7 +490,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_5D_ThreadVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -527,7 +535,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_6D_ThreadVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -573,7 +581,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_7D_ThreadVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -621,7 +629,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_8D_ThreadVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType********, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -675,7 +683,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_3D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType***, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -714,7 +722,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_4D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -754,7 +762,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_5D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -796,7 +804,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_6D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -840,7 +848,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_7D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType*******, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -885,7 +893,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_for_8D_TeamVectorMDRange(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType********, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int leagueSize = dims[0];
     int n0         = dims[1];
@@ -932,7 +940,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
   template <Kokkos::Iterate Direction = Kokkos::Iterate::Default>
   static void test_parallel_double_direction_test(DimsType const& dims) {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
-    using HostViewType = typename ViewType::host_mirror_type;
+    using HostViewType = typename ViewType::HostMirror;
 
     int n0 = dims[0];
     int n1 = dims[1];

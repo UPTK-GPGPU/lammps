@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_KOKKOS_CUDA_GRAPHNODEKERNEL_IMPL_HPP
 #define KOKKOS_KOKKOS_CUDA_GRAPHNODEKERNEL_IMPL_HPP
@@ -21,57 +34,6 @@
 namespace Kokkos {
 namespace Impl {
 
-template <typename Functor>
-struct GraphNodeThenHostImpl<Kokkos::Cuda, Functor> {
-  Functor m_functor;
-  cudaGraphNode_t m_node = nullptr;
-
-  explicit GraphNodeThenHostImpl(Functor functor)
-      : m_functor(std::move(functor)) {}
-
-  static void callback(void* data) {
-    reinterpret_cast<Functor*>(data)->operator()();
-  }
-
-  void add_to_graph(cudaGraph_t graph) {
-    cudaHostNodeParams params = {};
-    params.fn                 = callback;
-    params.userData           = &m_functor;
-
-    KOKKOS_IMPL_CUDA_SAFE_CALL(
-        cudaGraphAddHostNode(&m_node, graph, nullptr, 0, &params));
-  }
-};
-
-template <typename Functor>
-struct GraphNodeCaptureImpl<Kokkos::Cuda, Functor> {
-  Functor m_functor;
-  cudaGraphNode_t m_node = nullptr;
-
-  void capture(const Kokkos::Cuda& exec, cudaGraph_t graph) {
-    // Set the underlying stream to capture mode.
-    // Note that we could also use cudaStreamBeginCaptureToGraph.
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaStreamBeginCapture(
-        exec.cuda_stream(), cudaStreamCaptureModeGlobal));
-
-    // Launch the user functor. Cuda API calls will be captured.
-    // Beware of restrictions that apply when using a stream in capture mode.
-    // See also
-    // https://docs.nvidia.com/cuda/cuda-c-programming-guide/#prohibited-and-unhandled-operations.
-    m_functor(exec);
-
-    // Retrieve the captured graph, that we will add to our graph as a child
-    // graph node.
-    cudaGraph_t captured_subgraph = nullptr;
-
-    KOKKOS_IMPL_CUDA_SAFE_CALL(
-        cudaStreamEndCapture(exec.cuda_stream(), &captured_subgraph));
-
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaGraphAddChildGraphNode(
-        &m_node, graph, nullptr, 0, captured_subgraph));
-  }
-};
-
 template <class PolicyType, class Functor, class PatternTag, class... Args>
 class GraphNodeKernelImpl<Kokkos::Cuda, PolicyType, Functor, PatternTag,
                           Args...>
@@ -85,8 +47,8 @@ class GraphNodeKernelImpl<Kokkos::Cuda, PolicyType, Functor, PatternTag,
   // These are really functioning as optional references, though I'm not sure
   // that the cudaGraph_t one needs to be since it's a pointer under the
   // covers and we're not modifying it
-  cudaGraph_t const* m_graph_ptr    = nullptr;
-  cudaGraphNode_t* m_graph_node_ptr = nullptr;
+  Kokkos::ObservingRawPtr<const cudaGraph_t> m_graph_ptr    = nullptr;
+  Kokkos::ObservingRawPtr<cudaGraphNode_t> m_graph_node_ptr = nullptr;
   // Basically, we have to make this mutable for the same reasons that the
   // global kernel buffers in the Cuda instance are mutable...
   mutable std::shared_ptr<base_t> m_driver_storage = nullptr;
@@ -124,7 +86,8 @@ class GraphNodeKernelImpl<Kokkos::Cuda, PolicyType, Functor, PatternTag,
   cudaGraphNode_t* get_cuda_graph_node_ptr() const { return m_graph_node_ptr; }
   cudaGraph_t const* get_cuda_graph_ptr() const { return m_graph_ptr; }
 
-  base_t* allocate_driver_memory_buffer(const CudaSpace& mem) const {
+  Kokkos::ObservingRawPtr<base_t> allocate_driver_memory_buffer(
+      const CudaSpace& mem) const {
     KOKKOS_EXPECTS(m_driver_storage == nullptr)
     std::string alloc_label =
         label + " - GraphNodeKernel global memory functor storage";
@@ -146,12 +109,12 @@ template <class KernelType,
           class Tag =
               typename PatternTagFromImplSpecialization<KernelType>::type>
 struct get_graph_node_kernel_type
-    : std::type_identity<
+    : type_identity<
           GraphNodeKernelImpl<Kokkos::Cuda, typename KernelType::Policy,
                               typename KernelType::functor_type, Tag>> {};
 template <class KernelType>
 struct get_graph_node_kernel_type<KernelType, Kokkos::ParallelReduceTag>
-    : std::type_identity<GraphNodeKernelImpl<
+    : type_identity<GraphNodeKernelImpl<
           Kokkos::Cuda, typename KernelType::Policy,
           CombinedFunctorReducer<typename KernelType::functor_type,
                                  typename KernelType::reducer_type>,

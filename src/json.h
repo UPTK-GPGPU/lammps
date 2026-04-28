@@ -20,6 +20,6 @@
 #include "nlohmann/json.hpp" // IWYU pragma: export
 
 namespace LAMMPS_NS {
-using json = ::nlohmann_lmp::basic_json<nlohmann_lmp::ordered_map>;
+using json = ::nlohmann_lmp::basic_json<>;
 }
 #endif

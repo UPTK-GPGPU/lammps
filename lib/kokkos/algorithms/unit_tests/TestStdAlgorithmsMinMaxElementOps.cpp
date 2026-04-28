@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #include <TestStdAlgorithmsCommon.hpp>
 
@@ -107,7 +120,6 @@ struct std_algorithms_min_max_element_test : std_algorithms_test {
     // returns {indexOfMinElem, minValue}
     if (caseNumber == 1) {
       return {0, 0};
-      // NOLINTBEGIN(bugprone-branch-clone)
     } else if (caseNumber == 2) {
       return {0, 1};
     } else if (caseNumber == 3) {
@@ -116,7 +128,6 @@ struct std_algorithms_min_max_element_test : std_algorithms_test {
       return {0, 2};
     } else if (caseNumber == 5) {
       return {0, 1};
-      // NOLINTEND(bugprone-branch-clone)
     } else {
       return {};
     }
@@ -423,7 +434,8 @@ TEST_F(std_algorithms_min_max_element_test,
 }
 #endif
 
-#if defined(KOKKOS_ENABLE_OPENMPTARGET)
+#if defined(KOKKOS_ENABLE_OPENMPTARGET) && defined(KOKKOS_COMPILER_CLANG) && \
+    (KOKKOS_COMPILER_CLANG >= 1300)
 TEST_F(std_algorithms_min_max_element_test, minmax_element_empty_range) {
   test_minmax_element_empty_range(m_static_view);
   test_minmax_element_empty_range(m_dynamic_view);

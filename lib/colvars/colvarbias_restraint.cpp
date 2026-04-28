@@ -209,16 +209,14 @@ int colvarbias_restraint_moving::init(std::string const &conf)
 
     get_keyval(conf, "targetNumSteps", target_nsteps, target_nsteps);
     if (!target_nsteps) {
-      return cvm::error("Error: targetNumSteps must be non-zero.\n", COLVARS_INPUT_ERROR);
-    }
-
-    if ( target_nsteps && target_nsteps % time_step_factor ) {
-      return cvm::error("Error: targetNumSteps must be a multiple of timeStepFactor.\n", COLVARS_INPUT_ERROR);
+      cvm::error("Error: targetNumSteps must be non-zero.\n", COLVARS_INPUT_ERROR);
+      return cvm::get_error();
     }
 
     if (get_keyval(conf, "targetNumStages", target_nstages, target_nstages) &&
         lambda_schedule.size()) {
-      return cvm::error("Error: targetNumStages and lambdaSchedule are incompatible.\n", COLVARS_INPUT_ERROR);
+      cvm::error("Error: targetNumStages and lambdaSchedule are incompatible.\n", COLVARS_INPUT_ERROR);
+      return cvm::get_error();
     }
 
     get_keyval_feature(this, conf, "outputAccumulatedWork",

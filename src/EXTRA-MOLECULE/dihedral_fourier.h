@@ -38,7 +38,7 @@ class DihedralFourier : public Dihedral {
   double **k, **cos_shift, **sin_shift, **shift;
   int **multiplicity;
   int *nterms;
-  int implicit, weightflag, nterms_max;
+  int implicit, weightflag;
 
   void allocate();
 };

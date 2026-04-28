@@ -16,9 +16,9 @@
 
 #include <cmath>
 
+namespace LAMMPS_NS {
 
-
-namespace LAMMPS_NS::MathSpecial {
+namespace MathSpecial {
 
   /*! Fast tabulated factorial function
    *
@@ -178,7 +178,7 @@ namespace LAMMPS_NS::MathSpecial {
 
     return yy;
   }
-} // namespace LAMMPS_NS::MathSpecial
-
+}    // namespace MathSpecial
+}    // namespace LAMMPS_NS
 
 #endif

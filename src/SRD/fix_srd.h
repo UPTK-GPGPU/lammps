@@ -40,9 +40,10 @@ class FixSRD : public Fix {
   void unpack_reverse_comm(int, int *, double *) override;
 
  private:
+  int me, nprocs;
   int bigexist, biggroup, biggroupbit;
   int collidestyle, lamdaflag, overlap, insideflag, exactflag, maxbounceallow;
-  int cubicflag, shiftuser, shiftseed, shiftflag, tstat, unbiasflag;
+  int cubicflag, shiftuser, shiftseed, shiftflag, tstat;
   int rescale_rotate, rescale_collide;
   double gridsrd, gridsearch, lamda, radfactor, cubictol;
   int triclinic, change_size, change_shape, deformflag;

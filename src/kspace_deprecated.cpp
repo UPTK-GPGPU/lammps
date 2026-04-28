@@ -33,6 +33,5 @@ void KSpaceDeprecated::settings(int, char **)
     if (lmp->comm->me == 0) utils::logmesg(lmp, "\nKSpace style 'DEPRECATED' is a dummy style\n\n");
     return;
   }
-  error->all(FLERR, Error::ARGZERO, "Kspace style {} is no longer available.", my_style,
-             utils::errorurl(38));
+  error->all(FLERR, "This kspace style is no longer available");
 }

@@ -349,7 +349,6 @@ void MLIAP_SO3Kokkos<DeviceType>::compute_W(int nmax, double *arr)
 /* ---------------------------------------------------------------------- */
 template <class DeviceType>
 template <typename ViewType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::compute_pi(int nmax, int lmax, ViewType clisttot_r, ViewType clisttot_i, int /*lcl2*/,
                            float_2d plist_r, int indpl) const
@@ -400,7 +399,6 @@ double MLIAP_SO3Kokkos<DeviceType>::compute_g(double r, int n, int nmax, double 
 
 /* ---------------------------------------------------------------------- */
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 double MLIAP_SO3Kokkos<DeviceType>::Cosine(double Rij, double Rc) const
 {
@@ -410,7 +408,6 @@ double MLIAP_SO3Kokkos<DeviceType>::Cosine(double Rij, double Rc) const
 
 /* ---------------------------------------------------------------------- */
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 double MLIAP_SO3Kokkos<DeviceType>::CosinePrime(double Rij, double Rc) const
 {
@@ -420,7 +417,6 @@ double MLIAP_SO3Kokkos<DeviceType>::CosinePrime(double Rij, double Rc) const
 
 /* ---------------------------------------------------------------------- */
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 double MLIAP_SO3Kokkos<DeviceType>::compute_sfac(double r, double rcut) const
 {
@@ -432,7 +428,6 @@ double MLIAP_SO3Kokkos<DeviceType>::compute_sfac(double r, double rcut) const
 
 /* ---------------------------------------------------------------------- */
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 double MLIAP_SO3Kokkos<DeviceType>::compute_dsfac(double r, double rcut) const
 {
@@ -445,7 +440,6 @@ double MLIAP_SO3Kokkos<DeviceType>::compute_dsfac(double r, double rcut) const
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 int MLIAP_SO3Kokkos<DeviceType>::get_sum(int istart, int iend, int id, int imult)
 {
@@ -461,7 +455,6 @@ int MLIAP_SO3Kokkos<DeviceType>::get_sum(int istart, int iend, int id, int imult
 
 template <class DeviceType>
 template <typename UlistView>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::compute_uarray_recursive(double x, double y, double z, double r, int twol,
                                                UlistView ulist_r, UlistView ulist_i, int_1d idxu_block,
@@ -574,7 +567,6 @@ void MLIAP_SO3Kokkos<DeviceType>::init_garray(int nmax, int lmax, double rcut, d
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAPSO3GetSBESArrayTag&, int ii) const{
    int ipair = t_ij(ii);
@@ -635,7 +627,6 @@ void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAPSO3GetSBESArrayTag&, in
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAPSO3GetRipArrayTag&, int ii) const{
    int ipair = t_ij(ii);
@@ -671,8 +662,8 @@ void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAPSO3GetRipArrayTag&, int
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-void MLIAP_SO3Kokkos<DeviceType>::spectrum(int nlocal, DAT::tdual_int_1d numneighs, DAT::tdual_int_1d jelems, DAT::tdual_double_1d wjelem,
-                               DAT::tdual_double_2d_lr rij,  DAT::tdual_int_1d k_ij,
+void MLIAP_SO3Kokkos<DeviceType>::spectrum(int nlocal, DAT::tdual_int_1d numneighs, DAT::tdual_int_1d jelems, DAT::tdual_float_1d wjelem,
+                               DAT::tdual_float_2d rij,  DAT::tdual_int_1d k_ij,
                                int nmax, int lmax, double rcut, double alpha, int totaln, int ncoefs)
 {
   init_arrays(nlocal, ncoefs);
@@ -734,7 +725,6 @@ void MLIAP_SO3Kokkos<DeviceType>::spectrum(int nlocal, DAT::tdual_int_1d numneig
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAP_SO3Kokkos<DeviceType>::MLIAPSO3SpectrumTag&, int ii) const {
   int ii_chunk = ii%m_chunk_size;
@@ -790,8 +780,8 @@ void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAP_SO3Kokkos<DeviceType>:
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-void MLIAP_SO3Kokkos<DeviceType>::spectrum_dxdr(int nlocal, DAT::tdual_int_1d numneighs, DAT::tdual_int_1d jelems, DAT::tdual_double_1d wjelem,
-                                    DAT::tdual_double_2d_lr rij, DAT::tdual_int_1d k_ij,
+void MLIAP_SO3Kokkos<DeviceType>::spectrum_dxdr(int nlocal, DAT::tdual_int_1d numneighs, DAT::tdual_int_1d jelems, DAT::tdual_float_1d wjelem,
+                                    DAT::tdual_float_2d rij, DAT::tdual_int_1d k_ij,
                                     int nmax, int lmax, double rcut, double alpha, bigint totaln,
                                     int ncoefs)
 {
@@ -859,7 +849,6 @@ void MLIAP_SO3Kokkos<DeviceType>::spectrum_dxdr(int nlocal, DAT::tdual_int_1d nu
 /* ---------------------------------------------------------------------- */
 
 template <class DeviceType>
-// NOLINTNEXTLINE
 KOKKOS_INLINE_FUNCTION
 void MLIAP_SO3Kokkos<DeviceType>::operator() (const MLIAP_SO3Kokkos<DeviceType>::MLIAPSO3SpectrumDXDRTag&, int ii) const {
   //TO-DO Need to move m_ulist_r, m_ulist_i into local shared memory

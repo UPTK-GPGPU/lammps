@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_HOSTTHREADTEAM_HPP
 #define KOKKOS_IMPL_HOSTTHREADTEAM_HPP
@@ -816,7 +829,7 @@ KOKKOS_INLINE_FUNCTION
     closure(i, value);
   }
 
-  loop_boundaries.member.impl_team_reduce(wrapped_reducer, value);
+  loop_boundaries.thread.impl_team_reduce(wrapped_reducer, value);
 
   wrapped_reducer.final(&value);
   reducer.reference() = value;
@@ -844,7 +857,7 @@ KOKKOS_INLINE_FUNCTION
     closure(i, value);
   }
 
-  loop_boundaries.member.impl_team_reduce(wrapped_reducer, value);
+  loop_boundaries.thread.impl_team_reduce(wrapped_reducer, value);
   wrapped_reducer.final(&value);
   result = value;
 }
@@ -871,7 +884,7 @@ Impl::TeamThreadRangeBoundariesStruct<iType,Impl::HostThreadTeamMember<Space> >
     closure( i , reducer.reference() );
   }
 
-  loop_boundaries.member.team_reduce( reducer );
+  loop_boundaries.thread.team_reduce( reducer );
 }*/
 
 //----------------------------------------------------------------------------
@@ -959,7 +972,7 @@ KOKKOS_INLINE_FUNCTION
     closure(i, accum, false);
   }
 
-  auto& team_member = loop_boundaries.member;
+  auto& team_member = loop_boundaries.thread;
 
   // 'accum' output is the exclusive prefix sum
   accum = team_member.team_scan(accum);

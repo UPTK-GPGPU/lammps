@@ -28,8 +28,8 @@ GranSubModStyle(mdr,GranSubModNormalMDR,NORMAL);
 
 #include "gran_sub_mod.h"
 
-
-namespace LAMMPS_NS::Granular_NS {
+namespace LAMMPS_NS {
+namespace Granular_NS {
 
   class GranSubModNormal : public GranSubMod {
    public:
@@ -39,12 +39,12 @@ namespace LAMMPS_NS::Granular_NS {
     virtual double calculate_contact_radius();
     virtual double calculate_forces() = 0;
 
-    [[nodiscard]] int get_cohesive_flag() const { return cohesive_flag; }
-    [[nodiscard]] double get_damp() const { return damp; }
-    [[nodiscard]] double get_emod() const { return Emod; }
-    [[nodiscard]] double get_fncrit() const { return Fncrit; }
-    [[nodiscard]] int get_material_properties() const { return material_properties; }
-    [[nodiscard]] double get_poiss() const { return poiss; }
+    int get_cohesive_flag() const { return cohesive_flag; }
+    double get_damp() const { return damp; }
+    double get_emod() const { return Emod; }
+    double get_fncrit() const { return Fncrit; }
+    int get_material_properties() const { return material_properties; }
+    double get_poiss() const { return poiss; }
 
     virtual void set_fncrit();
 
@@ -164,8 +164,8 @@ namespace LAMMPS_NS::Granular_NS {
     inline double round_up_negative_epsilon(double);
   };
 
-} // namespace LAMMPS_NS::Granular_NS
-
+}    // namespace Granular_NS
+}    // namespace LAMMPS_NS
 
 #endif /*GRAN_SUB_MOD_NORMAL_H */
 #endif /*GRAN_SUB_MOD_CLASS_H */

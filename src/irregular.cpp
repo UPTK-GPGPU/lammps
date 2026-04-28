@@ -38,6 +38,7 @@ static int compare_standalone(const int, const int, void *);
 
 static constexpr double BUFFACTOR = 1.5;
 static constexpr int BUFMIN = 1024;
+static constexpr int BUFEXTRA = 1024;
 
 /* ---------------------------------------------------------------------- */
 
@@ -71,7 +72,7 @@ Irregular::Irregular(LAMMPS *lmp) :
   // these can persist for multiple irregular operations
 
   maxsend = maxrecv = BUFMIN;
-  bufextra = Comm::BUFEXTRA;
+  bufextra = BUFEXTRA;
   grow_send(maxsend, 2);
   memory->create(buf_recv, maxrecv, "comm:buf_recv");
 }
@@ -1000,7 +1001,7 @@ void Irregular::init_exchange()
   for (const auto &ifix : modify->get_fix_list())
     maxexchange_fix = MAX(maxexchange_fix, ifix->maxexchange);
 
-  bufextra = atom->avec->maxexchange + maxexchange_fix + Comm::BUFEXTRA;
+  bufextra = atom->avec->maxexchange + maxexchange_fix + BUFEXTRA;
 }
 
 /* ----------------------------------------------------------------------

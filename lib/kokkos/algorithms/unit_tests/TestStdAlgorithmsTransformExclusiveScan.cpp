@@ -1,13 +1,20 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #include <TestStdAlgorithmsCommon.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-#include <std_algorithms/impl/Kokkos_IdentityReferenceUnaryFunctor.hpp>
-#include <std_algorithms/impl/Kokkos_FunctorsForExclusiveScan.hpp>
-#endif
-#include <Kokkos_Assert.hpp>
-
 #include <utility>
 #include <iomanip>
 
@@ -64,24 +71,24 @@ void fill_view(ViewType dest_view, const std::string& name) {
   }
 
   else if (name == "one-element") {
-    KOKKOS_ASSERT(v_h.extent(0) == 1);
+    assert(v_h.extent(0) == 1);
     v_h(0) = static_cast<value_type>(1);
   }
 
   else if (name == "two-elements-a") {
-    KOKKOS_ASSERT(v_h.extent(0) == 2);
+    assert(v_h.extent(0) == 2);
     v_h(0) = static_cast<value_type>(1);
     v_h(1) = static_cast<value_type>(2);
   }
 
   else if (name == "two-elements-b") {
-    KOKKOS_ASSERT(v_h.extent(0) == 2);
+    assert(v_h.extent(0) == 2);
     v_h(0) = static_cast<value_type>(2);
     v_h(1) = static_cast<value_type>(-1);
   }
 
   else if (name == "small-a") {
-    KOKKOS_ASSERT(v_h.extent(0) == 9);
+    assert(v_h.extent(0) == 9);
     v_h(0) = static_cast<value_type>(3);
     v_h(1) = static_cast<value_type>(1);
     v_h(2) = static_cast<value_type>(4);
@@ -94,7 +101,7 @@ void fill_view(ViewType dest_view, const std::string& name) {
   }
 
   else if (name == "small-b") {
-    KOKKOS_ASSERT(v_h.extent(0) >= 6);
+    assert(v_h.extent(0) >= 6);
     for (std::size_t i = 0; i < ext; ++i) {
       v_h(i) = randObj();
     }
@@ -116,6 +123,21 @@ void fill_view(ViewType dest_view, const std::string& name) {
   Kokkos::parallel_for("copy", dest_view.extent(0), F1);
 }
 
+// I had to write my own because std::transform_exclusive_scan is ONLY found
+// with std=c++17
+template <class it1, class it2, class ValType, class BopType, class UopType>
+void my_host_transform_exclusive_scan(it1 first, it1 last, it2 dest,
+                                      ValType init, BopType bop, UopType uop) {
+  const auto num_elements = last - first;
+  if (num_elements > 0) {
+    while (first < last - 1) {
+      *(dest++) = init;
+      init      = bop(uop(*(first++)), init);
+    }
+    *dest = init;
+  }
+}
+
 template <class ViewType1, class ViewType2, class ValueType, class BinaryOp,
           class UnaryOp>
 void verify_data(ViewType1 data_view,  // contains data
@@ -130,8 +152,9 @@ void verify_data(ViewType1 data_view,  // contains data
   using gold_view_value_type = typename ViewType2::value_type;
   Kokkos::View<gold_view_value_type*, Kokkos::HostSpace> gold_h(
       "goldh", data_view.extent(0));
-  std::transform_exclusive_scan(KE::cbegin(data_view_h), KE::cend(data_view_h),
-                                KE::begin(gold_h), init_value, bop, uop);
+  my_host_transform_exclusive_scan(KE::cbegin(data_view_h),
+                                   KE::cend(data_view_h), KE::begin(gold_h),
+                                   init_value, bop, uop);
 
   auto test_view_dc = create_deep_copyable_compatible_clone(test_view);
   auto test_view_h =

@@ -1,16 +1,24 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_PUBLIC_INCLUDE
 #define KOKKOS_IMPL_PUBLIC_INCLUDE
 #endif
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 
 #ifdef KOKKOS_ENABLE_HPX
 #include <HPX/Kokkos_HPX.hpp>
@@ -35,7 +43,7 @@ namespace Kokkos {
 namespace Impl {
 void hpx_thread_buffer::resize(const std::size_t num_threads,
                                const std::size_t size_per_thread,
-                               const std::size_t extra_space) {
+                               const std::size_t extra_space) noexcept {
   m_num_threads     = num_threads;
   m_size_per_thread = size_per_thread;
   m_extra_space     = extra_space;
@@ -213,6 +221,11 @@ void HPX::impl_initialize(InitializationSettings const &settings) {
 
     m_hpx_initialized = true;
   }
+}
+
+bool HPX::impl_is_initialized() noexcept {
+  hpx::runtime *rt = hpx::get_runtime_ptr();
+  return rt != nullptr;
 }
 
 void HPX::impl_finalize() {

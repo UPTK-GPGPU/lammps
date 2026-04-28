@@ -1,12 +1,20 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 #include <Kokkos_Timer.hpp>
 #include <Kokkos_Random.hpp>
 
@@ -52,7 +60,7 @@ double test_no_atomic(int L, int N, int M, int K, int R,
   return time;
 }
 
-int main(int argc, char* argv[]) {  // NOLINT(bugprone-exception-escape)
+int main(int argc, char* argv[]) {
   Kokkos::initialize(argc, argv);
   {
     if (argc < 8) {

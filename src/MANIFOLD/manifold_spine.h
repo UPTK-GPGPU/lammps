@@ -16,9 +16,9 @@
 
 #include "manifold.h"
 
+namespace LAMMPS_NS {
 
-
-namespace LAMMPS_NS::user_manifold {
+namespace user_manifold {
 
   // A dendritic spine approximation:
   class manifold_spine : public manifold {
@@ -46,8 +46,8 @@ namespace LAMMPS_NS::user_manifold {
     static const char *type() { return "spine/two"; }
     const char *id() override { return type(); }
   };
-} // namespace LAMMPS_NS::user_manifold
+}    // namespace user_manifold
 
-
+}    // namespace LAMMPS_NS
 
 #endif    // LMP_MANIFOLD_SPINE_H

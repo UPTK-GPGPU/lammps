@@ -48,8 +48,8 @@
 
 #include <cstring>
 
-
-namespace LAMMPS_NS::user_manifold {
+namespace LAMMPS_NS {
+namespace user_manifold {
 
   template <typename m_type>
   static void make_manifold_if(manifold **man_ptr, const char *name, LAMMPS *lmp, int narg, char **arg)
@@ -78,6 +78,6 @@ namespace LAMMPS_NS::user_manifold {
 
     return man;
   }
-} // namespace LAMMPS_NS::user_manifold
+}    // namespace user_manifold
 
-
+}    // namespace LAMMPS_NS

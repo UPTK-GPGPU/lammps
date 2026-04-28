@@ -41,7 +41,7 @@ class BondClass2 : public Bond {
  protected:
   double *r0, *k2, *k3, *k4;
 
-  virtual void allocate();
+  void allocate();
 };
 
 }    // namespace LAMMPS_NS

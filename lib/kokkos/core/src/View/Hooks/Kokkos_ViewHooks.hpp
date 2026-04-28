@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_EXPERIMENTAL_VIEWHOOKS_HPP
 #define KOKKOS_EXPERIMENTAL_VIEWHOOKS_HPP
@@ -63,6 +76,19 @@ struct move_assignment_operator_invoker {
 };
 }  // namespace Impl
 
+struct EmptyViewHooks {
+  using hooks_policy = EmptyViewHooks;
+
+  template <typename View>
+  static void copy_construct(View &, const View &) {}
+  template <typename View>
+  static void copy_assign(View &, const View &) {}
+  template <typename View>
+  static void move_construct(View &, const View &) {}
+  template <typename View>
+  static void move_assign(View &, const View &) {}
+};
+
 template <class... Subscribers>
 struct SubscribableViewHooks {
   using hooks_policy = SubscribableViewHooks<Subscribers...>;
@@ -88,6 +114,8 @@ struct SubscribableViewHooks {
                                  Subscribers...>::invoke(self, other);
   }
 };
+
+using DefaultViewHooks = EmptyViewHooks;
 
 }  // namespace Experimental
 }  // namespace Kokkos

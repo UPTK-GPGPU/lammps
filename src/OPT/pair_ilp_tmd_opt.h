@@ -25,7 +25,7 @@ PairStyle(ilp/tmd/opt,PairILPTMDOpt);
 
 namespace LAMMPS_NS {
 
-class PairILPTMDOpt : virtual public PairILPTMD, virtual public PairILPGrapheneHBNOpt {
+class PairILPTMDOpt : public PairILPTMD, public PairILPGrapheneHBNOpt {
  public:
   PairILPTMDOpt(class LAMMPS *);
   void coeff(int narg, char **args) override;

@@ -24,13 +24,13 @@ GranSubModStyle(sds,GranSubModTwistingSDS,TWISTING);
 
 #include "gran_sub_mod.h"
 
-
-namespace LAMMPS_NS::Granular_NS {
+namespace LAMMPS_NS {
+namespace Granular_NS {
 
   class GranSubModTwisting : public GranSubMod {
    public:
     GranSubModTwisting(class GranularModel *, class LAMMPS *);
-    virtual double calculate_forces() = 0;
+    virtual void calculate_forces() = 0;
   };
 
   /* ---------------------------------------------------------------------- */
@@ -38,7 +38,7 @@ namespace LAMMPS_NS::Granular_NS {
   class GranSubModTwistingNone : public GranSubModTwisting {
    public:
     GranSubModTwistingNone(class GranularModel *, class LAMMPS *);
-    double calculate_forces() override {return 0.0;};
+    void calculate_forces() override {};
   };
 
   /* ---------------------------------------------------------------------- */
@@ -47,7 +47,7 @@ namespace LAMMPS_NS::Granular_NS {
    public:
     GranSubModTwistingMarshall(class GranularModel *, class LAMMPS *);
     void init() override;
-    double calculate_forces() override;
+    void calculate_forces() override;
 
    protected:
     double k_tang, mu_tang;
@@ -59,14 +59,14 @@ namespace LAMMPS_NS::Granular_NS {
    public:
     GranSubModTwistingSDS(class GranularModel *, class LAMMPS *);
     void coeffs_to_local() override;
-    double calculate_forces() override;
+    void calculate_forces() override;
 
    protected:
     double k, mu, damp;
   };
 
-} // namespace LAMMPS_NS::Granular_NS
-
+}    // namespace Granular_NS
+}    // namespace LAMMPS_NS
 
 #endif /*GRAN_SUB_MOD_TWISTING_H */
 #endif /*GRAN_SUB_MOD_CLASS_H */

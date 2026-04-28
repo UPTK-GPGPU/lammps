@@ -295,8 +295,7 @@ void FixWidom::init()
 
   if (idregion) {
     region = domain->get_region_by_id(idregion);
-    if (!region)
-      error->all(FLERR, Error::NOLASTLINE, "Region {} for fix widom does not exist", idregion);
+    if (!region) error->all(FLERR, Error::NOLASTLINE, "Region {} for fix widom does not exist", idregion);
   }
 
   if (region) {
@@ -316,13 +315,12 @@ void FixWidom::init()
       if ((region_xlo < domain->boxlo_bound[0]) || (region_xhi > domain->boxhi_bound[0]) ||
           (region_ylo < domain->boxlo_bound[1]) || (region_yhi > domain->boxhi_bound[1]) ||
           (region_zlo < domain->boxlo_bound[2]) || (region_zhi > domain->boxhi_bound[2]))
-        error->all(FLERR, Error::NOLASTLINE,
-                   "Fix widom region {} extends outside simulation box", region->id);
+        error->all(FLERR,"Fix widom region {} extends outside simulation box", region->id);
     } else {
       if ((region_xlo < domain->boxlo[0]) || (region_xhi > domain->boxhi[0]) ||
           (region_ylo < domain->boxlo[1]) || (region_yhi > domain->boxhi[1]) ||
           (region_zlo < domain->boxlo[2]) || (region_zhi > domain->boxhi[2]))
-        error->all(FLERR, Error::NOLASTLINE, "Fix widom region {} extends outside simulation box", region->id);
+        error->all(FLERR,"Fix widom region {} extends outside simulation box", region->id);
     }
   }
 
@@ -341,16 +339,15 @@ void FixWidom::init()
         (force->pair->tail_flag)) {
       full_flag = true;
       if (comm->me == 0)
-        error->warning(FLERR, "Fix widom using full_energy option");
+        error->warning(FLERR,"Fix widom using full_energy option");
     }
   }
 
   if (full_flag) c_pe = modify->get_compute_by_id("thermo_pe");
 
   if (exchmode == EXCHATOM) {
-    if ((nwidom_type <= 0) || (nwidom_type > atom->ntypes))
-      error->all(FLERR, Error::NOLASTLINE,
-                 "Invalid atom type {} in fix widom command", nwidom_type);
+    if (nwidom_type <= 0 || nwidom_type > atom->ntypes)
+      error->all(FLERR,"Invalid atom type in fix widom command");
   }
 
   // if molecules are exchanged or moved, check for unset mol IDs
@@ -364,17 +361,16 @@ void FixWidom::init()
     int flagall;
     MPI_Allreduce(&flag,&flagall,1,MPI_INT,MPI_SUM,world);
     if (flagall)
-      error->all(FLERR, Error::NOLASTLINE, "All mol IDs should be set for fix widom group atoms");
+      error->all(FLERR, "All mol IDs should be set for fix widom group atoms");
   }
 
   if (exchmode == EXCHMOL)
     if (atom->molecule_flag == 0 || !atom->tag_enable
         || (atom->map_style == Atom::MAP_NONE))
-      error->all(FLERR, Error::NOLASTLINE,
-                 "Fix widom molecule command requires that atoms have molecule attributes");
+      error->all(FLERR, "Fix widom molecule command requires that atoms have molecule attributes");
 
   if (domain->dimension == 2)
-    error->all(FLERR, Error::NOLASTLINE, "Cannot use fix widom in a 2d simulation");
+    error->all(FLERR,"Cannot use fix widom in a 2d simulation");
 
   // create a new group for interaction exclusions
   // used for attempted atom or molecule deletions
@@ -388,7 +384,7 @@ void FixWidom::init()
     group->assign(group_id + " subtract all all");
     exclusion_group = group->find(group_id);
     if (exclusion_group == -1)
-      error->all(FLERR, Error::NOLASTLINE, "Could not find fix widom exclusion group ID {}", group_id);
+      error->all(FLERR,"Could not find fix widom exclusion group ID");
     exclusion_group_bit = group->bitmask[exclusion_group];
 
     // neighbor list exclusion setup
@@ -429,7 +425,7 @@ void FixWidom::init()
 
   } else gas_mass = atom->mass[nwidom_type];
 
-  if (gas_mass <= 0.0) error->all(FLERR, Error::NOLASTLINE, "Illegal fix widom gas mass <= 0");
+  if (gas_mass <= 0.0) error->all(FLERR,"Illegal fix widom gas mass <= 0");
 
   // check that no deletable atoms are in atom->firstgroup
   // deleting such an atom would not leave firstgroup atoms first
@@ -446,7 +442,7 @@ void FixWidom::init()
     MPI_Allreduce(&flag,&flagall,1,MPI_INT,MPI_SUM,world);
 
     if (flagall)
-      error->all(FLERR, Error::NOLASTLINE, "Cannot use fix widom on atoms in atom_modify first group");
+      error->all(FLERR,"Cannot use fix widom on atoms in atom_modify first group");
   }
 
   // compute beta
@@ -459,8 +455,8 @@ void FixWidom::init()
   // full_flag on molecules on more than one processor.
   // Print error if this is the current mode
   if (full_flag && (exchmode == EXCHMOL) && comm->nprocs > 1)
-    error->all(FLERR, Error::NOLASTLINE, "fix widom does currently not support full_energy option "
-               "with molecules on more than 1 MPI process.");
+    error->all(FLERR,"fix widom does currently not support full_energy option with "
+               "molecules on more than 1 MPI process.");
 
 }
 

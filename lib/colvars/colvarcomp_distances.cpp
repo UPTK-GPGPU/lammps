@@ -9,7 +9,6 @@
 
 #include <algorithm>
 
-#include "colvardeps.h"
 #include "colvarmodule.h"
 #include "colvarvalue.h"
 #include "colvar.h"
@@ -430,10 +429,14 @@ int colvar::distance_inv::init(std::string const &conf)
     error_code |= cvm::error("Error: negative or zero exponent provided.\n", COLVARS_INPUT_ERROR);
   }
 
-  if (cvm::atom_group::overlap(*group1, *group2) != 0) {
-    error_code |= cvm::error("Error: group1 and group2 have some atoms in common: this is not "
-                            "allowed for distanceInv.\n",
-                            COLVARS_INPUT_ERROR);
+  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+    for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+      if (ai1->id == ai2->id) {
+        error_code |= cvm::error("Error: group1 and group2 have some atoms in common: this is not "
+                                 "allowed for distanceInv.\n",
+                                 COLVARS_INPUT_ERROR);
+      }
+    }
   }
 
   if (is_enabled(f_cvc_debug_gradient)) {
@@ -448,42 +451,31 @@ int colvar::distance_inv::init(std::string const &conf)
 
 void colvar::distance_inv::calc_value()
 {
-#define CALL_KERNEL(USE_PBC_MINIMUM_IMAGE) do {        \
-  const int factor = -1*(exponent/2);                  \
-  for (size_t i = 0; i < group1->size(); ++i) {        \
-    const cvm::atom_pos pos1(group1->pos_x(i),         \
-                             group1->pos_y(i),         \
-                             group1->pos_z(i));        \
-    cvm::rvector g1(0, 0, 0);                          \
-    for (size_t j = 0; j < group2->size(); ++j) {      \
-      const cvm::atom_pos pos2(group2->pos_x(j),       \
-                               group2->pos_y(j),       \
-                               group2->pos_z(j));      \
-      cvm::rvector dv;                                 \
-      if (USE_PBC_MINIMUM_IMAGE) {                     \
-        dv = cvm::position_distance(pos1, pos2);       \
-      } else {                                         \
-        dv = pos2 - pos1;                              \
-      }                                                \
-      cvm::real const d2 = dv.norm2();                                      \
-      cvm::real const dinv = cvm::integer_power(d2, factor);                \
-      x.real_value += dinv;                                                 \
-      cvm::rvector const dsumddv = factor * dinv/d2 * 2.0 * dv;             \
-      g1 += -1.0 * dsumddv;             \
-      group2->grad_x(j) += dsumddv.x;   \
-      group2->grad_y(j) += dsumddv.y;   \
-      group2->grad_z(j) += dsumddv.z;   \
-    }                                   \
-    group1->grad_x(i) += g1.x; \
-    group1->grad_y(i) += g1.y; \
-    group1->grad_z(i) += g1.z; \
-  }                            \
-} while (0);
   x.real_value = 0.0;
   if (!is_enabled(f_cvc_pbc_minimum_image)) {
-    CALL_KERNEL(false);
+    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+        cvm::rvector const dv = ai2->pos - ai1->pos;
+        cvm::real const d2 = dv.norm2();
+        cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
+        x.real_value += dinv;
+        cvm::rvector const dsumddv = -1.0*(exponent/2) * dinv/d2 * 2.0 * dv;
+        ai1->grad += -1.0 * dsumddv;
+        ai2->grad +=        dsumddv;
+      }
+    }
   } else {
-    CALL_KERNEL(true);
+    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+        cvm::rvector const dv = cvm::position_distance(ai1->pos, ai2->pos);
+        cvm::real const d2 = dv.norm2();
+        cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
+        x.real_value += dinv;
+        cvm::rvector const dsumddv = -1.0*(exponent/2) * dinv/d2 * 2.0 * dv;
+        ai1->grad += -1.0 * dsumddv;
+        ai2->grad +=        dsumddv;
+      }
+    }
   }
 
   x.real_value *= 1.0 / cvm::real(group1->size() * group2->size());
@@ -492,15 +484,12 @@ void colvar::distance_inv::calc_value()
   cvm::real const dxdsum = (-1.0/(cvm::real(exponent))) *
     cvm::integer_power(x.real_value, exponent+1) /
     cvm::real(group1->size() * group2->size());
-  const size_t num_grads_xyz_group1 = 3 * group1->size();
-  for (size_t i = 0; i < num_grads_xyz_group1; ++i) {
-    group1->grad_x(i) = group1->grad_x(i) * dxdsum;
+  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+    ai1->grad *= dxdsum;
   }
-  const size_t num_grads_xyz_group2 = 3 * group2->size();
-  for (size_t i = 0; i < num_grads_xyz_group2; ++i) {
-    group2->grad_x(i) = group2->grad_x(i) * dxdsum;
+  for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+    ai2->grad *= dxdsum;
   }
-#undef CALL_KERNEL
 }
 
 
@@ -533,38 +522,31 @@ int colvar::distance_pairs::init(std::string const &conf)
 void colvar::distance_pairs::calc_value()
 {
   x.vector1d_value.resize(group1->size() * group2->size());
-#define CALL_KERNEL(USE_PBC_MINIMUM_IMAGE) do {                    \
-  for (size_t i1 = 0; i1 < group1->size(); ++i1) {                 \
-    const cvm::atom_pos pos1(group1->pos_x(i1),                    \
-                             group1->pos_y(i1),                    \
-                             group1->pos_z(i1));                   \
-    cvm::rvector g1(0, 0, 0);                                      \
-    for (size_t i2 = 0; i2 < group2->size(); i2++) {               \
-      const cvm::atom_pos pos2(group2->pos_x(i2),                  \
-                               group2->pos_y(i2),                  \
-                               group2->pos_z(i2));                 \
-      const cvm::rvector dv = USE_PBC_MINIMUM_IMAGE ?              \
-                              cvm::position_distance(pos1, pos2) : \
-                              pos2 - pos1;                         \
-      cvm::real const d = dv.norm();                               \
-      x.vector1d_value[i1*group2->size() + i2] = d;                \
-      const cvm::rvector g2 = dv.unit();                           \
-      g1 += -g2;                                                   \
-      /*group2->grad_x(i2) += g2.x;                                  \
-      group2->grad_y(i2) += g2.y;                                  \
-      group2->grad_z(i2) += g2.z;*/                                  \
-    }                                                              \
-    /*group1->grad_x(i1) += g1.x;                                    \
-    group1->grad_y(i1) += g1.y;                                    \
-    group1->grad_z(i1) += g1.z;*/                                    \
-  }                                                                \
-} while (0);
+
   if (!is_enabled(f_cvc_pbc_minimum_image)) {
-    CALL_KERNEL(false);
+    size_t i1, i2;
+    for (i1 = 0; i1 < group1->size(); i1++) {
+      for (i2 = 0; i2 < group2->size(); i2++) {
+        cvm::rvector const dv = (*group2)[i2].pos - (*group1)[i1].pos;
+        cvm::real const d = dv.norm();
+        x.vector1d_value[i1*group2->size() + i2] = d;
+        (*group1)[i1].grad = -1.0 * dv.unit();
+        (*group2)[i2].grad =  dv.unit();
+      }
+    }
   } else {
-    CALL_KERNEL(true);
+    size_t i1, i2;
+    for (i1 = 0; i1 < group1->size(); i1++) {
+      for (i2 = 0; i2 < group2->size(); i2++) {
+        cvm::rvector const dv = cvm::position_distance((*group1)[i1].pos,
+                                                       (*group2)[i2].pos);
+        cvm::real const d = dv.norm();
+        x.vector1d_value[i1*group2->size() + i2] = d;
+        (*group1)[i1].grad = -1.0 * dv.unit();
+        (*group2)[i2].grad =  dv.unit();
+      }
+    }
   }
-#undef CALL_KERNEL
 }
 
 
@@ -576,36 +558,26 @@ void colvar::distance_pairs::calc_gradients()
 
 void colvar::distance_pairs::apply_force(colvarvalue const &force)
 {
-#define CALL_KERNEL(USE_PBC_MINIMUM_IMAGE) do {                         \
-  auto group1_force_obj = group1->get_group_force_object();             \
-  auto group2_force_obj = group2->get_group_force_object();             \
-  for (size_t i1 = 0; i1 < group1->size(); i1++) {                      \
-    const cvm::atom_pos pos1(group1->pos_x(i1),                         \
-                             group1->pos_y(i1),                         \
-                             group1->pos_z(i1));                        \
-    cvm::rvector f1(0, 0, 0);                                           \
-    for (size_t i2 = 0; i2 < group2->size(); i2++) {                    \
-      const cvm::atom_pos pos2(group2->pos_x(i2),                       \
-                               group2->pos_y(i2),                       \
-                               group2->pos_z(i2));                      \
-      const cvm::rvector dv = USE_PBC_MINIMUM_IMAGE ?                   \
-                              cvm::position_distance(pos1, pos2) :      \
-                              pos2 - pos1;                              \
-      cvm::real const d = dv.norm();                                    \
-      x.vector1d_value[i1*group2->size() + i2] = d;                     \
-      const cvm::rvector f2 = force[i1*group2->size() + i2] * dv.unit();\
-      f1 += -f2;                                                        \
-      group2_force_obj.add_atom_force(i2, f2);                          \
-    }                                                                   \
-    group1_force_obj.add_atom_force(i1, f1);                            \
-  }                                                                     \
-} while (0);
   if (!is_enabled(f_cvc_pbc_minimum_image)) {
-    CALL_KERNEL(false);
+    size_t i1, i2;
+    for (i1 = 0; i1 < group1->size(); i1++) {
+      for (i2 = 0; i2 < group2->size(); i2++) {
+        cvm::rvector const dv = (*group2)[i2].pos - (*group1)[i1].pos;
+        (*group1)[i1].apply_force(force[i1*group2->size() + i2] * (-1.0) * dv.unit());
+        (*group2)[i2].apply_force(force[i1*group2->size() + i2] * dv.unit());
+      }
+    }
   } else {
-    CALL_KERNEL(true);
+    size_t i1, i2;
+    for (i1 = 0; i1 < group1->size(); i1++) {
+      for (i2 = 0; i2 < group2->size(); i2++) {
+        cvm::rvector const dv = cvm::position_distance((*group1)[i1].pos,
+                                                       (*group2)[i2].pos);
+        (*group1)[i1].apply_force(force[i1*group2->size() + i2] * (-1.0) * dv.unit());
+        (*group2)[i2].apply_force(force[i1*group2->size() + i2] * dv.unit());
+      }
+    }
   }
-#undef CALL_KERNEL
 }
 
 
@@ -660,11 +632,9 @@ void colvar::dipole_magnitude::calc_gradients()
 {
   cvm::real const aux1 = atoms->total_charge/atoms->total_mass;
   cvm::atom_pos const dipVunit = dipoleV.unit();
-  for (size_t i = 0; i < atoms->size(); ++i) {
-    const cvm::rvector grad = (atoms->charge(i) - aux1 * atoms->mass(i)) * dipVunit;
-    atoms->grad_x(i) = grad.x;
-    atoms->grad_y(i) = grad.y;
-    atoms->grad_z(i) = grad.z;
+
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    ai->grad = (ai->charge - aux1*ai->mass) * dipVunit;
   }
 }
 
@@ -689,9 +659,8 @@ int colvar::gyration::init(std::string const &conf)
     cvm::log("WARNING: explicit fitting parameters were provided for atom group \"atoms\".\n");
   } else {
     atoms->enable(f_ag_center);
-    std::vector<cvm::atom_pos> ref_pos_aos{cvm::atom_pos(0, 0, 0)};
-    atoms->set_ref_pos_from_aos(ref_pos_aos);
-    atoms->fit_gradients.assign(3 * atoms->size(), 0);
+    atoms->ref_pos.assign(1, cvm::atom_pos(0.0, 0.0, 0.0));
+    atoms->fit_gradients.assign(atoms->size(), cvm::rvector(0.0, 0.0, 0.0));
   }
 
   return error_code;
@@ -701,9 +670,8 @@ int colvar::gyration::init(std::string const &conf)
 void colvar::gyration::calc_value()
 {
   x.real_value = 0.0;
-  const size_t num_pos_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_pos_xyz; ++i) {
-    x.real_value += atoms->pos_x(i) * atoms->pos_x(i);
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    x.real_value += (ai->pos).norm2();
   }
   x.real_value = cvm::sqrt(x.real_value / cvm::real(atoms->size()));
 }
@@ -712,9 +680,8 @@ void colvar::gyration::calc_value()
 void colvar::gyration::calc_gradients()
 {
   cvm::real const drdx = 1.0/(cvm::real(atoms->size()) * x.real_value);
-  const size_t num_pos_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_pos_xyz; ++i) {
-    atoms->grad_x(i) = drdx * atoms->pos_x(i);
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    ai->grad = drdx * ai->pos;
   }
 }
 
@@ -725,11 +692,10 @@ void colvar::gyration::calc_force_invgrads()
 
   cvm::real const dxdr = 1.0/x.real_value;
   ft.real_value = 0.0;
-  const size_t num_pos_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_pos_xyz; ++i) {
-    ft.real_value += atoms->pos_x(i) * atoms->total_force_x(i);
+
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    ft.real_value += dxdr * ai->pos * ai->total_force;
   }
-  ft.real_value *= dxdr;
 }
 
 
@@ -749,18 +715,16 @@ colvar::inertia::inertia()
 void colvar::inertia::calc_value()
 {
   x.real_value = 0.0;
-  const size_t num_pos_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_pos_xyz; ++i) {
-    x.real_value += atoms->pos_x(i) * atoms->pos_x(i);
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    x.real_value += (ai->pos).norm2();
   }
 }
 
 
 void colvar::inertia::calc_gradients()
 {
-  const size_t num_pos_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_pos_xyz; ++i) {
-    atoms->grad_x(i) = 2.0 * atoms->pos_x(i);
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    ai->grad = 2.0 * ai->pos;
   }
 }
 
@@ -791,11 +755,8 @@ int colvar::inertia_z::init(std::string const &conf)
 void colvar::inertia_z::calc_value()
 {
   x.real_value = 0.0;
-  for (size_t i = 0; i < atoms->size(); ++i) {
-    const cvm::atom_pos pos(atoms->pos_x(i),
-                            atoms->pos_y(i),
-                            atoms->pos_z(i));
-    cvm::real const iprod = pos * axis;
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    cvm::real const iprod = ai->pos * axis;
     x.real_value += iprod * iprod;
   }
 }
@@ -803,15 +764,8 @@ void colvar::inertia_z::calc_value()
 
 void colvar::inertia_z::calc_gradients()
 {
-  for (size_t i = 0; i < atoms->size(); ++i) {
-    const cvm::atom_pos pos(atoms->pos_x(i),
-                            atoms->pos_y(i),
-                            atoms->pos_z(i));
-    cvm::real const iprod = pos * axis;
-    const cvm::rvector grad = 2.0 * iprod * axis;
-    atoms->grad_x(i) = grad.x;
-    atoms->grad_y(i) = grad.y;
-    atoms->grad_z(i) = grad.z;
+  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+    ai->grad = 2.0 * (ai->pos * axis) * axis;
   }
 }
 
@@ -906,7 +860,7 @@ int colvar::rmsd::init(std::string const &conf)
     atoms->enable(f_ag_rotate);
     // default case: reference positions for calculating the rmsd are also those used
     // for fitting
-    atoms->set_ref_pos_from_aos(ref_pos);
+    atoms->ref_pos = ref_pos;
     atoms->center_ref_pos();
 
     cvm::log("This is a standard minimum RMSD, derivatives of the optimal rotation "
@@ -974,9 +928,7 @@ void colvar::rmsd::calc_value()
 
   x.real_value = 0.0;
   for (size_t ia = 0; ia < atoms->size(); ia++) {
-    const cvm::atom_pos pos_ia(
-      atoms->pos_x(ia), atoms->pos_y(ia), atoms->pos_z(ia));
-    x.real_value += (pos_ia - ref_pos[ia]).norm2();
+    x.real_value += ((*atoms)[ia].pos - ref_pos[ia]).norm2();
   }
   best_perm_index = 0;
 
@@ -985,9 +937,7 @@ void colvar::rmsd::calc_value()
   for (size_t ip = 1; ip < n_permutations; ip++) {
     cvm::real value = 0.0;
     for (size_t ia = 0; ia < atoms->size(); ia++) {
-      const cvm::atom_pos pos_ia(
-        atoms->pos_x(ia), atoms->pos_y(ia), atoms->pos_z(ia));
-      value += (pos_ia - ref_pos[ref_pos_index++]).norm2();
+      value += ((*atoms)[ia].pos - ref_pos[ref_pos_index++]).norm2();
     }
     if (value < x.real_value) {
       x.real_value = value;
@@ -1008,12 +958,7 @@ void colvar::rmsd::calc_gradients()
   // Use the appropriate symmetry permutation of reference positions to calculate gradients
   size_t const start = atoms->size() * best_perm_index;
   for (size_t ia = 0; ia < atoms->size(); ia++) {
-    const cvm::atom_pos pos_ia(
-      atoms->pos_x(ia), atoms->pos_y(ia), atoms->pos_z(ia));
-    const cvm::rvector grad = (drmsddx2 * 2.0 * (pos_ia - ref_pos[start + ia]));
-    atoms->grad_x(ia) = grad.x;
-    atoms->grad_y(ia) = grad.y;
-    atoms->grad_z(ia) = grad.z;
+    (*atoms)[ia].grad = (drmsddx2 * 2.0 * ((*atoms)[ia].pos - ref_pos[start + ia]));
   }
 }
 
@@ -1024,9 +969,9 @@ void colvar::rmsd::calc_force_invgrads()
   ft.real_value = 0.0;
 
   // Note: gradient square norm is 1/N_atoms
-  const size_t num_grad_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_grad_xyz; i++) {
-    ft.real_value += atoms->grad_x(i) * atoms->total_force_x(i);
+
+  for (size_t ia = 0; ia < atoms->size(); ia++) {
+    ft.real_value += (*atoms)[ia].grad * (*atoms)[ia].total_force;
   }
   ft.real_value *= atoms->size();
 }
@@ -1176,9 +1121,10 @@ int colvar::eigenvector::init(std::string const &conf)
               "if this is not the desired behavior, disable them explicitly within the \"atoms\" block.\n");
     atoms->enable(f_ag_center);
     atoms->enable(f_ag_rotate);
-    atoms->enable(f_ag_fit_gradients);
-    atoms->set_ref_pos_from_aos(ref_pos);
+    atoms->ref_pos = ref_pos;
     atoms->center_ref_pos();
+    atoms->enable(f_ag_fit_gradients); // cancel out if group is fitted on itself
+                                        // and cvc is translationally invariant
   }
   atoms->setup_rotation_derivative();
 
@@ -1304,9 +1250,7 @@ void colvar::eigenvector::calc_value()
 {
   x.real_value = 0.0;
   for (size_t i = 0; i < atoms->size(); i++) {
-    const cvm::atom_pos pos_i(
-      atoms->pos_x(i), atoms->pos_y(i), atoms->pos_z(i));
-    x.real_value += (pos_i - ref_pos[i]) * eigenvec[i];
+    x.real_value += ((*atoms)[i].pos - ref_pos[i]) * eigenvec[i];
   }
 }
 
@@ -1314,9 +1258,7 @@ void colvar::eigenvector::calc_value()
 void colvar::eigenvector::calc_gradients()
 {
   for (size_t ia = 0; ia < atoms->size(); ia++) {
-    atoms->grad_x(ia) = eigenvec[ia].x;
-    atoms->grad_y(ia) = eigenvec[ia].y;
-    atoms->grad_z(ia) = eigenvec[ia].z;
+    (*atoms)[ia].grad = eigenvec[ia];
   }
 }
 
@@ -1325,11 +1267,11 @@ void colvar::eigenvector::calc_force_invgrads()
 {
   atoms->read_total_forces();
   ft.real_value = 0.0;
-  const size_t num_grad_xyz = 3 * atoms->size();
-  for (size_t i = 0; i < num_grad_xyz; i++) {
-    ft.real_value += atoms->grad_x(i) * atoms->total_force_x(i);
+
+  for (size_t ia = 0; ia < atoms->size(); ia++) {
+    ft.real_value += eigenvec_invnorm2 * (*atoms)[ia].grad *
+      (*atoms)[ia].total_force;
   }
-  ft.real_value *= eigenvec_invnorm2;
 }
 
 
@@ -1430,9 +1372,7 @@ void colvar::cartesian::calc_value()
   size_t ia, j;
   for (ia = 0; ia < atoms->size(); ia++) {
     for (j = 0; j < dim; j++) {
-      const cvm::atom_pos pos_ia(
-        atoms->pos_x(ia), atoms->pos_y(ia), atoms->pos_z(ia));
-      x.vector1d_value[dim*ia + j] = pos_ia[axes[j]];
+      x.vector1d_value[dim*ia + j] = (*atoms)[ia].pos[axes[j]];
     }
   }
 }

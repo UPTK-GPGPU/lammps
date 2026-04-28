@@ -43,7 +43,6 @@ class PairILPGrapheneHBN : public Pair {
     ILP_GrhBN,
     ILP_TMD,
     SAIP_METAL,
-    SAIP_METAL_TMD,
     AIP_WATER_2DM
   };    // for telling class variants apart in shared code
 

@@ -33,8 +33,8 @@ DISTRIBUTION A. Approved for public release; distribution unlimited. OPSEC#4918
 
 #include "rann_fingerprint.h"
 
-
-namespace LAMMPS_NS::RANN {
+namespace LAMMPS_NS {
+namespace RANN {
 
   class Fingerprint_bondscreened : public Fingerprint {
    public:
@@ -72,8 +72,8 @@ namespace LAMMPS_NS::RANN {
     int mlength;
     int **Mf;
   };
-} // namespace LAMMPS_NS::RANN
+}    // namespace RANN
 
-
+}    // namespace LAMMPS_NS
 
 #endif /* FINGERPRINT_BOND_H */

@@ -3,8 +3,6 @@
 #ifndef COLVARPROXY_VOLMAPS_H
 #define COLVARPROXY_VOLMAPS_H
 
-#include "colvarmodule.h"
-
 
 /// \brief Container of grid-based objects
 class colvarproxy_volmaps {
@@ -77,15 +75,16 @@ public:
   }
 
   /// Re-weigh an atomic field (e.g. a colvar) by the value of a volumetric map
-
   /// \param flags Combination of flags
   /// \param volmap_id Numeric index of the map (no need to request it)
-  /// \param ag Pointer to the SOA atom group
+  /// \param atom_begin Iterator pointing to first atom
+  /// \param atom_end Iterator pointing past the last atom
   /// \param value Pointer to location of total to increment
   /// \param atom_field Array of atomic field values (if NULL, ones are used)
   virtual int compute_volmap(int flags,
                              int volmap_id,
-                             cvm::atom_group* ag,
+                             cvm::atom_iter atom_begin,
+                             cvm::atom_iter atom_end,
                              cvm::real *value,
                              cvm::real *atom_field);
 

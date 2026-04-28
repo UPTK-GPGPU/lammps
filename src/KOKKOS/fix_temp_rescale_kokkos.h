@@ -32,7 +32,6 @@ template<class DeviceType>
 class FixTempRescaleKokkos : public FixTempRescale {
  public:
   typedef DeviceType device_type;
-  typedef ArrayTypes<DeviceType> AT;
 
   FixTempRescaleKokkos(class LAMMPS *, int, char **);
   ~FixTempRescaleKokkos() override {}

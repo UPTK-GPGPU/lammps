@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_SERIAL_PARALLEL_TEAM_HPP
 #define KOKKOS_SERIAL_PARALLEL_TEAM_HPP
@@ -157,12 +170,6 @@ class TeamPolicyInternal<Kokkos::Serial, Properties...>
                            league_size_request, team_size_request,
                            vector_length_request) {}
 
-  TeamPolicyInternal(const PolicyUpdate, const TeamPolicyInternal& other,
-                     typename traits::execution_space space)
-      : TeamPolicyInternal(other) {
-    this->m_space = std::move(space);
-  }
-
   inline int chunk_size() const { return m_chunk_size; }
 
   /** \brief set chunk_size to a discrete value*/
@@ -262,9 +269,9 @@ class ParallelFor<FunctorType, Kokkos::TeamPolicy<Properties...>,
   ParallelFor(const FunctorType& arg_functor, const Policy& arg_policy)
       : m_functor(arg_functor),
         m_policy(arg_policy),
-        m_league(m_policy.league_size()),
-        m_shared(m_policy.scratch_size(0) + m_policy.scratch_size(1) +
-                 FunctorTeamShmemSize<FunctorType>::value(m_functor, 1)) {}
+        m_league(arg_policy.league_size()),
+        m_shared(arg_policy.scratch_size(0) + arg_policy.scratch_size(1) +
+                 FunctorTeamShmemSize<FunctorType>::value(arg_functor, 1)) {}
 };
 
 /*--------------------------------------------------------------------------*/

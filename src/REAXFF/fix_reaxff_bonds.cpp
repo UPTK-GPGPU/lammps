@@ -22,7 +22,6 @@
 #include "comm.h"
 #include "error.h"
 #include "force.h"
-#include "graphics.h"
 #include "memory.h"
 #include "neigh_list.h"
 #include "update.h"
@@ -41,7 +40,7 @@ using namespace ReaxFF;
 
 FixReaxFFBonds::FixReaxFFBonds(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg), neighid(nullptr), abo(nullptr), fp(nullptr), lists(nullptr),
-  reaxff(nullptr), list(nullptr), imgobjs(nullptr), imgparms(nullptr)
+  reaxff(nullptr), list(nullptr)
 {
   if (narg != 5)
     error->all(FLERR, Error::NOPOINTER, "Fix reaxff/bonds expected 5 arguments but got {}", narg);
@@ -51,12 +50,9 @@ FixReaxFFBonds::FixReaxFFBonds(LAMMPS *lmp, int narg, char **arg) :
   multifile = 0;
   padflag = 0;
   first_flag = true;
-  numobjs = 0;
-  dynamic_group_allow = 1;     // applies only to FixReaxFFBonds::image()
 
   nevery = utils::inumeric(FLERR,arg[3],false,lmp);
   if (nevery <= 0) error->all(FLERR, 3, "Illegal fix reaxff/bonds nevery value {}", nevery);
-  global_freq = nevery;
 
   filename = arg[4];
   if (filename.rfind('*') != std::string::npos) multifile = 1;
@@ -75,10 +71,6 @@ FixReaxFFBonds::~FixReaxFFBonds()
   destroy();
 
   if (fp) fclose(fp);
-
-  // clean up dump image data
-  memory->destroy(imgobjs);
-  memory->destroy(imgparms);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -148,9 +140,6 @@ void FixReaxFFBonds::Output_ReaxFF_Bonds()
   }
   numbonds = FindBond();
 
-  // no file output with NULL file name.
-  if (filename == "NULL") return;
-
   // allocate a temporary buffer for the snapshot info
   MPI_Allreduce(&numbonds,&numbonds_max,1,MPI_INT,MPI_MAX,world);
   MPI_Allreduce(&nlocal,&nlocal_max,1,MPI_INT,MPI_MAX,world);
@@ -166,6 +155,7 @@ void FixReaxFFBonds::Output_ReaxFF_Bonds()
   RecvBuffer(buf, nbuf, nbuf_local, nlocal_tot, numbonds_max);
 
   memory->destroy(buf);
+
 }
 
 /* ---------------------------------------------------------------------- */
@@ -184,7 +174,6 @@ int FixReaxFFBonds::FindBond()
 
   tagint *tag = atom->tag;
   int numbonds = 0;
-  numobjs = 0;
 
   for (ii = 0; ii < inum; ii++) {
     i = ilist[ii];
@@ -203,7 +192,6 @@ int FixReaxFFBonds::FindBond()
       }
     }
     numneigh[i] = nj;
-    numobjs += nj;
     if (nj > numbonds) numbonds = nj;
   }
   return numbonds;
@@ -370,54 +358,4 @@ double FixReaxFFBonds::memory_usage()
   bytes += (double)1.0*nmax*MAXREAXBOND*sizeof(int);
 
   return bytes;
-}
-
-/* ---------------------------------------------------------------------- */
-
-int FixReaxFFBonds::image(int *&objs, double **&parms)
-{
-  if (atom->map_style == Atom::MAP_NONE)
-    error->all(FLERR, Error::NOLASTLINE,
-               "Using fix reaxff/bonds with dump image requires an atom map");
-
-  if (!numobjs) return 0;
-  memory->destroy(imgobjs);
-  memory->destroy(imgparms);
-  memory->create(imgobjs, numobjs, "reaxff/bonds:imgobjs");
-  memory->create(imgparms, numobjs, 8, "reaxff/bonds:imgparms");
-
-  const int *type = atom->type;
-  const int *mask = atom->mask;
-  const double * const * const x = atom->x;
-
-  int inum = reaxff->list->inum;
-  int *ilist = reaxff->list->ilist;
-
-  int n = 0;
-  for (int ii = 0; ii < inum; ++ii) {
-    int i = ilist[ii];
-    if (mask[i] & groupbit) {
-      for (int jj = 0; jj < numneigh[i]; ++jj) {
-        int j = atom->map(neighid[i][jj]);
-        j = domain->closest_image(i,j);
-        if (j < 0) continue;
-        if (mask[j] & groupbit) {
-          imgobjs[n] = Graphics::BOND;
-          imgparms[n][0] = type[i];
-          imgparms[n][1] = type[j];
-          imgparms[n][2] = x[i][0];
-          imgparms[n][3] = x[i][1];
-          imgparms[n][4] = x[i][2];
-          imgparms[n][5] = x[j][0];
-          imgparms[n][6] = x[j][1];
-          imgparms[n][7] = x[j][2];
-          ++n;
-        }
-      }
-    }
-  }
-
-  objs = imgobjs;
-  parms = imgparms;
-  return n;
 }

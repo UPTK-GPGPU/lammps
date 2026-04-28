@@ -53,9 +53,8 @@ FixTTMGrid::FixTTMGrid(LAMMPS *lmp, int narg, char **arg) :
   pergrid_freq = 1;
   restart_file = 1;
 
-  if (outfile.size() > 0)
-    error->all(FLERR, Error::NOPOINTER, "Fix ttm/grid does not support outfile option - "
-               "use dump grid command or restart files instead");
+  if (outfile) error->all(FLERR,"Fix ttm/grid does not support outfile option - "
+                          "use dump grid command or restart files instead");
 
   skin_original = neighbor->skin;
 }
@@ -95,9 +94,10 @@ void FixTTMGrid::post_constructor()
   // set initial electron temperatures from user input file
   // communicate new T_electron values to ghost grid points
 
-  if (!infile.empty()) {
+  if (infile) {
     read_electron_temperatures(infile);
-    grid->forward_comm(Grid3d::FIX,this,0,1,sizeof(double), grid_buf1,grid_buf2,MPI_DOUBLE);
+    grid->forward_comm(Grid3d::FIX,this,0,1,sizeof(double),
+                       grid_buf1,grid_buf2,MPI_DOUBLE);
   }
 }
 
@@ -108,8 +108,7 @@ void FixTTMGrid::init()
   FixTTM::init();
 
   if (neighbor->skin > skin_original)
-    error->all(FLERR, Error::NOLASTLINE,
-               "Cannot extend neighbor skin after fix ttm/grid defined");
+    error->all(FLERR,"Cannot extend neighbor skin after fix ttm/grid defined");
 }
 
 /* ---------------------------------------------------------------------- */

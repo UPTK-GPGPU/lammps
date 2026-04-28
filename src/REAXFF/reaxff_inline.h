@@ -56,7 +56,7 @@ struct cubic_spline_coef {
   }
 
   LAMMPS_INLINE
-  cubic_spline_coef &operator=(const cubic_spline_coef &rhs) // NOLINT
+  const cubic_spline_coef &operator=(const cubic_spline_coef &rhs)
   {
     a = rhs.a;
     b = rhs.b;

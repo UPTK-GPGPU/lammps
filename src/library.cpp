@@ -803,9 +803,9 @@ void lammps_commands_string(void *handle, const char *str)
       else
         cmd = line;
 
-      if (utils::strmatch(line, R"(""".*""")")) {
+      if (utils::strmatch(line, "\"\"\".*\"\"\"")) {
         triple = false;
-      } else if (utils::strmatch(line, R"(""")")) {
+      } else if (utils::strmatch(line, "\"\"\"")) {
         triple = !triple;
       }
       if (triple) cmd += '\n';
@@ -1416,7 +1416,7 @@ internally by the :doc:`Fortran interface <Fortran>` and are not likely to be us
    * - comm_layout
      - communication layout (0 = LAYOUT_UNIFORM, 1 = LAYOUT_NONUNIFORM, 2 = LAYOUT_TILED)
    * - comm_mode
-     - communication mode (0 = SINGLE, 1 = MULTI)
+     - communication mode (0 = SINGLE, 1 = MULTI, 2 = MULTIOLD)
    * - ghost_velocity
      - whether velocities are communicated for ghost atoms (0 = no, 1 = yes)
 
@@ -1512,14 +1512,8 @@ internally by the :doc:`Fortran interface <Fortran>` and are not likely to be us
      - 1 if the atom style includes per-atom masses, 0 if there are per-type masses. See :doc:`atom_style`.
    * - radius_flag
      - 1 if the atom style includes a per-atom radius. See :doc:`atom_style`.
-   * - body_flag
-     - 1 if the atom style describes body particles. See :doc:`atom_style`.
    * - ellipsoid_flag
      - 1 if the atom style describes extended particles that may be ellipsoidal. See :doc:`atom_style`.
-   * - line_flag
-     - 1 if the atom style describes line particles. See :doc:`atom_style`.
-   * - tri_flag
-     - 1 if the atom style describes tri particles. See :doc:`atom_style`.
    * - omega_flag
      - 1 if the atom style can store per-atom rotational velocities. See :doc:`atom_style`.
    * - torque_flag
@@ -1623,11 +1617,7 @@ int lammps_extract_setting(void *handle, const char *keyword)
   if (strcmp(keyword,"rmass_flag") == 0) return lmp->atom->rmass_flag;
   if (strcmp(keyword,"radius_flag") == 0) return lmp->atom->radius_flag;
 
-  if (strcmp(keyword,"body_flag") == 0) return lmp->atom->body_flag;
   if (strcmp(keyword,"ellipsoid_flag") == 0) return lmp->atom->ellipsoid_flag;
-  if (strcmp(keyword,"line_flag") == 0) return lmp->atom->line_flag;
-  if (strcmp(keyword,"tri_flag") == 0) return lmp->atom->tri_flag;
-
   if (strcmp(keyword,"omega_flag") == 0) return lmp->atom->omega_flag;
   if (strcmp(keyword,"torque_flag") == 0) return lmp->atom->torque_flag;
   if (strcmp(keyword,"angmom_flag") == 0) return lmp->atom->angmom_flag;
@@ -1709,9 +1699,6 @@ int lammps_extract_global_datatype(void * /*handle*/, const char *name)
   if (strcmp(name,"special_lj") == 0) return LAMMPS_DOUBLE;
   if (strcmp(name,"special_coul") == 0) return LAMMPS_DOUBLE;
 
-  if (strcmp(name,"neigh_skin") == 0) return LAMMPS_DOUBLE;
-  if (strcmp(name,"neigh_cutmin") == 0) return LAMMPS_DOUBLE;
-  if (strcmp(name,"neigh_cutmax") == 0) return LAMMPS_DOUBLE;
   if (strcmp(name,"neigh_bondlist") == 0) return LAMMPS_INT_2D;
   if (strcmp(name,"neigh_anglelist") == 0) return LAMMPS_INT_2D;
   if (strcmp(name,"neigh_dihedrallist") == 0) return LAMMPS_INT_2D;
@@ -2068,18 +2055,6 @@ Get length of lists with :ref:`lammps_extract_setting() <extract_neighbor_settin
      - Type
      - Length
      - Description
-   * - neigh_skin
-     - double
-     - 1
-     - neighbor list skin
-   * - neigh_cutmin
-     - double
-     - 1
-     - minimum neighbor cutoff across all type pairs
-   * - neigh_cutmax
-     - double
-     - 1
-     - maximum neighbor cutoff across all type pairs
    * - neigh_bondlist
      - 2d int
      - nbondlist
@@ -2337,9 +2312,6 @@ void *lammps_extract_global(void *handle, const char *name)
 
   if (strcmp(name,"q_flag") == 0) return (void *) &lmp->atom->q_flag;
 
-  if (strcmp(name,"neigh_skin") == 0) return (void *) &lmp->neighbor->skin;
-  if (strcmp(name,"neigh_cutmin") == 0) return (void *) &lmp->neighbor->cutneighmin;
-  if (strcmp(name,"neigh_cutmax") == 0) return (void *) &lmp->neighbor->cutneighmax;
   if (strcmp(name,"neigh_bondlist") == 0) return (void *) lmp->neighbor->bondlist;
   if (strcmp(name,"neigh_anglelist") == 0) return (void *) lmp->neighbor->anglelist;
   if (strcmp(name,"neigh_dihedrallist") == 0) return (void *) lmp->neighbor->dihedrallist;
@@ -6452,7 +6424,7 @@ namespace LAMMPS_NS {
   NeighProxy(class LAMMPS *lmp) : Command(lmp), neigh_idx(-1) {};
 
   void command(int, char **) override;
-  [[nodiscard]] int get_index() const { return neigh_idx; }
+  int get_index() const { return neigh_idx; }
  protected:
   int neigh_idx;
 };
@@ -7451,7 +7423,7 @@ void lammps_set_fix_external_callback(void *handle, const char *id, FixExternalF
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal *>(fix);
-    if (!fext || !(utils::strmatch(fix->style, "^external")))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     fext->set_callback(callback, ptr);
@@ -7519,7 +7491,7 @@ double **lammps_fix_external_get_force(void *handle, const char *id)
     if (!fix)
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
-    if (!utils::strmatch(fix->style,"^external"))
+    if (strcmp("external",fix->style) != 0)
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     int tmp;
@@ -7574,7 +7546,7 @@ void lammps_fix_external_set_energy_global(void *handle, const char *id, double 
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "Fix {} is not of style external", FNERR, id);
 
     fext->set_energy_global(eng);
@@ -7629,7 +7601,7 @@ void lammps_fix_external_set_virial_global(void *handle, const char *id, double 
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     fext->set_virial_global(virial);
@@ -7684,7 +7656,7 @@ void lammps_fix_external_set_energy_peratom(void *handle, const char *id, double
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "Fix {} is not of style external", FNERR, id);
 
     fext->set_energy_peratom(eng);
@@ -7742,7 +7714,7 @@ void lammps_fix_external_set_virial_peratom(void *handle, const char *id, double
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     fext->set_virial_peratom(virial);
@@ -7793,7 +7765,7 @@ void lammps_fix_external_set_vector_length(void *handle, const char *id, int len
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     fext->set_vector_length(len);
@@ -7854,7 +7826,7 @@ void lammps_fix_external_set_vector(void *handle, const char *id, int idx, doubl
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} does not exist", FNERR, id);
 
     auto *fext = dynamic_cast<FixExternal*>(fix);
-    if (!fext || !utils::strmatch(fix->style,"^external"))
+    if (!fext || (strcmp("external",fix->style) != 0))
       lmp->error->all(FLERR, Error::NOLASTLINE, "{}(): Fix {} is not of style external", FNERR, id);
 
     fext->set_vector(idx, val);

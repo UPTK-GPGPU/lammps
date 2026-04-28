@@ -1,17 +1,25 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_IMPL_STATICCRSGRAPH_FACTORY_HPP
 #define KOKKOS_IMPL_STATICCRSGRAPH_FACTORY_HPP
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-#include <Kokkos_Macros.hpp>
-#ifdef KOKKOS_ENABLE_EXPERIMENTAL_CXX20_MODULES
-import kokkos.core;
-#else
 #include <Kokkos_Core.hpp>
-#endif
 #include <Kokkos_StaticCrsGraph.hpp>
 
 namespace Kokkos {
@@ -19,7 +27,7 @@ namespace Kokkos {
 template <class DataType, class Arg1Type, class Arg2Type, class Arg3Type,
           typename SizeType>
 inline typename StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
-                               SizeType>::host_mirror_type
+                               SizeType>::HostMirror
 create_mirror_view(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
                                         SizeType>& view,
                    std::enable_if_t<ViewTraits<DataType, Arg1Type, Arg2Type,
@@ -30,7 +38,7 @@ create_mirror_view(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
 template <class DataType, class Arg1Type, class Arg2Type, class Arg3Type,
           typename SizeType>
 inline typename StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
-                               SizeType>::host_mirror_type
+                               SizeType>::HostMirror
 create_mirror(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
                                    SizeType>& view) {
   // Force copy:
@@ -38,10 +46,10 @@ create_mirror(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
   using staticcrsgraph_type =
       StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type, SizeType>;
 
-  typename staticcrsgraph_type::host_mirror_type tmp;
-  typename staticcrsgraph_type::row_map_type::host_mirror_type tmp_row_map =
+  typename staticcrsgraph_type::HostMirror tmp;
+  typename staticcrsgraph_type::row_map_type::HostMirror tmp_row_map =
       create_mirror(view.row_map);
-  typename staticcrsgraph_type::row_block_type::host_mirror_type
+  typename staticcrsgraph_type::row_block_type::HostMirror
       tmp_row_block_offsets = create_mirror(view.row_block_offsets);
 
   // Allocation to match:
@@ -61,7 +69,7 @@ create_mirror(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
 template <class DataType, class Arg1Type, class Arg2Type, class Arg3Type,
           typename SizeType>
 inline typename StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
-                               SizeType>::host_mirror_type
+                               SizeType>::HostMirror
 create_mirror_view(const StaticCrsGraph<DataType, Arg1Type, Arg2Type, Arg3Type,
                                         SizeType>& view,
                    std::enable_if_t<!ViewTraits<DataType, Arg1Type, Arg2Type,
@@ -93,8 +101,7 @@ inline typename StaticCrsGraphType::staticcrsgraph_type create_staticcrsgraph(
   {
     work_type row_work("tmp", length + 1);
 
-    typename work_type::host_mirror_type row_work_host =
-        create_mirror_view(row_work);
+    typename work_type::HostMirror row_work_host = create_mirror_view(row_work);
 
     size_t sum       = 0;
     row_work_host[0] = 0;
@@ -135,8 +142,7 @@ inline typename StaticCrsGraphType::staticcrsgraph_type create_staticcrsgraph(
   {
     work_type row_work("tmp", length + 1);
 
-    typename work_type::host_mirror_type row_work_host =
-        create_mirror_view(row_work);
+    typename work_type::HostMirror row_work_host = create_mirror_view(row_work);
 
     size_t sum       = 0;
     row_work_host[0] = 0;
@@ -152,7 +158,7 @@ inline typename StaticCrsGraphType::staticcrsgraph_type create_staticcrsgraph(
 
   // Fill in the entries:
   {
-    typename entries_type::host_mirror_type host_entries =
+    typename entries_type::HostMirror host_entries =
         create_mirror_view(output.entries);
 
     size_t sum = 0;

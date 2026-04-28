@@ -57,7 +57,7 @@ void RespaOMP::init()
   Respa::init();
 
   if (atom->torque)
-    error->all(FLERR, Error::NOLASTLINE, "Extended particles are not supported by respa/omp");
+    error->all(FLERR,"Extended particles are not supported by respa/omp\n");
 }
 
 /* ----------------------------------------------------------------------

@@ -125,7 +125,7 @@ class Pair : protected Pointers {
   // KOKKOS flags and variables
 
   ExecutionSpace execution_space;
-  uint64_t datamask_read, datamask_modify;
+  unsigned int datamask_read, datamask_modify;
   int kokkosable;               // 1 if Kokkos pair
   int reverse_comm_device;      // 1 if reverse comm on Device
   int fuse_force_clear_flag;    // 1 if can fuse force clear with force compute
@@ -239,7 +239,7 @@ class Pair : protected Pointers {
  public:
   virtual void add_tally_callback(class Compute *);
   virtual void del_tally_callback(class Compute *);
-  [[nodiscard]] bool did_tally_callback() const { return did_tally_flag != 0; }
+  bool did_tally_callback() const { return did_tally_flag != 0; }
 
  protected:
   int instance_me;      // which Pair class instantiation I am
@@ -274,7 +274,7 @@ class Pair : protected Pointers {
 
   // Accessor for the INTEL package to determine virial calc for hybrid
 
-  [[nodiscard]] int fdotr_is_set() const { return vflag_fdotr; }
+  inline int fdotr_is_set() const { return vflag_fdotr; }
 
  protected:
   int vflag_fdotr;
@@ -303,7 +303,7 @@ class Pair : protected Pointers {
   void v_tally_tensor(int, int, int, int, double, double, double, double, double, double);
   void virial_fdotr_compute();
 
-  [[nodiscard]] int sbmask(int j) const { return j >> SBBITS & 3; }
+  inline int sbmask(int j) const { return j >> SBBITS & 3; }
 };
 
 }    // namespace LAMMPS_NS

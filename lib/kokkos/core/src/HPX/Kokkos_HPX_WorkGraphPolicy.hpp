@@ -1,5 +1,18 @@
+//@HEADER
+// ************************************************************************
+//
+//                        Kokkos v. 4.0
+//       Copyright (2022) National Technology & Engineering
+//               Solutions of Sandia, LLC (NTESS).
+//
+// Under the terms of Contract DE-NA0003525 with NTESS,
+// the U.S. Government retains certain rights in this software.
+//
+// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
+// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+//
+//@HEADER
 
 #ifndef KOKKOS_HPX_WORKGRAPHPOLICY_HPP
 #define KOKKOS_HPX_WORKGRAPHPOLICY_HPP
@@ -39,7 +52,7 @@ class ParallelFor<FunctorType, Kokkos::WorkGraphPolicy<Traits...>,
   }
 
   void execute() const {
-    const int num_worker_threads = m_policy.space().concurrency();
+    const int num_worker_threads = Kokkos::Experimental::HPX().concurrency();
     Kokkos::Experimental::HPX().impl_bulk_plain(
         true, is_light_weight_policy<Policy>(), *this, num_worker_threads,
         hpx::threads::thread_stacksize::nostack);
