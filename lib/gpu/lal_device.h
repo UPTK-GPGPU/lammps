@@ -26,6 +26,11 @@
 #include <string>
 #include <queue>
 
+#define PRINT_LOG(fmt, ...) \
+    do { \
+        printf("[%s:%s:%d] " fmt, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+    } while (0)
+
 namespace LAMMPS_AL {
 
 template <class numtyp, class acctyp,

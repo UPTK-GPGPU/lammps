@@ -13,9 +13,14 @@
     email                : trung.nguyen@northwestern.edu
  ***************************************************************************/
 
+#if defined(GPGPU_ARCH_DTK)
+#endif
+
 #if defined(USE_OPENCL)
+#error("111111111111")
 #include "amoeba_cl.h"
 #elif defined(USE_CUDART)
+#error("222222222222")
 const char *amoeba=0;
 #else
 #include "amoeba_cubin.h"

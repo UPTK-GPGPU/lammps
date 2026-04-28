@@ -1079,8 +1079,12 @@ int DeviceT::compile_kernels() {
 
   _ptx_arch=static_cast<double>(gpu_lib_data[0])/100.0;
   #if !(defined(USE_OPENCL) || defined(USE_HIP))
+  #if defined(GPGPU_ARCH_DTK)
   if (_ptx_arch>gpu->arch() || floor(_ptx_arch)<floor(gpu->arch()))
-    return -4;
+  {
+    //return -4;
+  }
+  #endif
   #endif
 
   _config_id=gpu_lib_data[1];

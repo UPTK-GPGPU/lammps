@@ -157,14 +157,25 @@ if(GPU_API STREQUAL "CUDA")
     endif()
   endif()
 
-  set(NVCC_FLAGS -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+
+  if(GPGPU_ARCH_DTK AND CUDA_NVCC_EXECUTABLE)
+    get_filename_component(_cuda_compiler_name "${CUDA_NVCC_EXECUTABLE}" NAME)
+    if(_cuda_compiler_name MATCHES "^(clang\\+\\+|clang)(\\.exe)?$")
+      message(STATUS "CUDA compiler is '${_cuda_compiler_name}', switching GPU backend DTK -> COREX")
+      set(GPGPU_ARCH_DTK   OFF CACHE BOOL "Enable DTK GPU backend (nvcc fatbin flow)" FORCE)
+      set(GPGPU_ARCH_COREX ON  CACHE BOOL "Enable COREX GPU backend (clang/llc/lld flow)" FORCE)
+    endif()
+  endif()
+
+if (GPGPU_ARCH_DTK)
+  set(NVCC_FLAGS -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR -DGPGPU_ARCH_DTK ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
   if(CUDPP_OPT)
     string(APPEND NVCC_FLAGS " -DUSE_CUDPP")
   endif()
   cuda_compile_fatbin(GPU_GEN_OBJS ${GPU_LIB_CU} OPTIONS ${CUDA_REQUEST_PIC} ${NVCC_FLAGS})
 
   cuda_compile(GPU_OBJS ${GPU_LIB_CUDPP_CU} OPTIONS ${CUDA_REQUEST_PIC}
-          -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+	  -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DUCL_CUDADR -DGPGPU_ARCH_DTK ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
 
   foreach(CU_OBJ ${GPU_GEN_OBJS})
     get_filename_component(CU_NAME ${CU_OBJ} NAME_WE)
@@ -175,12 +186,52 @@ if(GPU_API STREQUAL "CUDA")
       COMMENT "Generating ${CU_NAME}_cubin.h")
     list(APPEND GPU_LIB_SOURCES ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h)
   endforeach()
+endif()
+
+if(GPGPU_ARCH_COREX)
+  set(NVCC_FLAGS -DUNIX -O3 -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DNV_KERNEL -DUCL_CUDADR -DGPGPU_ARCH_COREX ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+
+  if(CUDPP_OPT)
+    string(APPEND NVCC_FLAGS " -DUSE_CUDPP")
+  endif()
+  set(GPU_COREX_ARCH "ivcore10" CACHE STRING "CoreX CUDA device architecture for clang (--cuda-gpu-arch=...)")
+  set(GPU_LIB_CU_CUDA "")
+  foreach(CU_FILE ${GPU_LIB_CU})
+    get_filename_component(CU_NAME ${CU_FILE} NAME_WE)
+    string(REGEX REPLACE "^.*lal_" "" CU_NAME "${CU_NAME}")
+
+    set(CUBIN_FILE   "${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cubin")
+    set(CUBIN_H_FILE "${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}_cubin.h")
+
+    string(REPLACE ";" " " NVCC_FLAGS_STR "${NVCC_FLAGS}")
+    add_custom_command(OUTPUT ${CUBIN_FILE}
+    VERBATIM COMMAND bash -c "clang++ -S -emit-llvm --cuda-device-only --cuda-gpu-arch=${GPU_COREX_ARCH} -Wall -DUSE_CUDA -DGPGPU_ARCH_COREX -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES} -I${LAMMPS_LIB_SOURCE_DIR}/gpu ${CU_FILE} -o ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.ll ${NVCC_FLAGS_STR} && llc -march=bi -filetype=obj ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.ll -o ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cuda.o && lld -flavor ld.lld --no-warn-missing-entry --no-undefined ${LAMMPS_LIB_BINARY_DIR}/gpu/${CU_NAME}.cuda.o -o ${CUBIN_FILE}"
+    DEPENDS ${CU_FILE}
+    COMMENT "Generating ${CU_NAME}.cubin (clang++ -> llc -> lld)")
+
+    add_custom_command(OUTPUT ${CUBIN_H_FILE}
+      COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D VARNAME=${CU_NAME} -D HEADER_FILE=${CUBIN_H_FILE} -D SOURCE_FILE=${CUBIN_FILE} -P ${CMAKE_CURRENT_SOURCE_DIR}/Modules/GenerateBinaryHeader.cmake
+      DEPENDS ${CUBIN_FILE}
+      COMMENT "Generating ${CU_NAME}_cubin.h")
+    list(APPEND GPU_LIB_SOURCES ${CUBIN_H_FILE})
+  endforeach()
+  if(CUDPP_OPT)
+    cuda_compile(GPU_OBJS ${GPU_LIB_CUDPP_CU} OPTIONS ${CUDA_REQUEST_PIC}
+            -DUNIX -O3 --use_fast_math -Wno-deprecated-gpu-targets -allow-unsupported-compiler -DUCL_CUDADR ${GPU_CUDA_GENCODE} -D_${GPU_PREC_SETTING} -DLAMMPS_${LAMMPS_SIZES})
+  endif()
+endif()
+
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${LAMMPS_LIB_BINARY_DIR}/gpu/*_cubin.h")
 
   add_library(gpu STATIC ${GPU_LIB_SOURCES} ${GPU_LIB_CUDPP_SOURCES} ${GPU_OBJS})
   target_link_libraries(gpu PRIVATE ${CUDA_LIBRARIES} ${CUDA_CUDA_LIBRARY} UPTKdrt)
   target_include_directories(gpu PRIVATE ${LAMMPS_LIB_BINARY_DIR}/gpu ${CUDA_INCLUDE_DIRS})
   target_compile_definitions(gpu PRIVATE -DUSE_CUDA -D_${GPU_PREC_SETTING} ${GPU_CUDA_MPS_FLAGS})
+  if(GPGPU_ARCH_COREX)
+    target_compile_definitions(gpu PRIVATE GPGPU_ARCH_COREX)
+  elseif(GPGPU_ARCH_DTK)
+    target_compile_definitions(gpu PRIVATE GPGPU_ARCH_DTK)
+  endif()
   if(GPU_DEBUG)
     target_compile_definitions(gpu PRIVATE -DUCL_DEBUG -DGERYON_KERNEL_DUMP)
   else()
@@ -496,3 +547,4 @@ set_target_properties(gpu PROPERTIES OUTPUT_NAME lammps_gpu${LAMMPS_MACHINE})
 target_compile_definitions(gpu PRIVATE -DLAMMPS_${LAMMPS_SIZES})
 target_sources(lammps PRIVATE ${GPU_SOURCES})
 target_include_directories(lammps PRIVATE ${GPU_SOURCES_DIR})
+

@@ -3,7 +3,6 @@
 # CMake build system
 # This file is part of LAMMPS
 cmake_minimum_required(VERSION 3.16)
-########################################
 # initialize version variables with project command
 if(POLICY CMP0048)
   cmake_policy(SET CMP0048 NEW)
@@ -251,7 +250,7 @@ if(BUILD_SHARED_LIBS AND (CMAKE_SYSTEM_NAME STREQUAL "Windows") AND CMAKE_CROSSC
 endif()
 
 add_executable(lmp ${MAIN_SOURCES})
-target_link_libraries(lmp PRIVATE lammps UPTKdrt cudnn)
+target_link_libraries(lmp PRIVATE lammps UPTKdrt)
 set_target_properties(lmp PROPERTIES OUTPUT_NAME ${LAMMPS_BINARY})
 # re-export all symbols for plugins
 if(PKG_PLUGIN AND (NOT ((CMAKE_SYSTEM_NAME STREQUAL "Windows"))))
@@ -493,7 +492,7 @@ if(BUILD_OMP)
 
   # this hack is required to correctly link with OpenMP support when using CrayClang version 15.0.2
   # CrayClang is only directly recognized by version 3.28 and later
-  if(CMAKE_VERSION VERSION_LESS 3.28)
+if(CMAKE_VERSION VERSION_LESS 3.28)
     get_filename_component(_exe "${CMAKE_CXX_COMPILER}" NAME)
     if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") AND (_exe STREQUAL "crayCC"))
       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fopenmp")
@@ -722,6 +721,30 @@ endif()
 
 if(PKG_H5MD)
   include(Packages/H5MD)
+endif()
+
+########################################################################
+# GPU arch selection for customized GPU backends
+#
+# NOTE: This must be evaluated *before* including Packages/GPU, since that
+# file branches on these CMake variables.
+########################################################################
+option(GPGPU_ARCH_DTK "Enable DTK GPU backend (nvcc fatbin flow)" OFF)
+option(GPGPU_ARCH_COREX "Enable COREX GPU backend (clang/llc/lld flow)" OFF)
+
+# Preserve previous behavior: default to DTK when nothing is selected.
+if((NOT GPGPU_ARCH_DTK) AND (NOT GPGPU_ARCH_COREX))
+  set(GPGPU_ARCH_DTK ON CACHE BOOL "Enable DTK GPU backend (nvcc fatbin flow)" FORCE)
+endif()
+
+#if(GPGPU_ARCH_DTK AND GPGPU_ARCH_COREX)
+# message(FATAL_ERROR "GPGPU_ARCH_DTK and GPGPU_ARCH_COREX are mutually exclusive. Please enable only one.")
+#endif()
+
+if(GPGPU_ARCH_COREX)
+  add_compile_definitions(GPGPU_ARCH_COREX)
+else()
+  add_compile_definitions(GPGPU_ARCH_DTK)
 endif()
 
 ######################################################################
@@ -1121,5 +1144,3 @@ if(ENABLE_TESTING)
     message(STATUS "Collecting code coverage data")
   endif()
 endif()
-
-#target_link_libraries(MyDemo cudart UPTKdrt)

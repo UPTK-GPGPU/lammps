@@ -28,9 +28,14 @@ _texture( gcons_tex,int2);
 _texture( dgcons_tex,int2);
 #endif
 
-#if (__CUDACC_VER_MAJOR__ >= 11)
-#define gcons_tex gcons
-#define dgcons_tex dgcons
+#if defined(GPGPU_ARCH_COREX)
+  #define gcons_tex gcons
+  #define dgcons_tex dgcons
+#else
+  #if (__CUDACC_VER_MAJOR__ >= 11)
+  #define gcons_tex gcons
+  #define dgcons_tex dgcons
+  #endif
 #endif
 
 #else

@@ -48,7 +48,12 @@ namespace GPU_EXTRA {
 
 using Error = LAMMPS_NS::Error;
 
+//inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
+#ifdef GPGPU_ARCH_COREX
+inline void check_flag(int error_flag, Error *error, MPI_Comm &world,const char *file, const char *fun, const int line)
+#else
 inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
+#endif
 {
   int all_success;
   MPI_Allreduce(&error_flag, &all_success, 1, MPI_INT, MPI_MIN, world);
@@ -103,6 +108,10 @@ inline void check_flag(int error_flag, Error *error, MPI_Comm &world)
       error->all(FLERR, Error::NOLASTLINE, "Unknown error {} in GPU library", all_success);
   }
 }
+
+#ifdef GPGPU_ARCH_COREX
+#define check_flag(error_flag, error, world) check_flag(error_flag, error, world, __FILE__, __FUNCTION__, __LINE__)
+#endif
 
 inline void gpu_ready(LAMMPS_NS::Modify *modify, LAMMPS_NS::Error *error)
 {
