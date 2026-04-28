@@ -1082,9 +1082,8 @@ int DeviceT::compile_kernels() {
   #if defined(GPGPU_ARCH_DTK)
   if (_ptx_arch>gpu->arch() || floor(_ptx_arch)<floor(gpu->arch()))
   {
-    printf("aaa\n");
-  }
     //return -4;
+  }
   #endif
   #endif
 

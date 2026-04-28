@@ -56,11 +56,11 @@ inline int _host_alloc(mat_type &mat, copy_type &cm, const size_t n,
   }
   else if (kind==UCL_WRITE_ONLY) {
     //err=cuMemHostAlloc((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
-    err=UPMemHostAlloc((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
+    err=UPTKMemHostAllocD((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
   }
   else {
     //err=cuMemAllocHost((void **)mat.host_ptr(),n);
-    err=UPMemAllocHost((void **)mat.host_ptr(),n);
+    err=UPTKMemAllocHostD((void **)mat.host_ptr(),n);
   }
   //if (err!=CUDA_SUCCESS || *(mat.host_ptr())==nullptr) {
   if (err!=UPTKSuccess || *(mat.host_ptr())==nullptr) {
@@ -81,11 +81,11 @@ inline int _host_alloc(mat_type &mat, UCL_Device &dev, const size_t n,
   else if (kind==UCL_WRITE_ONLY){
     //err=cuMemHostAlloc((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
     //err=UPTKMemHostAllocD((void **)mat.host_ptr(),n,CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED);
-    err=UPMemHostAlloc((void **)mat.host_ptr(),n, CU_MEMHOSTALLOC_WRITECOMBINED);
+    err=UPTKMemHostAllocD((void **)mat.host_ptr(),n, CU_MEMHOSTALLOC_WRITECOMBINED);
   }
   else{
     //err=cuMemAllocHost((void **)mat.host_ptr(),n);
-    err=UPMemAllocHost((void **)mat.host_ptr(),n);
+    err=UPTKMemAllocHostD((void **)mat.host_ptr(),n);
   }
   if (err!=UPTKSuccess || *(mat.host_ptr())==nullptr) {
   //if (err!=CUDA_SUCCESS || *(mat.host_ptr())==nullptr) {
@@ -102,7 +102,7 @@ inline void _host_free(mat_type &mat) {
   }
   else if (mat.kind()!=UCL_NOT_PINNED) {
     //CU_DESTRUCT_CALL(cuMemFreeHost(mat.begin()));
-    UPMemFreeHost(mat.begin());
+    UPTKMemFreeHostD(mat.begin());
   }
   else {
     free(mat.begin());
@@ -119,10 +119,10 @@ inline int _host_resize(mat_type &mat, const size_t n) {
   }
   else if (mat.kind()==UCL_WRITE_ONLY) {
     //err=cuMemHostAlloc((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
-    err=UPMemHostAlloc((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
+    err=UPTKMemHostAllocD((void **)mat.host_ptr(),n,CU_MEMHOSTALLOC_WRITECOMBINED);
   }
   else {
-    err=UPMemAllocHost((void **)mat.host_ptr(),n);
+    err=UPTKMemAllocHostD((void **)mat.host_ptr(),n);
   }
   if (err!=UPTKSuccess || *(mat.host_ptr())==nullptr)
     return UCL_MEMORY_ERROR;
@@ -136,7 +136,7 @@ template <class mat_type, class copy_type>
 inline int _device_alloc(mat_type &mat, copy_type &cm, const size_t n,
                          const enum UCL_MEMOPT kind) {
   //CUresult err=cuMemAlloc(&mat.cbegin(),n);
-  UPTKError err = UPMemAlloc_v2(&mat.cbegin(),n);
+  UPTKError err = UPTKMemAlloc_v2(&mat.cbegin(),n);
   if (err!=UPTKSuccess)
     return UCL_MEMORY_ERROR;
   mat.cq()=cm.cq();
@@ -147,7 +147,7 @@ template <class mat_type>
 inline int _device_alloc(mat_type &mat, UCL_Device &dev, const size_t n,
                          const enum UCL_MEMOPT kind) {
   //CUresult err=cuMemAlloc(&mat.cbegin(),n);
-  UPTKError err = UPMemAlloc_v2(&mat.cbegin(), n);
+  UPTKError err = UPTKMemAlloc_v2(&mat.cbegin(), n);
   if (err!=UPTKSuccess)
     return UCL_MEMORY_ERROR;
   mat.cq()=dev.cq();
@@ -188,7 +188,7 @@ template <class mat_type>
 inline void _device_free(mat_type &mat) {
   if (mat.kind()!=UCL_VIEW)
     //CU_DESTRUCT_CALL(cuMemFree(mat.cbegin()));
-    UPMemFree(mat.cbegin());
+    UPTKMemFreeD(mat.cbegin());
 }
 
 template <class mat_type>
@@ -270,11 +270,11 @@ inline void _device_zero(mat_type &mat, const size_t n, command_queue &cq) {
   else
     CU_SAFE_CALL(cuMemsetD8Async(mat.cbegin(),0,n,cq));*/
   if (n%32==0)
-    UPMemsetD32Async(mat.cbegin(),0,n/4,cq);
+    UPTKMemsetD32AsyncD(mat.cbegin(),0,n/4,cq);
   else if (n%16==0)
-    UPMemsetD16Async(mat.cbegin(),0,n/2,cq);
+    UPTKMemsetD16AsyncD(mat.cbegin(),0,n/2,cq);
   else
-    UPMemsetD8Async(mat.cbegin(),0,n,cq);
+    UPTKMemsetD8AsyncD(mat.cbegin(),0,n,cq);
 }
 
 // --------------------------------------------------------------------------

@@ -133,7 +133,7 @@ class UCL_Device {
     //_cq.push_back(CUstream());
     //CU_SAFE_CALL(cuStreamCreate(&_cq.back(),0));
     _cq.push_back(UPTKStream_t());
-    UPStreamCreate(&_cq.back(),0);
+    UPTKStreamCreateD(&_cq.back(),0);
   }
 
   /// Remove a stream for device computations
@@ -141,7 +141,7 @@ class UCL_Device {
   inline void pop_command_queue() {
     if (_cq.size()<2) return;
     //cuStreamDestroy(_cq.back());
-    UPStreamDestroy(_cq.back());
+    UPTKStreamDestroyD(_cq.back());
     _cq.pop_back();
   }
 
@@ -334,21 +334,21 @@ UCL_Device::UCL_Device() {
 #error CUDA Toolkit version 8 or later required
 #endif
   //CU_SAFE_CALL_NS(cuInit(0));
-  UPInit(0);
+  UPTKInitD(0);
   //CU_SAFE_CALL_NS(cuDeviceGetCount(&_num_devices));
-  UPDeviceGetCount(&_num_devices);
+  UPTKDeviceGetCountD(&_num_devices);
   for (int i=0; i<_num_devices; ++i) {
     UPTKdevice dev;
     //CUdevice dev;
     //CU_SAFE_CALL_NS(cuDeviceGet(&dev,i));
-    UPDeviceGet(&dev,i);
+    UPTKDeviceGetD(&dev,i);
     int major, minor;
     //CU_SAFE_CALL_NS(cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, dev));
     //CU_SAFE_CALL_NS(cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, dev));
     /*UPTKDeviceGetAttributeD(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, dev);
     UPTKDeviceGetAttributeD(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, dev);*/
-    UPDeviceGetAttribute(&major, UPTKDevAttrComputeCapabilityMajor, dev);
-    UPDeviceGetAttribute(&minor, UPTKDevAttrComputeCapabilityMinor, dev);
+    UPTKDeviceGetAttributeD(&major, UPTKDevAttrComputeCapabilityMajor, dev);
+    UPTKDeviceGetAttributeD(&minor, UPTKDevAttrComputeCapabilityMinor, dev);
     if (major==9999)
       continue;
 
@@ -359,11 +359,11 @@ UCL_Device::UCL_Device() {
 
     char namecstr[1024];
     //CU_SAFE_CALL_NS(cuDeviceGetName(namecstr,1024,dev));
-    UPDeviceGetName(namecstr,1024,dev);
+    UPTKDeviceGetNameD(namecstr,1024,dev);
     prop.name=namecstr;
 
     //CU_SAFE_CALL_NS(cuDeviceTotalMem(&prop.totalGlobalMem,dev));
-    UPDeviceTotalMem_v2(&prop.totalGlobalMem,dev);
+    UPTKDeviceTotalMem_v2D(&prop.totalGlobalMem,dev);
     /*CU_SAFE_CALL_NS(cuDeviceGetAttribute(&prop.multiProcessorCount, CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, dev));
 
     CU_SAFE_CALL_NS(cuDeviceGetAttribute(&prop.maxThreadsPerBlock, CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK, dev));
@@ -387,27 +387,27 @@ UCL_Device::UCL_Device() {
     CU_SAFE_CALL_NS(cuDeviceGetAttribute(&prop.computeMode, CU_DEVICE_ATTRIBUTE_COMPUTE_MODE,dev));
     CU_SAFE_CALL_NS(cuDeviceGetAttribute(&prop.concurrentKernels, CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS, dev));
     CU_SAFE_CALL_NS(cuDeviceGetAttribute(&prop.ECCEnabled, CU_DEVICE_ATTRIBUTE_ECC_ENABLED, dev));*/
-    UPDeviceGetAttribute(&prop.multiProcessorCount, UPTKDevAttrMultiProcessorCount, dev);
-    UPDeviceGetAttribute(&prop.maxThreadsPerBlock, UPTKDevAttrMaxThreadsPerBlock, dev);
-    UPDeviceGetAttribute(&prop.maxThreadsDim[0], UPTKDevAttrMaxBlockDimX, dev);
-    UPDeviceGetAttribute(&prop.maxThreadsDim[1], UPTKDevAttrMaxBlockDimY, dev);
-    UPDeviceGetAttribute(&prop.maxThreadsDim[2], UPTKDevAttrMaxBlockDimZ, dev);
-    UPDeviceGetAttribute(&prop.maxGridSize[0], UPTKDevAttrMaxGridDimX, dev);
-    UPDeviceGetAttribute(&prop.maxGridSize[1], UPTKDevAttrMaxGridDimY, dev);
-    UPDeviceGetAttribute(&prop.maxGridSize[2], UPTKDevAttrMaxGridDimZ, dev);
-    UPDeviceGetAttribute(&prop.sharedMemPerBlock, UPTKDevAttrMaxSharedMemoryPerBlock, dev);
-    UPDeviceGetAttribute(&prop.totalConstantMemory, UPTKDevAttrTotalConstantMemory, dev);
-    UPDeviceGetAttribute(&prop.SIMDWidth, UPTKDevAttrWarpSize, dev);
-    UPDeviceGetAttribute(&prop.memPitch, UPTKDevAttrMaxPitch, dev);
-    UPDeviceGetAttribute(&prop.regsPerBlock, UPTKDevAttrMaxSharedMemoryPerBlock, dev);//cudamoker zhushi
-    UPDeviceGetAttribute(&prop.clockRate, UPTKDevAttrClockRate, dev);
-    UPDeviceGetAttribute(&prop.textureAlign, UPTKDevAttrTextureAlignment, dev);
-    UPDeviceGetAttribute(&prop.kernelExecTimeoutEnabled, UPTKDevAttrKernelExecTimeout,dev);
-    UPDeviceGetAttribute(&prop.integrated, UPTKDevAttrIntegrated, dev);
-    UPDeviceGetAttribute(&prop.canMapHostMemory, UPTKDevAttrCanMapHostMemory, dev);
-    UPDeviceGetAttribute(&prop.computeMode, UPTKDevAttrComputeMode,dev);
-    UPDeviceGetAttribute(&prop.concurrentKernels, UPTKDevAttrConcurrentKernels, dev);
-    UPDeviceGetAttribute(&prop.ECCEnabled, UPTKDevAttrEccEnabled, dev);
+    UPTKDeviceGetAttributeD(&prop.multiProcessorCount, UPTKDevAttrMultiProcessorCount, dev);
+    UPTKDeviceGetAttributeD(&prop.maxThreadsPerBlock, UPTKDevAttrMaxThreadsPerBlock, dev);
+    UPTKDeviceGetAttributeD(&prop.maxThreadsDim[0], UPTKDevAttrMaxBlockDimX, dev);
+    UPTKDeviceGetAttributeD(&prop.maxThreadsDim[1], UPTKDevAttrMaxBlockDimY, dev);
+    UPTKDeviceGetAttributeD(&prop.maxThreadsDim[2], UPTKDevAttrMaxBlockDimZ, dev);
+    UPTKDeviceGetAttributeD(&prop.maxGridSize[0], UPTKDevAttrMaxGridDimX, dev);
+    UPTKDeviceGetAttributeD(&prop.maxGridSize[1], UPTKDevAttrMaxGridDimY, dev);
+    UPTKDeviceGetAttributeD(&prop.maxGridSize[2], UPTKDevAttrMaxGridDimZ, dev);
+    UPTKDeviceGetAttributeD(&prop.sharedMemPerBlock, UPTKDevAttrMaxSharedMemoryPerBlock, dev);
+    UPTKDeviceGetAttributeD(&prop.totalConstantMemory, UPTKDevAttrTotalConstantMemory, dev);
+    UPTKDeviceGetAttributeD(&prop.SIMDWidth, UPTKDevAttrWarpSize, dev);
+    UPTKDeviceGetAttributeD(&prop.memPitch, UPTKDevAttrMaxPitch, dev);
+    UPTKDeviceGetAttributeD(&prop.regsPerBlock, UPTKDevAttrMaxSharedMemoryPerBlock, dev);//cudamoker zhushi
+    UPTKDeviceGetAttributeD(&prop.clockRate, UPTKDevAttrClockRate, dev);
+    UPTKDeviceGetAttributeD(&prop.textureAlign, UPTKDevAttrTextureAlignment, dev);
+    UPTKDeviceGetAttributeD(&prop.kernelExecTimeoutEnabled, UPTKDevAttrKernelExecTimeout,dev);
+    UPTKDeviceGetAttributeD(&prop.integrated, UPTKDevAttrIntegrated, dev);
+    UPTKDeviceGetAttributeD(&prop.canMapHostMemory, UPTKDevAttrCanMapHostMemory, dev);
+    UPTKDeviceGetAttributeD(&prop.computeMode, UPTKDevAttrComputeMode,dev);
+    UPTKDeviceGetAttributeD(&prop.concurrentKernels, UPTKDevAttrConcurrentKernels, dev);
+    UPTKDeviceGetAttributeD(&prop.ECCEnabled, UPTKDevAttrEccEnabled, dev);
     _properties.push_back(prop);
   }
   _device=-1;
@@ -440,9 +440,9 @@ int UCL_Device::set(int num) {
   cuDeviceGet(&_cu_device,_device);
   CUresult err=cuDevicePrimaryCtxRetain(&_context,_cu_device);*/
 
-  UPCtxGetCurrent(&_old_context);
-  UPDeviceGet(&_cu_device,_device);
-  UPTKError err=UPDevicePrimaryCtxRetain(&_context,_cu_device);
+  UPTKCtxGetCurrentD(&_old_context);
+  UPTKDeviceGetD(&_cu_device,_device);
+  UPTKError err=UPTKDevicePrimaryCtxRetainD(&_context,_cu_device);
 #else
   CU_SAFE_CALL_NS(cuDeviceGet(&_cu_device,_device));
   CUresult err=cuCtxCreate(&_context,0,_cu_device);
@@ -461,7 +461,7 @@ int UCL_Device::set(int num) {
 #if GERYON_NVD_PRIMARY_CONTEXT
   if (_context != _old_context) {
     //CU_SAFE_CALL_NS(cuCtxSetCurrent(_context));
-    UPCtxSetCurrent(_context);
+    UPTKCtxSetCurrentD(_context);
   }
 #endif
   return UCL_SUCCESS;
@@ -473,8 +473,8 @@ void UCL_Device::clear() {
 #if GERYON_NVD_PRIMARY_CONTEXT
     /*cuCtxSetCurrent(_old_context);
     cuDevicePrimaryCtxRelease(_cu_device);*/
-    UPCtxSetCurrent(_old_context);
-    UPDevicePrimaryCtxRelease(_cu_device);
+    UPTKCtxSetCurrentD(_old_context);
+    UPTKDevicePrimaryCtxReleaseD(_cu_device);
 #else
     cuCtxDestroy(_context);
 #endif
@@ -486,7 +486,7 @@ void UCL_Device::clear() {
 void UCL_Device::print_all(std::ostream &out) {
   int driver_version;
   //cuDriverGetVersion(&driver_version);
-  UPDriverGetVersion(&driver_version);
+  UPTKDriverGetVersionD(&driver_version);
   out << "CUDA Driver Version:                           "
       << driver_version/1000 << "." << driver_version%100 << std::endl;
 

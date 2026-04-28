@@ -111,9 +111,9 @@ bool Neighbor::init(NeighborShared *shared, const int inum,
     return false;
 
   if (!_use_packing) {
+    printf("+++++++++_block_nbor_build = %d, _simd_size = %d\n", _block_nbor_build, _simd_size);
     #ifndef LAL_USE_OLD_NEIGHBOR
-          PRINT_LOG(">>>>_block_nbor_build=%d,_simd_size=%d\n",_block_nbor_build,_simd_size);
-	  _shared->compile_kernels(devi, gpu_nbor, compile_flags+
+      _shared->compile_kernels(devi, gpu_nbor, compile_flags+
         " -DMAX_SUBGROUPS_PER_BLOCK="+toa(_block_nbor_build/_simd_size));
     #else
       _shared->compile_kernels(devi,gpu_nbor,compile_flags);

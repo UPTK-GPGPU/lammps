@@ -121,7 +121,8 @@
 #define _texture_2d(name, type) texture<type,1> name
 #endif
 
-#if ((__CUDACC_VER_MAJOR__ < 11) && defined(GPGPU_ARCH_DTK))
+//#if ((__CUDACC_VER_MAJOR__ < 11) && defined(GPGPU_ARCH_DTK)) || defined(GPGPU_ARCH_COREX)
+#if ((__CUDACC_VER_MAJOR__ < 11) && defined(GPGPU_ARCH_DTK) && !defined(GPGPU_ARCH_COREX))
   #ifdef _DOUBLE_DOUBLE
   #define fetch4(ans,i,pos_tex) {                        \
     int4 xy = tex1Dfetch(pos_tex,i*2);                   \
@@ -136,8 +137,10 @@
     ans=__hiloint2double(qt.y, qt.x);                    \
   }
   #elif  defined(__HIP_PLATFORM_SPIRV__)
-      #define fetch4(ans,i,pos_tex) tex1Dfetch(&ans, pos_tex, i);
-      #define fetch(ans,i,q_tex) tex1Dfetch(&ans, q_tex,i);
+      //#define fetch4(ans,i,pos_tex) tex1Dfetch(&ans, pos_tex, i);
+      //#define fetch(ans,i,q_tex) tex1Dfetch(&ans, q_tex,i);
+      #define fetch4(ans,i,pos_tex) ans=tex1Dfetch<decltype(ans)>(pos_tex, i);
+      #define fetch(ans,i,q_tex) ans=tex1Dfetch<decltype(ans)>(q_tex,i);
   #else
     #define fetch4(ans,i,pos_tex) ans=tex1Dfetch(pos_tex, i);
     #define fetch(ans,i,q_tex) ans=tex1Dfetch(q_tex,i);

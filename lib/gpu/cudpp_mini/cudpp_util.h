@@ -23,6 +23,7 @@
 #endif
 
 #include <cuda.h>
+#include <UPTK.h>
 #include <cudpp.h>
 #include <limits.h>
 #include <cfloat>

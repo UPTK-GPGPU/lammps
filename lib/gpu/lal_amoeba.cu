@@ -71,7 +71,51 @@ _texture( q_tex,int2);
   }
 
 #define store_answers_tep(ufld, dufld, ii, inum,tid, t_per_atom, offset,    \
-                          i, tep)                                           
+                          i, tep)                                           \
+  if (t_per_atom>1) {                                                       \
+    red_acc[0][tid]=ufld[0];                                                \
+    red_acc[1][tid]=ufld[1];                                                \
+    red_acc[2][tid]=ufld[2];                                                \
+    for (unsigned int s=t_per_atom/2; s>0; s>>=1) {                         \
+      simdsync();                                                           \
+      if (offset < s) {                                                     \
+        for (int r=0; r<3; r++)                                             \
+          red_acc[r][tid] += red_acc[r][tid+s];                             \
+      }                                                                     \
+    }                                                                       \
+    ufld[0]=red_acc[0][tid];                                                \
+    ufld[1]=red_acc[1][tid];                                                \
+    ufld[2]=red_acc[2][tid];                                                \
+    red_acc[0][tid]=dufld[0];                                               \
+    red_acc[1][tid]=dufld[1];                                               \
+    red_acc[2][tid]=dufld[2];                                               \
+    red_acc[3][tid]=dufld[3];                                               \
+    red_acc[4][tid]=dufld[4];                                               \
+    red_acc[5][tid]=dufld[5];                                               \
+    for (unsigned int s=t_per_atom/2; s>0; s>>=1) {                         \
+      simdsync();                                                           \
+      if (offset < s) {                                                     \
+        for (int r=0; r<6; r++)                                             \
+          red_acc[r][tid] += red_acc[r][tid+s];                             \
+      }                                                                     \
+    }                                                                       \
+    dufld[0]=red_acc[0][tid];                                               \
+    dufld[1]=red_acc[1][tid];                                               \
+    dufld[2]=red_acc[2][tid];                                               \
+    dufld[3]=red_acc[3][tid];                                               \
+    dufld[4]=red_acc[4][tid];                                               \
+    dufld[5]=red_acc[5][tid];                                               \
+  }                                                                         \
+  if (offset==0 && ii<inum) {                                               \
+    acctyp3 t;                                                              \
+    t.x = diz*ufld[1] - diy*ufld[2] + qixz*dufld[1] - qixy*dufld[3] +       \
+      (numtyp)2.0*qiyz*(dufld[2]-dufld[5]) + (qizz-qiyy)*dufld[4];          \
+    t.y = dix*ufld[2] - diz*ufld[0] - qiyz*dufld[1] + qixy*dufld[4] +       \
+      (numtyp)2.0*qixz*(dufld[5]-dufld[0]) + (qixx-qizz)*dufld[3];          \
+    t.z = diy*ufld[0] - dix*ufld[1] + qiyz*dufld[3] - qixz*dufld[4] +       \
+      (numtyp)2.0*qixy*(dufld[0]-dufld[2]) + (qiyy-qixx)*dufld[1];          \
+    tep[i]=t;                                                               \
+  }
 
 #define store_answers_fieldp(_fieldp, ii, inum,tid, t_per_atom, offset, i,  \
                               fieldp)                                       \
@@ -128,6 +172,7 @@ _texture( q_tex,int2);
     old.x+=f.x;                                                             \
     old.y+=f.y;                                                             \
     old.z+=f.z;                                                             \
+    ans[ii]=old;                                                            \
   }                                                                         \
   if (EVFLAG && (eflag || vflag)) {                                         \
     int ei=BLOCK_ID_X;                                                      \
@@ -201,16 +246,16 @@ _texture( q_tex,int2);
       dufld[4] += shfl_down(dufld[4], s, t_per_atom);                       \
       dufld[5] += shfl_down(dufld[5], s, t_per_atom);                       \
     }                                                                       \
-  }                                                                        \ 
+  }                                                                         \
   if (offset==0 && ii<inum) {                                               \
-    acctyp3 t;\
+    acctyp3 t;                                                              \
     t.x = diz*ufld[1] - diy*ufld[2] + qixz*dufld[1] - qixy*dufld[3] +       \
       (numtyp)2.0*qiyz*(dufld[2]-dufld[5]) + (qizz-qiyy)*dufld[4];          \
     t.y = dix*ufld[2] - diz*ufld[0] - qiyz*dufld[1] + qixy*dufld[4] +       \
       (numtyp)2.0*qixz*(dufld[5]-dufld[0]) + (qixx-qizz)*dufld[3];          \
-     t.z = diy*ufld[0] - dix*ufld[1] + qiyz*dufld[3] - qixz*dufld[4] +       \
+    t.z = diy*ufld[0] - dix*ufld[1] + qiyz*dufld[3] - qixz*dufld[4] +       \
       (numtyp)2.0*qixy*(dufld[0]-dufld[2]) + (qiyy-qixx)*dufld[1];          \
-          tep[0]=t;                                                               \
+    tep[i]=t;                                                               \
   }
 
 #define store_answers_fieldp(_fieldp, ii, inum, tid, t_per_atom, offset, i, \
@@ -255,6 +300,7 @@ _texture( q_tex,int2);
     old.x+=f.x;                                                             \
     old.y+=f.y;                                                             \
     old.z+=f.z;                                                             \
+    ans[ii]=old;                                                            \
   }                                                                         \
   if (eflag || vflag) {                                                     \
     if (eflag!=2 && vflag!=2) {                                             \
@@ -343,6 +389,7 @@ _texture( q_tex,int2);
     old.x+=f.x;                                                             \
     old.y+=f.y;                                                             \
     old.z+=f.z;                                                             \
+    ans[ii]=old;                                                            \
   }
 
 #endif // EVFLAG
@@ -355,7 +402,7 @@ _texture( q_tex,int2);
    multipole_real = real-space portion of multipole
    adapted from Tinker emreal1d() routine
 ------------------------------------------------------------------------- */
-#if 0
+
 __kernel void k_amoeba_multipole(const __global numtyp4 *restrict x_,
                                  const __global numtyp4 *restrict extra,
                                  const __global numtyp4 *restrict coeff,
@@ -1003,7 +1050,6 @@ __kernel void k_amoeba_umutual2b(const __global numtyp4 *restrict x_,
   store_answers_fieldp(_fieldp,ii,inum,tid,t_per_atom,offset,i,fieldp);
 }
 
-#endif
 /* ----------------------------------------------------------------------
    polar_real = real-space portion of induced dipole polarization
    adapted from Tinker epreal1d() routine
@@ -1018,7 +1064,7 @@ __kernel void k_amoeba_polar(const __global numtyp4 *restrict x_,
                              const __global int *dev_short_nbor,
                              __global acctyp3 *restrict ans,
                              __global acctyp *restrict engv,
-                            __global acctyp3 *tep,
+                             __global acctyp3 *restrict tep,
                              const int eflag, const int vflag, const int inum,
                              const int nall, const int nbor_pitch, const int t_per_atom,
                              const numtyp aewald, const numtyp felec,
@@ -1521,16 +1567,11 @@ __kernel void k_amoeba_polar(const __global numtyp4 *restrict x_,
   } // ii<inum
 
   // accumulate ufld and dufld to compute tep
-
-#if 0
   store_answers_tep(ufld,dufld,ii,inum,tid,t_per_atom,offset,i,tep);
-  // accumate force, energy and virial
-#endif
 
-#if 1
+  // accumate force, energy and virial
   store_answers_acc(f,energy,e_coul,virial,ii,inum,tid,t_per_atom,
      offset,eflag,vflag,ans,engv,NUM_BLOCKS_X);
-#endif
 }
 
 /* ----------------------------------------------------------------------
@@ -2020,6 +2061,7 @@ __kernel void k_amoeba_special15(__global int * dev_nbor,
 
   } // if ii
 }
+
 __kernel void k_amoeba_short_nbor(const __global numtyp4 *restrict x_,
                                   const __global int * dev_nbor,
                                   const __global int * dev_packed,

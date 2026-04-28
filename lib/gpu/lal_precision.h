@@ -17,7 +17,10 @@
 #define LAL_PRECISION_H
 
 #if defined(USE_CUDART)
+#undef int2
 #include <cuda_runtime.h>
+#include <UPTK_runtime_api.h>
+#include <UPTK.h>
 #endif
 
 // ---------------------- OPENMP PREPROCESSOR STUFF ------------------
@@ -47,12 +50,18 @@
   int x; int y;
 };
 
+namespace lgpu {
+struct int2 {
+    int x, y;
+};
+}
+
 #ifndef USE_HIP
 #ifndef int2
-#define int2 _lgpu_int2
+//#define int2 _lgpu_int2
+lgpu::int2 Vec;
 #endif
 #endif*/
-
 struct _lgpu_int2 {
     int x, y;
 };
@@ -64,6 +73,7 @@ struct _lgpu_int2 {
 #ifdef __CUDA_RUNTIME_H__
 #undef int2
 #endif
+
 
 struct _lgpu_float2 {
   float x; float y;

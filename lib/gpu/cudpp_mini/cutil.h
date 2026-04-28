@@ -34,6 +34,8 @@
 #define _CUTIL_H_
 
 #include <cuda_runtime.h>
+#include <UPTK_runtime_api.h>
+#include <UPTK.h>
 
 #ifdef _WIN32
 #   pragma warning( disable : 4996 ) // disable deprecated warning
@@ -845,7 +847,7 @@ extern "C" {
 #  define CUT_DEVICE_INIT_DRV(cuDevice, ARGC, ARGV) {                        \
     cuDevice = 0;                                                            \
     int deviceCount = 0;                                                     \
-    CUresult err = cuInit(0);                                                \
+    CUresult err = UPTKInit(0);                                                \
     if (CUDA_SUCCESS == err)                                                 \
         CU_SAFE_CALL_NO_SYNC(cuDeviceGetCount(&deviceCount));                \
     if (deviceCount == 0) {                                                  \

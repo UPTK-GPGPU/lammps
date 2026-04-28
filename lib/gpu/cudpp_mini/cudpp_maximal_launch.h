@@ -11,6 +11,8 @@
 #define _MAXIMAL_LAUNCH_H_
 
 #include "cuda_runtime.h"
+#include <UPTK_runtime_api.h>
+#include "UPTK.h"
 
 extern "C"
 size_t maxBlocks(cudaFuncAttributes &attribs,

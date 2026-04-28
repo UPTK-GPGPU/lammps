@@ -39,7 +39,7 @@ class UCL_Texture {
     { get_texture(prog,texture_name); }
   /// Set the texture reference for this object
   inline void get_texture(UCL_Program &prog, const char *texture_name) {
-    #if (CUDA_VERSION < 11000) && defined(GPGPU_ARCH_DTK)
+    #if (CUDA_VERSION < 11000) && defined(GPGPU_ARCH_DTK) && !defined(GPGPU_ARCH_COREX)
     CU_SAFE_CALL(cuModuleGetTexRef(&_tex, prog._module, texture_name));
     #endif
   }
@@ -72,14 +72,14 @@ class UCL_Texture {
   }
 
  private:
-  #if (CUDA_VERSION < 11000) && defined(GPGPU_ARCH_DTK)
+  #if (__CUDACC_VER_MAJOR__ >= 11) && defined(GPGPU_ARCH_DTK) && !defined(GPGPU_ARCH_COREX)
   CUtexref _tex;
   #endif
   friend class UCL_Kernel;
 
   template<class mat_typ>
   inline void _bind_float(mat_typ &vec, const unsigned numel) {
-  #if (CUDA_VERSION < 11000) && defined(GPGPU_ARCH_DTK)
+  #if (CUDA_VERSION < 11000) && defined(GPGPU_ARCH_DTK) && !defined(GPGPU_ARCH_COREX)
     #ifdef UCL_DEBUG
     assert(numel!=0 && numel<5);
     #endif
