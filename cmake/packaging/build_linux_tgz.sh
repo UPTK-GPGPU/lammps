@@ -5,11 +5,10 @@ DESTDIR=${PWD}/../LAMMPS_GUI
 VERSION="$1"
 
 echo "Delete old files, if they exist"
-rm -rf ${DESTDIR} LAMMPS-Linux-x86_64-GUI-*.tar.gz
+rm -rf ${DESTDIR} ../LAMMPS-GUI-Linux-amd64*.tar.gz
 
 echo "Create staging area for deployment and populate"
 DESTDIR=${DESTDIR} cmake --install .  --prefix "/"
-cp lammps-gui_build-prefix/bin/lammps-gui ${DESTDIR}/bin/
 
 echo "Remove debug info"
 for s in ${DESTDIR}/bin/* ${DESTDIR}/lib/liblammps*
@@ -29,7 +28,6 @@ do \
     cp ${dep} ${DESTDIR}/lib
     chmod +x ${DESTDIR}/lib/${dep}
 done
-
 echo "Remove libc, gcc, and X11 related shared libs"
 rm -f ${DESTDIR}/lib/ld*.so ${DESTDIR}/lib/ld*.so.[0-9]
 rm -f ${DESTDIR}/lib/lib{c,dl,rt,m,pthread}.so.?
@@ -102,9 +100,8 @@ do \
 done
 
 pushd ..
-tar -czvvf LAMMPS-Linux-x86_64-GUI-${VERSION}.tar.gz LAMMPS_GUI
+tar -czvvf LAMMPS-GUI-Linux-amd64-${VERSION}.tar.gz LAMMPS_GUI
 popd
-mv -v ../LAMMPS-Linux-x86_64-GUI-${VERSION}.tar.gz .
 
 echo "Cleanup dir"
 rm -r ${DESTDIR}

@@ -37,5 +37,4 @@ then \
         exit 1
     fi
 fi
-
 exec "${BASEDIR}/bin/${EXENAME}" "$@"
